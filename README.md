@@ -1,9 +1,6 @@
-# 🐍 Python Programming Bootcamp
+# 🐍 Python Programming 
 
-Beetroot Academy  
-Spring 2026
-
-## Python Course — 23.02.2026
+## Python Course Beetroot Academy   — 23.02.2026
 
 Ласкаво просимо 👋  
 
