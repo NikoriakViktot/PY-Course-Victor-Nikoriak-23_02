@@ -14,3 +14,6 @@ if number_phone.isdigit(): #проверка строки на наличие л
         print("введите коректно номер")
 if len(number_phone) == 10:
     print("ваш номер в порядке")
+
+
+ #Task3
