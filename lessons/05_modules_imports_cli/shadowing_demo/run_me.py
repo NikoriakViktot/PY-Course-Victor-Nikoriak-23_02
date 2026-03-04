@@ -19,7 +19,7 @@ print("=" * 55)
 print("\n── Сценарій 1: тіньовий 'random.py' ──")
 print("  У цій папці є random.py (без randint).")
 
-import random
+import my_random
 print(f"  Завантажено: {random.__file__}")
 
 try:

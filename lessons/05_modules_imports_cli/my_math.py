@@ -35,6 +35,7 @@ def is_even(n):
 # При  import my_math  — блок ігнорується.
 # ────────────────────────────────────────────────────────────
 if __name__ == "__main__":
+
     print("=== Тестування my_math ===")
     print("add(2, 3)       =", add(2, 3))
     print("multiply(4, 5)  =", multiply(4, 5))
@@ -42,3 +43,4 @@ if __name__ == "__main__":
     print("is_even(10)     =", is_even(10))
     print("is_even(7)      =", is_even(7))
     print("Всі тести пройшли! ✅")
+
