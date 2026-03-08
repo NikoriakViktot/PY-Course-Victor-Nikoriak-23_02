@@ -1,9 +1,6 @@
 #Task1
 
 import random
-
-from docs.strings_docs import word
-
 number = random.randint(1, 10)
 user_input = input("введите число")
 if user_input.isdigit():
