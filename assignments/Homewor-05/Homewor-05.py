@@ -1,4 +1,5 @@
 #Task1
+
 import random
 number = random.randint(1, 10)
 user_input = input("введите число")
@@ -19,3 +20,8 @@ else:
     print("немного не так, без пробела")
 
 #Task2
+
+name = input("введите ваше имя:")
+age = int(input("введите ваш возраст:"))
+new_age = age + 1
+print(f"Привет {name} в следующем году тебе будет {new_age}")
