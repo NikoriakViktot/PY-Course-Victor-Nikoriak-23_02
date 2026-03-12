@@ -1,11 +1,8 @@
-# task1.py
+# Task 1: Favorite Movie
 
-# Створюємо файл і записуємо в нього текст
-with open("myfile.txt", "w") as f:
-    f.write("Hello file world!\n")  # додаємо \n для нового рядка
+def favorite_movie(name):
+    """Print the name of your favorite movie."""
+    print(f"My favorite movie is named {name}")
 
-# Відкриваємо файл для читання і друкуємо його вміст
-with open("myfile.txt", "r") as f:
-    content = f.read()
-    print("Вміст файлу:")
-    print(content)
+# Приклад виклику функції
+favorite_movie("Inception")
