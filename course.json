@@ -1,4 +1,5 @@
 {
+
   "course": "python-course",
   "stream_code": "23_02",
   "stream": "spring-2026",
@@ -6,3 +7,16 @@
   "repo": "NikoriakViktot/PY-Course-Victor-Nikoriak-23_02",
   "runtime": "colab"
 }
+
+  "slug": "python-course",
+  "title": "Python Course",
+  "streams": [
+    {
+      "code": "python_2025",
+      "name": "Python Course 2025",
+      "repo": "NikoriakViktot/PY-Course-Viktor-23_02",
+      "branch": "main"
+    }
+  ]
+}
+
