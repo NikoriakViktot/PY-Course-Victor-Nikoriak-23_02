@@ -1,0 +1,13 @@
+{
+  "slug": "python-course",
+  "title": "Python Course Viktor Nikoriak",
+  "streams": [
+    {
+      "code": "23_02",
+      "name": "Spring 2026",
+      "repo": "NikoriakViktot/PY-Course-Victor-Nikoriak-23_02",
+      "branch": "main",
+      "runtime": "colab"
+    }
+  ]
+}
