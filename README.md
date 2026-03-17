@@ -123,23 +123,84 @@ git config --global user.email "your_email@example.com"
 
 ---
 
-## 1️⃣ Fork репозиторію
+# 1️⃣ Створіть Fork репозиторію
 
-На GitHub натисніть:
+Перейдіть у репозиторій курсу:
+
+```
+https://github.com/NikoriakViktot/PY-Course-Victor-Nikoriak-23_02
+```
+
+Натисніть кнопку:
 
 ```
 Fork
 ```
 
-У вас з’явиться копія:
+---
+
+## У вікні **Create a new fork**
+
+Вам потрібно:
+
+**Owner**
 
 ```
-github.com/<your-username>/PY_Course_Victor-Nikoriak-23_02
+ваш GitHub акаунт
+```
+
+**Repository name**
+
+```
+PY-Course-Victor-Nikoriak-23_02
 ```
 
 ---
 
-## 2️⃣ Clone у PyCharm
+### Обовʼязково перевірте
+
+✅ **Copy the main branch only** — увімкнено
+
+---
+
+Після цього натисніть:
+
+```
+Create fork
+```
+
+---
+
+## Що відбудеться
+
+GitHub створить **копію репозиторію у вашому акаунті**.
+
+Вона буде виглядати так:
+
+```
+https://github.com/<your-username>/PY-Course-Victor-Nikoriak-23_02
+```
+
+Приклад:
+
+```
+https://github.com/student123/PY-Course-Victor-Nikoriak-23_02
+```
+
+---
+
+## Важливо
+
+Ви **працюєте тільки у своєму fork**.
+
+```
+NikoriakViktot/PY-Course-Victor-Nikoriak-23_02  → repo викладача
+your-username/PY-Course-Victor-Nikoriak-23_02 → ваш fork
+```
+
+---
+
+# 2️⃣ Clone у PyCharm
 
 PyCharm →
 
@@ -147,9 +208,14 @@ PyCharm →
 File → New Project from Version Control
 ```
 
-Вставте URL **вашого fork**.
+Вставте **URL вашого fork**.
+
+```
+github.com/<your-username>/PY_Course_Victor-Nikoriak-23_02
+```
 
 ---
+
 
 ## 3️⃣ Додати upstream (ОДИН РАЗ)
 
@@ -184,6 +250,8 @@ git checkout main
 git pull upstream main
 git push origin main
 ```
+___
+Детальна інструкція по - [Git](docs/git-cheatsheet.md)
 ___
 # 🚀 Quick Start (Виконання завдань та тестів)
 
@@ -220,7 +288,7 @@ python3 start_course.py
 
 📖 Детальна інструкція з поясненням режимів роботи:
 
-👉 Відкрийте файл **SETUP.md**
+👉 Відкрийте файл [SETUP.md](SETUP.md)
 ---
 
 # 📚 Домашнє завдання
@@ -261,34 +329,76 @@ git push origin homework-01
 ```
 
 ---
+## 5️⃣ Здати домашню роботу через Pull Request
 
-### 5. Здати через Pull Request
+### Кроки на GitHub
 
-На GitHub:
+1️⃣ Відкрити репозиторій на **GitHub**
 
-```
-Compare & Pull Request
-```
-
-PR:
+2️⃣ GitHub часто автоматично покаже кнопку:
 
 ```
+
+Compare & pull request
+
+```
+
+Якщо ні — натиснути:
+
+```
+
+New pull request
+
+```
+
+3️⃣ Обрати гілки:
+
+```
+
+base: main
+compare: homework-01
+
+```
+
+Тобто:
+
+```
+
 homework-01 → main
+
 ```
+
+4️⃣ Натиснути:
+
+```
+
+Create pull request
+
+````
 
 ---
 
-# ✅ Отримання фідбеку
+## ✅ Отримання фідбеку
 
-Після коментарів викладача:
+Після створення Pull Request:
+
+- викладач перегляне код
+- залишить **коментарі**
+- запропонує **покращення**
+
+Якщо потрібно внести зміни — просто:
 
 ```bash
 git add .
-git commit -m "Fix after review"
-git push origin homework-01
-```
+git commit -m "fix review comments"
+git push
+````
 
-PR оновиться автоматично.
+Pull Request **оновиться автоматично**.
+
+📖 Детальніше про структуру репозиторію:
+
+👉 [Архітектура репозиторію](docs/architecture.md)
 
 ---
 
