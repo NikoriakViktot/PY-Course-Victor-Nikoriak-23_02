@@ -329,36 +329,72 @@ git push origin homework-01
 ```
 
 ---
+## 5️⃣ Здати домашню роботу через Pull Request
 
-### 5. Здати через Pull Request
+### Кроки на GitHub
 
-На GitHub:
+1️⃣ Відкрити репозиторій на **GitHub**
 
-```
-Compare & Pull Request
-```
-
-PR:
+2️⃣ GitHub часто автоматично покаже кнопку:
 
 ```
+
+Compare & pull request
+
+```
+
+Якщо ні — натиснути:
+
+```
+
+New pull request
+
+```
+
+3️⃣ Обрати гілки:
+
+```
+
+base: main
+compare: homework-01
+
+```
+
+Тобто:
+
+```
+
 homework-01 → main
+
 ```
+
+4️⃣ Натиснути:
+
+```
+
+Create pull request
+
+````
 
 ---
 
-# ✅ Отримання фідбеку
+## ✅ Отримання фідбеку
 
-Після коментарів викладача:
+Після створення Pull Request:
+
+- викладач перегляне код
+- залишить **коментарі**
+- запропонує **покращення**
+
+Якщо потрібно внести зміни — просто:
 
 ```bash
 git add .
-git commit -m "Fix after review"
-git push origin homework-01
-```
+git commit -m "fix review comments"
+git push
+````
 
-PR оновиться автоматично.
-
----
+Pull Request **оновиться автоматично**.
 
 📖 Детальніше про структуру репозиторію:
 
