@@ -251,7 +251,7 @@ git pull upstream main
 git push origin main
 ```
 ___
-Детальна інструкція по - [Git](docs/git-cheatsheet.md)
+Детальна інструкція по - [Git](module_1/docs/git-cheatsheet.md)
 ___
 # 🚀 Quick Start (Виконання завдань та тестів)
 
@@ -398,7 +398,7 @@ Pull Request **оновиться автоматично**.
 
 📖 Детальніше про структуру репозиторію:
 
-👉 [Архітектура репозиторію](docs/architecture.md)
+👉 [Архітектура репозиторію](architecture.md)
 
 ---
 
@@ -739,8 +739,8 @@ of hydrology, geospatial analysis and data science.
 
 More information:
 
-- [Instructor profile](docs/instructor.md)
+- [Instructor profile](instructor.md)
 
 ## Certificates
 
-- [Certificates](docs/certificates/beetroot_python_2021.md)
+- [Certificates](certificates/beetroot_python_2021.md)
