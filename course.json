@@ -9,5 +9,21 @@
       "branch": "main",
       "runtime": "colab"
     }
+  ],
+  "modules": [
+    {
+      "number": 1,
+      "slug": "python-basics",
+      "title": "Module 1 — Python Basics",
+      "path": "module_1/lessons",
+      "lessons": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    },
+    {
+      "number": 2,
+      "slug": "python-intermediate",
+      "title": "Module 2 — Python Intermediate",
+      "path": "module_2/lessons",
+      "lessons": []
+    }
   ]
 }
