@@ -1,0 +1,2 @@
+def oops():
+    raise IndexError
