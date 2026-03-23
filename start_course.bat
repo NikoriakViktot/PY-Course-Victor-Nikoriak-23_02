@@ -1,11 +1,4 @@
-@echo off
-chcp 65001 >nul
 
-if not exist .venv (
-    echo [ERROR] Environment not found.
-    echo Run install_course.bat first.
-    pause
-    exit /b 1
 )
 
 echo.
