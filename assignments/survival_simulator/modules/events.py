@@ -66,5 +66,13 @@ import random
 
 def run(state: dict) -> dict:
     # Пиши свій код тут
-
+    events = ["Nothing", "Injury", "Bonus"]
+    event = random.choice(events)
+    if event == "Injury":
+        state["health"] -= 10
+    elif event == "Bonus":
+        state["energy"] += 10
+    elif event == "Nothing":
+        pass  # ничего не происходит
+    print(f"Event: {event}")
     return state
