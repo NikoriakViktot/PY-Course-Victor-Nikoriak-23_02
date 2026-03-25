@@ -1,6 +1,3 @@
-# Напиши декоратор, який приймає список стоп-слів і замінює їх
-# на * всередині декорованої функції.
-
 def stop_words(words: list):
     def decorator(func):
         def wrapper(*args, **kwargs):
