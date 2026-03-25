@@ -3,7 +3,7 @@
 from models import get_initial_state
 from modules import resources, weather, events, health
 
-TOTAL_DAYS = 5
+TOTAL_DAYS = 30
 
 
 def run_day(day: int, state: dict) -> dict:
@@ -13,7 +13,7 @@ def run_day(day: int, state: dict) -> dict:
     state = resources.run(state)
     state = weather.run(state)
     state = events.run(state)
-    state = health.run(state)
+    state = health.run1(state)
 
     # Reset food each day — it doesn't carry over
     state["food"] = 0
