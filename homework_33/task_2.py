@@ -1,10 +1,3 @@
-'''
-Завантажте всі коментарі з обраного вами сабреддіту, використовуючи URL:
-https://api.pushshift.io/reddit/comment/search/
-
-У результаті збережіть усі коментарі в хронологічному порядку у форматі JSON та запишіть їх у файл.
-'''
-
 import requests
 import json
 import time
