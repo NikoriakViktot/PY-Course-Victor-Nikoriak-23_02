@@ -1,7 +1,5 @@
-'''
-Завантажте та збережіть у файл robots.txt із сайтів Wikipedia, Twitter тощо.
-'''
 import requests
+
 
 url = 'https://www.wikipedia.org/robots.txt'
 response = requests.get(url)
