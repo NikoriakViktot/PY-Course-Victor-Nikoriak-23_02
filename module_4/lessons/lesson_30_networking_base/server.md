@@ -557,7 +557,8 @@ flowchart TB
 
 # 🔥 5. Uvicorn Event Loop Model
 
-```mermaid id="6r2jtn"
+```mermaid
+
 flowchart LR
 
     classDef loop fill:#1565C0,stroke:#42A5F5,color:#fff

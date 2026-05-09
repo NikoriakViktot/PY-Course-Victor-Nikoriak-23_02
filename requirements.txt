@@ -23,3 +23,5 @@ dash-extensions>=1.0.0
 psycopg2
 neo4j
 networkx
+beautifulsoup4
+wordcloud

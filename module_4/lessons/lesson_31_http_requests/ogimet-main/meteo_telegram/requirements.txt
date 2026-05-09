@@ -1,0 +1,9 @@
+fastapi==0.115.0
+uvicorn==0.30.0
+requests==2.31.0
+pymongo==4.7.0
+pymetdecoder==0.1.4
+pandas==2.2.0
+fake-useragent==1.5.1
+streamlit==1.35.0
+plotly==5.22.0
