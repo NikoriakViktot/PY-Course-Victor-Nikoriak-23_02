@@ -12,11 +12,15 @@ from pathlib import Path
 # Кореневий каталог проєкту — шукаємо батьківську папку, що містить "data/"
 _HERE = Path(__file__).resolve().parent
 PROJECT_ROOT = _HERE
-while not (PROJECT_ROOT / "data").exists():
-    PROJECT_ROOT = PROJECT_ROOT.parent
+##while not (PROJECT_ROOT / "data").exists():
+##    PROJECT_ROOT = PROJECT_ROOT.parent
 
 # Папка з CSV-файлами
 DATA_DIR = PROJECT_ROOT / "data"
+if not DATA_DIR.exists():
+    print(f"--- УВАГА! Папку з даними не знайдено за шляхом: {DATA_DIR} ---")
+else:
+    print(f"--- Папку з даними знайдено: {DATA_DIR} ---")
 
 # ─── Назви файлів ─────────────────────────────────────────────────────────────
 
