@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мої нотатки</title>
+    <link rel="stylesheet" href="{% static 'notes/styles.css' %}">
+</head>
+<body>
+    <main class="container">
+        <h1>Мої нотатки</h1>
+        <p class="subtitle">Список, пошук та фільтрація</p>
+
+        <p><a href="{% url 'note_create' %}">Створити нотатку</a> </p>
+
+        <form method="get" class="note-card" style="margin-bottom: 1rem;">
+            {{ filter_form.as_p }}
+            <button type="submit">Фільтрувати</button>
+            <a href="{% url 'notes_list' %}">Скинути</a>
+        </form>
+
+        <section class="notes-grid">
+            {% for note in notes %}
+                <article class="note-card">
+                    <h2><a href="{% url 'note_detail' note.id %}">{{ note.title }}</a></h2>
+                    <p>{{ note.text|truncatechars:120 }}</p>
+                    <p><strong>Категорія:</strong> {{ note.category.title }}</p>
+                    <p><strong>Нагадування:</strong> {{ note.reminder|default:"—" }}</p>
+                </article>
+            {% empty %}
+                <p>Нотаток поки що немає.</p>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>
