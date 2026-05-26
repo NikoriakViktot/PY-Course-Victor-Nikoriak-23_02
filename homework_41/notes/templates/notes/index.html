@@ -25,7 +25,8 @@
                 <article class="note-card">
                     <h2><a href="{% url 'note_detail' note.id %}">{{ note.title }}</a></h2>
                     <p>{{ note.text|truncatechars:120 }}</p>
-                    <p><strong>Нагадування:</strong> {{ note.category.title }}</p>
+                    <p><strong>Категорія:</strong> {{ note.category.title }}</p>
+                    <p><strong>Нагадування:</strong> {{ note.reminder|default:"—" }}</p>
                 </article>
             {% empty %}
                 <p>Нотаток поки що немає.</p>
