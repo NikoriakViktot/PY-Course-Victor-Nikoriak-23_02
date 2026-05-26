@@ -1,0 +1,54 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    color: #1e293b
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+h1 {
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    margin-top: 0px;
+    color: #475569;
+}
+
+.notes-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.note-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.note-card h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.note-card p {
+    margin: 0 0 10px;
+    line-height: 1.45;
+}
+
+.note-card time {
+    font-size: 0.9rem;
+    color: #64748b;
+}

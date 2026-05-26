@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Створення нотаток</title>
+</head>
+<body>
+    <main>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Зберегти</button>
+            <a href="{% url 'notes_list' %}">Скасувати</a>
+        </form>
+    </main>
+</body>
+</html>

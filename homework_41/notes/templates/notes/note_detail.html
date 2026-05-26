@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Деталі нотатки</title>
+</head>
+<body>
+    <main>
+        <h1>Деталі нотатки</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Оновити</button>
+            <a href="{% url 'notes_list' %}">Назад</a>
+        </form>
+
+        <hr>
+
+        <form method="post" action="{% url 'note_delete' note.id %}">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('Видалити нотатку?');">Видалити нотатку</button>
+        </form>
+    </main>
+</body>
+</html>
