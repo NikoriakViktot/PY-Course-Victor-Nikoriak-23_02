@@ -1,103 +1,100 @@
 import json
 import sys
-import os
 
-def load_phonebook(filename):
-    if not os.path.exists(filename):
-        raise FileNotFoundError(f"Файл {filename} не знайдено")
-    with open(filename, "r", encoding="utf-8") as f:
-        return json.load(f)
+def load_phonebook(mybook):
+    try:
+        with open(mybook, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("Помилка: файл не знайдено.")
+        sys.exit(1)
 
-def save_phonebook(filename, data):
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+def save_phonebook(mybook, book):
+    with open(mybook, "w", encoding="utf-8") as f:
+        json.dump(book, f, ensure_ascii=False, indent=4)
 
-def add_entry(phonebook):
+def add_entry(book):
     name = input("Ім'я: ")
-    surname = input("Прізвище: ")
+    lastname = input("Прізвище: ")
     phone = input("Телефон: ")
     city = input("Місто: ")
-    state = input("Штат: ")
-    phonebook[phone] = {
-        "name": name,
-        "surname": surname,
-        "city": city,
-        "state": state
-    }
+    oblast = input("Область: ")
+    book.append({"name": name, "lastname": lastname, "phone": phone, "city": city, "oblast": oblast})
 
-def search(phonebook, key, value):
-    results = [entry for entry in phonebook.values() if entry.get(key) == value]
-    return results
+def search(book, key, value):
+    return [entry for entry in book if entry.get(key, "").lower() == value.lower()]
 
-def delete_entry(phonebook, phone):
-    if phone in phonebook:
-        del phonebook[phone]
+def delete_entry(book, phone):
+    book[:] = [entry for entry in book if entry["phone"] != phone]
 
-def update_entry(phonebook, phone):
-    if phone in phonebook:
-        print("Оновлення запису:")
-        phonebook[phone]["name"] = input("Нове ім'я: ")
-        phonebook[phone]["surname"] = input("Нове прізвище: ")
-        phonebook[phone]["city"] = input("Нове місто: ")
-        phonebook[phone]["state"] = input("Новий штат: ")
+def update_entry(book, phone):
+    for entry in book:
+        if entry["phone"] == phone:
+            print("Знайдено:", entry)
+            entry["name"] = input("Нове ім'я: ") or entry["name"]
+            entry["lastname"] = input("Нове прізвище: ") or entry["lastname"]
+            entry["city"] = input("Нове місто: ") or entry["city"]
+            entry["oblast"] = input("Нова область: ") or entry["oblast"]
+            return
+    print("Запис не знайдено.")
 
-def main():
-    if len(sys.argv) < 2:
-        print("Використання: python phonebook.py <назва_файлу.json>")
-        return
-
-    filename = sys.argv[1]
-    try:
-        phonebook = load_phonebook(filename)
-    except FileNotFoundError:
-        print("Файл не знайдено. Створіть його перед запуском.")
-        return
-
+def menu(book, mybook):
     while True:
         print("\nМеню:")
-        print("1. Додати запис")
+        print("1. Додати новий запис")
         print("2. Пошук за ім'ям")
         print("3. Пошук за прізвищем")
         print("4. Пошук за повним ім'ям")
-        print("5. Пошук за телефоном")
-        print("6. Пошук за містом")
-        print("7. Видалити запис")
-        print("8. Оновити запис")
+        print("5. Пошук за номером телефону")
+        print("6. Пошук за містом або областю")
+        print("7. Видалити запис за номером телефону")
+        print("8. Оновити запис за номером телефону")
         print("9. Вихід")
 
-        choice = input("Ваш вибір: ")
+        choice = input("Виберіть опцію: ")
 
         if choice == "1":
-            add_entry(phonebook)
+            add_entry(book)
         elif choice == "2":
             name = input("Ім'я: ")
-            print(search(phonebook, "name", name))
+            print(search(book, "name", name))
         elif choice == "3":
-            surname = input("Прізвище: ")
-            print(search(phonebook, "surname", surname))
+            lastname = input("Прізвище: ")
+            print(search(book, "lastname", lastname))
         elif choice == "4":
-            name = input("Ім'я: ")
-            surname = input("Прізвище: ")
-            results = [entry for entry in phonebook.values() if entry["name"] == name and entry["surname"] == surname]
+            fullname = input("Повне ім'я (Ім'я Прізвище): ")
+            name, lastname = fullname.split()
+            results = [entry for entry in book if entry["name"].lower() == name.lower() and entry["lastname"].lower() == lastname.lower()]
             print(results)
         elif choice == "5":
             phone = input("Телефон: ")
-            print(phonebook.get(phone))
+            print(search(book, "phone", phone))
         elif choice == "6":
             city = input("Місто: ")
-            print(search(phonebook, "city", city))
+            oblast = input("Область: ")
+            results = [entry for entry in book if entry["city"].lower() == city.lower() or entry["oblast"].lower() == oblast.lower()]
+            print(results)
         elif choice == "7":
-            phone = input("Телефон для видалення: ")
-            delete_entry(phonebook, phone)
+            phone = input("Телефон: ")
+            delete_entry(book, phone)
         elif choice == "8":
-            phone = input("Телефон для оновлення: ")
-            update_entry(phonebook, phone)
+            phone = input("Телефон: ")
+            update_entry(book, phone)
         elif choice == "9":
-            save_phonebook(filename, phonebook)
-            print("Зміни збережено. Вихід.")
+            save_phonebook(mybook, book)
+            print("Дані збережено. Вихід.")
+        elif choice == "10":
+            print(mybook)
             break
         else:
             print("Невірний вибір.")
+        
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Вкажіть назву телефонної книги (JSON).")
+        sys.exit(1)
+
+    mybook = sys.argv[1]
+    phonebook = load_phonebook(mybook)
+    menu(phonebook, mybook)
