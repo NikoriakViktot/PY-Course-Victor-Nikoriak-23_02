@@ -1,0 +1,24 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}{% if is_create %}Створення категорії{% else %}Редагування категорії{% endif %}{% endblock %}
+
+{% block content %}
+    <header class="page-header">
+        <div>
+            <h1>{% if is_create %}Створення категорії{% else %}Редагування категорії{% endif %}</h1>
+            <p class="subtitle">Категорії допомагають групувати нотатки.</p>
+        </div>
+        <a href="{% url 'notes:category_list' %}">Назад до категорій</a>
+    </header>
+
+    <section class="note-card">
+        <form method="post" class="stacked-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="actions">
+                <button type="submit">Зберегти</button>
+                <a href="{% url 'categories_list' %}">Скасувати</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

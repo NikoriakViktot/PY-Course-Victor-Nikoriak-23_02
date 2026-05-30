@@ -6,22 +6,64 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f5f7fb;
-    color: #1e293b
+    color: #1e293b;
 }
 
 .container {
-    max-width: 900px;
+    max-width: 980px;
     margin: 40px auto;
     padding: 0 20px;
+}
+
+.site-nav,
+.page-header,
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.site-nav {
+    justify-content: flex-start;
+    margin-bottom: 28px;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.page-header {
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+h1,
+h2 {
+    margin-top: 0;
 }
 
 h1 {
     margin-bottom: 8px;
 }
 
+.subtitle,
+.muted {
+    color: #64748b;
+}
+
 .subtitle {
-    margin-top: 0px;
-    color: #475569;
+    margin-top: 0;
+}
+
+a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .notes-grid {
@@ -39,7 +81,6 @@ h1 {
 }
 
 .note-card h2 {
-    margin-top: 0;
     margin-bottom: 10px;
 }
 
@@ -51,4 +92,97 @@ h1 {
 .note-card time {
     font-size: 0.9rem;
     color: #64748b;
+}
+
+.filter-form {
+    margin-bottom: 1rem;
+}
+
+.filter-form p,
+.stacked-form p {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 14px;
+}
+
+label {
+    font-weight: 700;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font: inherit;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button,
+.button {
+    display: inline-block;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: #2563eb;
+    color: #ffffff;
+    font: inherit;
+    cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+    background: #1d4ed8;
+    text-decoration: none;
+}
+
+button.danger,
+.danger {
+    background: #dc2626;
+}
+
+button.danger:hover,
+.danger:hover {
+    background: #b91c1c;
+}
+
+.messages {
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
+}
+
+.message-success {
+    background: #dcfce7;
+    border-color: #86efac;
+}
+
+.form-errors {
+    margin-bottom: 14px;
+    color: #b91c1c;
+}
+
+.empty-state,
+.danger-zone {
+    border-style: dashed;
+}
+
+@media (max-width: 640px) {
+    .container {
+        margin: 20px auto;
+    }
+
+    .page-header {
+        align-items: flex-start;
+    }
 }

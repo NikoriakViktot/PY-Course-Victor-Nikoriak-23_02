@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Нотатки{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'notes/styles.css' %}">
+</head>
+<body>
+    <main class="container">
+        <nav class="site-nav" aria-label="Головна навігація">
+            <a href="{% url 'notes_list' %}">Нотатки</a>
+            <a href="{% url 'notes_create' %}">Створити нотатку</a>
+            <a href="{% url 'categories_list' %}">Категорії</a>
+        </nav>
+
+        {% if messages %}
+            <section class="messages" aria-label="Повідомлення">
+                {% for message in messages %}
+                    <p class="message message-{{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </section>>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

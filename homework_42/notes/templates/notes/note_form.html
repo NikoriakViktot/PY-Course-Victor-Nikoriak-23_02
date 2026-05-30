@@ -1,18 +1,24 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Створення нотаток</title>
-</head>
-<body>
-    <main>
-        <form method="post">
+{% extends 'notes/base.html' %}
+
+{% block title %}{% if is_create %}Створення нотатки{% else %}Редагування нотатки{% endif %}{% endblock %}
+
+{% block content %}
+    <header class="page-header">
+        <div>
+            <h1>{% if is_create %}Створення нотатки{% else %}Редагування нотатки{% endif %}</h1>
+            <p class="subtitle">Заповни назву, текст, категорію та за потреби нагадування.</p>
+        </div>
+        <a href="{% url 'notes_list' %}">Назад до списку</a>
+    </header>
+
+    <section class="note-card">
+        <form method="post" class="stacked-form">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Зберегти</button>
-            <a href="{% url 'notes_list' %}">Скасувати</a>
+            <div class="actions">
+                <button type="submit">Зберегти</button>
+                <a href="{% url 'notes_list' %}">Скасувати</a>
+            </div>
         </form>
-    </main>
-</body>
-</html>
+    </section>
+{% endblock %}

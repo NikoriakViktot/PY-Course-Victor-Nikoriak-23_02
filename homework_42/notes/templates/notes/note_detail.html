@@ -1,27 +1,33 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Деталі нотатки</title>
-</head>
-<body>
-    <main>
-        <h1>Деталі нотатки</h1>
+{% extends 'notes/base.html' %}
 
-        <form method="post">
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+    <header class="page-header">
+        <div>
+            <h1>{{ note.title }}</h1>
+            <p class="subtitle">Редагування нотатки</p>
+        </div>
+        <a href="{% url 'notes_list' %}">Назад до списку</a>
+    </header>
+
+    <section class="note-card">
+        <form method="post" class="stacked-form">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Оновити</button>
-            <a href="{% url 'notes_list' %}">Назад</a>
+            <div class="actions">
+                <button type="submit">Оновити</button>
+                <a href="{% url 'notes_list' %}">Скасувати</a>
+            </div>
         </form>
+    </section>
 
-        <hr>
-
+    <section class="note-card danger-zone">
+        <h2>Небезпечна дія</h2>
+        <p>Видалення нотатки неможливо скасувати.</p>
         <form method="post" action="{% url 'note_delete' note.id %}">
             {% csrf_token %}
-            <button type="submit" onclick="return confirm('Видалити нотатку?');">Видалити нотатку</button>
+            <button class="danger" type="submit" onclick="return confirm('Видалити нотатку?');">Видалити нотатку</button>
         </form>
-    </main>
-</body>
-</html>
+    </section>
+{% endblock %}
