@@ -1,0 +1,226 @@
+/*
+ * forms.css — стилі форм (note_form.html, notebook_form.html)
+ *
+ * Структура:
+ *   1. Form Card (контейнер форми)
+ *   2. Form Controls (inputs, selects)
+ *   3. Form Labels & Help Text
+ *   4. Error Messages
+ *   5. Tags Checkbox Grid (note_form)
+ *   6. Pin Toggle (note_form)
+ *   7. Color Preview (notebook_form)
+ *   8. Default Notebook Toggle (notebook_form)
+ */
+
+/* ══════════════════════════════════════════════════════════
+   1. FORM CARD
+   ══════════════════════════════════════════════════════════ */
+.form-card {
+    background: #1e1e2e;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+}
+
+.form-card .card-header {
+    background: rgba(124,110,250,0.1);
+    border-bottom: 1px solid rgba(124,110,250,0.2);
+    border-radius: 12px 12px 0 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   2. FORM CONTROLS
+   ══════════════════════════════════════════════════════════ */
+.form-card .form-control,
+.form-card .form-select {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+    color: #e2e8f0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-card .form-control:focus,
+.form-card .form-select:focus {
+    background: rgba(255,255,255,0.06);
+    border-color: #7c6efa;
+    box-shadow: 0 0 0 0.2rem rgba(124,110,250,0.2);
+    color: #f0f0ff;
+}
+
+.form-card .form-control::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+/* ══════════════════════════════════════════════════════════
+   3. LABELS & HELP TEXT
+   ══════════════════════════════════════════════════════════ */
+.form-label {
+    color: #b0b0d0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.form-text {
+    color: #6060a0 !important;
+    font-size: 0.78rem;
+}
+
+/* ══════════════════════════════════════════════════════════
+   4. ERROR MESSAGES
+   ══════════════════════════════════════════════════════════ */
+.invalid-feedback,
+.errorlist {
+    color: #f87171;
+    font-size: 0.8rem;
+    list-style: none;
+    padding: 0;
+    margin-top: 0.25rem;
+}
+
+/* ══════════════════════════════════════════════════════════
+   5. TAGS CHECKBOX GRID (note_form)
+   ══════════════════════════════════════════════════════════ */
+.tags-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.5rem 0;
+}
+
+.tag-checkbox-item {
+    display: none;
+}
+
+.tag-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: #a0a0c0;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.tag-checkbox-item:checked + .tag-label {
+    border-color: currentColor;
+    filter: brightness(1.15);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.tag-label:hover {
+    border-color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.07);
+}
+
+/* ══════════════════════════════════════════════════════════
+   6. PIN TOGGLE (note_form)
+   ══════════════════════════════════════════════════════════ */
+.pin-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+}
+
+.pin-toggle:hover {
+    background: rgba(251,191,36,0.06);
+    border-color: rgba(251,191,36,0.25);
+}
+
+.pin-toggle input:checked ~ .pin-icon {
+    color: #fbbf24;
+}
+
+/* ══════════════════════════════════════════════════════════
+   7. COLOR PREVIEW (notebook_form)
+   ══════════════════════════════════════════════════════════ */
+.color-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.color-preview-strip {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+}
+
+/* ══════════════════════════════════════════════════════════
+   8. DEFAULT NOTEBOOK TOGGLE (notebook_form)
+   ══════════════════════════════════════════════════════════ */
+.default-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.default-toggle:hover {
+    background: rgba(124,110,250,0.05);
+    border-color: rgba(124,110,250,0.25);
+}
+
+.default-toggle input:checked ~ .star-icon {
+    color: #fbbf24;
+}
+
+/* ══════════════════════════════════════════════════════════
+   9. SELECT OPTION DARK THEME
+   Стилізація нативного dropdown списку для всіх <select>.
+   Без цього браузер малює список у білій системній темі.
+   ══════════════════════════════════════════════════════════ */
+
+/* Всі option всередині будь-якого .form-select -- темний фон */
+.form-select option {
+    background-color: #1e1e2e;
+    color: #e2e8f0;
+}
+
+/* Вибраний (активний) option */
+.form-select option:checked {
+    background-color: #3a2f6e;
+    color: #ffffff;
+}
+
+/* Disabled option (placeholder: "-- Без записника --") */
+.form-select option:disabled,
+.form-select option[disabled] {
+    color: #4a4a6a;
+    background-color: #16161e;
+}
+
+/* ══════════════════════════════════════════════════════════
+   10. PRIORITY hint badges
+   ══════════════════════════════════════════════════════════ */
+
+/* Priority hint badges */
+.priority-hint {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+}
+
+.priority-hint span {
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+}

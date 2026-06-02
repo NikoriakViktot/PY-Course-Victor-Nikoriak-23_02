@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)file:///C:/Users/victo/OneDrive/BEETROOT/Docker%20Deck.html -->
+<html lang="uk"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Docker — від «працює у мене» до production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./Docker — від «працює у мене» до production_files/css2" rel="stylesheet">
+<script src="file:///C:/Users/victo/OneDrive/BEETROOT/deck-stage.js"></script>
+<style>
+  :root{
+    --bg: oklch(0.17 0.012 250);
+    --bg-2: oklch(0.21 0.014 250);
+    --surface: oklch(0.235 0.014 250);
+    --line: oklch(0.32 0.014 250);
+    --line-soft: oklch(0.27 0.012 250);
+    --fg: oklch(0.97 0.004 250);
+    --fg-2: oklch(0.78 0.012 250);
+    --fg-3: oklch(0.58 0.014 250);
+    --accent: oklch(0.80 0.12 220);
+    --accent-soft: oklch(0.42 0.08 220);
+    --warn: oklch(0.80 0.14 75);
+    --bad: oklch(0.70 0.16 25);
+    --good: oklch(0.78 0.13 155);
+  }
+  html, body { margin:0; padding:0; background: #000; color: var(--fg); font-family: 'Inter', system-ui, sans-serif; }
+  deck-stage { background: #000; }
+  section.slide{
+    width:1920px; height:1080px;
+    background: var(--bg);
+    color: var(--fg);
+    position: relative;
+    overflow: hidden;
+    padding: 96px 120px;
+    box-sizing: border-box;
+    font-size: 28px;
+    line-height: 1.45;
+    letter-spacing: -0.005em;
+  }
+  /* ---- common chrome ---- */
+  .meta{
+    position:absolute; top:48px; left:120px; right:120px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 24px; letter-spacing: 0.04em;
+    color: var(--fg-3);
+    text-transform: lowercase;
+  }
+  .meta .brand{ color: var(--fg-2); }
+  .meta .brand b{ color: var(--fg); font-weight:600; }
+  .meta .dot{ width:6px; height:6px; border-radius:50%; background: var(--accent); display:inline-block; margin: 0 10px 2px; vertical-align: middle; }
+  .footer{
+    position:absolute; bottom:48px; left:120px; right:120px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 24px; color: var(--fg-3);
+    letter-spacing: 0.04em;
+  }
+  /* ---- typography ---- */
+  .kicker{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 24px; letter-spacing:0.14em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1.display{
+    font-size: 144px; line-height:0.98; font-weight:600;
+    letter-spacing:-0.035em; margin: 0;
+  }
+  h1.title{
+    font-size: 96px; line-height: 1.02; font-weight: 600;
+    letter-spacing:-0.03em; margin: 0 0 28px;
+  }
+  h2.section{
+    font-size: 64px; line-height:1.05; font-weight:600;
+    letter-spacing:-0.025em; margin: 0 0 28px;
+  }
+  p.lead{ font-size: 32px; color: var(--fg-2); max-width: 1200px; margin: 0; line-height:1.4; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---- layout helpers ---- */
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+  .grid-3{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+  .grid-4{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  .stack{ display:flex; flex-direction:column; gap: 24px; }
+
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 18px;
+    padding: 36px;
+  }
+  .card .label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 24px; letter-spacing:0.12em; text-transform: uppercase;
+    color: var(--fg-3); margin-bottom: 18px;
+  }
+  .card h3{
+    font-size: 36px; font-weight: 600; margin: 0 0 12px; letter-spacing:-0.01em;
+  }
+  .card p{ margin: 0; color: var(--fg-2); font-size: 24px; line-height:1.45; }
+
+  .pill{
+    display:inline-flex; align-items:center; gap:10px;
+    padding: 12px 22px; border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 24px; color: var(--fg-2);
+  }
+  .pill .dotc{ width:8px; height:8px; border-radius:50%; background: var(--accent); }
+
+  .quote-block{
+    border-left: 2px solid var(--accent);
+    padding: 8px 0 8px 32px;
+    font-size: 56px; line-height:1.15; font-weight: 500;
+    letter-spacing:-0.02em;
+    color: var(--fg);
+    max-width: 1300px;
+  }
+  .quote-block.bad{ border-left-color: var(--bad); }
+  .quote-block .sub{
+    display:block; margin-top: 14px;
+    font-size: 24px; color: var(--fg-3); font-weight: 400; letter-spacing: 0;
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* ---- diagram bits ---- */
+  .node{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 26px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 24px;
+    color: var(--fg);
+    text-align:center;
+    min-width: 180px;
+  }
+  .node.accent{ border-color: var(--accent-soft); box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 25%, transparent); }
+  .node.muted{ color: var(--fg-2); border-style: dashed; }
+  .node small{ display:block; font-size:18px; color: var(--fg-3); margin-top:6px; letter-spacing:0.06em; }
+  .arrow{
+    align-self:center; color: var(--fg-3); font-family:'JetBrains Mono', monospace; font-size: 24px;
+  }
+
+  /* ---- code window ---- */
+  .code{
+    background: oklch(0.15 0.01 250);
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    padding: 28px 32px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 22px;
+    line-height: 1.55;
+    color: var(--fg);
+    white-space: pre;
+    overflow: hidden;
+  }
+  .code .c{ color: var(--fg-3); }
+  .code .k{ color: var(--accent); }
+  .code .s{ color: var(--good); }
+  .code .o{ color: var(--warn); }
+
+  /* ---- title slide ---- */
+  .title-slide{
+    display:flex; flex-direction:column; justify-content:flex-end;
+    background:
+      radial-gradient(800px 600px at 80% 10%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 70%),
+      var(--bg);
+  }
+  .title-mark{
+    position:absolute; top: 96px; right: 120px;
+    display:flex; flex-direction:column; align-items:flex-end; gap:14px;
+  }
+  .title-mark .badge{
+    border:1px solid var(--line);
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-family:'JetBrains Mono', monospace; font-size:24px; color: var(--fg-2);
+    letter-spacing:0.04em;
+  }
+
+  /* ---- containers visual ---- */
+  .containers{
+    display:flex; gap: 14px; align-items:flex-end; height: 280px;
+  }
+  .containers .box{
+    flex:1; background: var(--surface); border:1px solid var(--line);
+    border-radius:8px; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-size: 24px; color: var(--fg-2);
+  }
+  .containers .box.accent{ border-color: var(--accent-soft); color: var(--fg); }
+  .containers .box::before{
+    content:''; position:absolute; left:8px; right:8px; top:8px; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 14px);
+  }
+
+  /* ---- comparison vm/docker ---- */
+  .stack-vis{
+    display:flex; flex-direction:column; gap:6px;
+    border:1px solid var(--line-soft); border-radius:14px; padding:14px; background: var(--bg-2);
+  }
+  .stack-vis .bar{
+    padding: 16px 20px; border-radius:8px;
+    font-family:'JetBrains Mono', monospace; font-size:24px;
+    background: var(--surface); border:1px solid var(--line-soft); color: var(--fg-2);
+  }
+  .stack-vis .bar.app{ background: color-mix(in oklab, var(--accent) 22%, var(--surface)); color: var(--fg); border-color: var(--accent-soft); }
+  .stack-vis .bar.os{ background: color-mix(in oklab, var(--bad) 18%, var(--surface)); color: var(--fg); }
+  .stack-vis .bar.kernel{ background: color-mix(in oklab, var(--warn) 14%, var(--surface)); }
+
+  /* ---- workflow lifecycle ---- */
+  .lifecycle{
+    display:grid; grid-template-columns: repeat(5, 1fr) ; gap: 0; align-items:center;
+  }
+  .lifecycle .step{
+    background: var(--surface); border:1px solid var(--line-soft);
+    border-radius: 14px; padding: 28px 24px; min-height: 160px;
+    display:flex; flex-direction:column; gap: 8px;
+  }
+  .lifecycle .step .n{
+    font-family:'JetBrains Mono', monospace; font-size:24px; color: var(--accent); letter-spacing:0.12em;
+  }
+  .lifecycle .step .t{ font-size: 26px; font-weight:600; letter-spacing:-0.01em; }
+  .lifecycle .step .d{ font-size: 24px; color: var(--fg-3); font-family:'JetBrains Mono', monospace; }
+  .lifecycle .sep{
+    color: var(--fg-3); text-align:center; font-family:'JetBrains Mono', monospace; font-size: 28px;
+  }
+
+  /* ---- compose system ---- */
+  .compose{
+    display:grid; grid-template-columns: 220px 1fr 220px; gap: 40px; align-items:center;
+  }
+  .compose .col{ display:flex; flex-direction:column; gap: 18px; }
+  .compose .svc{
+    border:1px solid var(--line); border-radius:14px; padding: 22px 24px; background: var(--surface);
+  }
+  .compose .svc .n{ font-family:'JetBrains Mono', monospace; font-size:24px; color: var(--fg-3); letter-spacing:0.1em; }
+  .compose .svc .t{ font-size: 26px; font-weight:600; }
+  .compose .svc.accent{ border-color: var(--accent-soft); }
+
+  /* ---- arch diagram ---- */
+  .arch{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 0; align-items:stretch;
+  }
+  .arch .col{
+    border:1px solid var(--line-soft); border-radius: 16px;
+    padding: 28px; background: var(--surface);
+    display:flex; flex-direction:column; gap: 16px; min-height: 320px;
+  }
+  .arch .col h4{ margin:0; font-size: 26px; font-weight:600; letter-spacing:-0.01em; }
+  .arch .col .lab{ font-family:'JetBrains Mono', monospace; font-size:24px; color: var(--accent); letter-spacing:0.12em; }
+    .arch .col p{ margin:0; font-size: 24px; color: var(--fg-2); line-height:1.45; }
+  .arch .arrow-row{ display:grid; grid-template-columns: repeat(3, 1fr); margin-top: 22px; }
+  .arch .arrow-row span{ text-align:center; color: var(--fg-3); font-family:'JetBrains Mono', monospace; }
+
+  /* utilities */
+  .row{ display:flex; gap: 18px; align-items:center; }
+  .between{ display:flex; justify-content:space-between; align-items:center; }
+  .vsep{ width:1px; background: var(--line-soft); }
+  .hsep{ height:1px; background: var(--line-soft); width:100%; }
+  .hide-on-print{}
+
+  /* lists */
+  ul.clean{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap: 18px; }
+  ul.clean li{ font-size: 28px; color: var(--fg); display:flex; gap: 18px; align-items:flex-start; }
+  ul.clean li::before{
+    content:''; width:10px; height:10px; border-radius:2px; background: var(--accent);
+    margin-top: 16px; flex:0 0 auto;
+  }
+  ul.clean li.bad::before{ background: var(--bad); }
+  ul.clean li.good::before{ background: var(--good); }
+
+  /* big numbers */
+  .stat{ display:flex; flex-direction:column; gap:8px; }
+  .stat .v{ font-size: 96px; font-weight:600; letter-spacing:-0.03em; line-height:1; }
+  .stat .l{ font-family:'JetBrains Mono', monospace; font-size:24px; color: var(--fg-3); letter-spacing:0.1em; }
+
+  /* docker hex mark */
+  .mark{
+    width: 64px; height: 64px; border-radius: 14px;
+    background: linear-gradient(140deg, color-mix(in oklab, var(--accent) 70%, transparent), color-mix(in oklab, var(--accent) 30%, transparent));
+    border: 1px solid var(--accent-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-weight:600;
+    color: var(--bg); font-size: 28px;
+  }
+
+  /* full-bleed diagram bg */
+  .diagram-bg{
+    background:
+      linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0/ 64px 64px,
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0/ 64px 64px,
+      var(--bg);
+    background-blend-mode: normal;
+    opacity: 1;
+  }
+  .grid-bg{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--line-soft) 50%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--line-soft) 50%, transparent) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 75%);
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<deck-stage>
+
+<!-- ============ 01 TITLE ============ -->
+<section class="slide title-slide" data-screen-label="01 Title">
+  <div class="grid-bg"></div>
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>module 03 · python advanced</div>
+    <div>v.nikoriak · 2026</div>
+  </div>
+  <div class="title-mark">
+    <div class="mark">D</div>
+    <div class="badge">// 13 slides · 25 min</div>
+  </div>
+
+  <div style="position:relative; z-index:1;">
+    <div class="kicker" style="margin-bottom: 36px;">// 01 · opening</div>
+    <h1 class="display">Docker:<br>від «працює&nbsp;у&nbsp;мене»<br>до production.</h1>
+    <p class="lead" style="margin-top: 48px; max-width: 1100px;">
+      Системне мислення, архітектура, ментальні моделі —
+      не просто список команд.
+    </p>
+  </div>
+
+  <div class="footer">
+    <div>// press → to continue</div>
+    <div>01 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 02 PROBLEM ============ -->
+<section class="slide" data-screen-label="02 Problem">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>problem</div>
+    <div>// 02 · the pain</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 64px;">// проблема</div>
+  <h2 class="section" style="margin-top:18px;">Класична розмова<br>розробника й devops.</h2>
+
+  <div class="grid-2" style="margin-top: 56px; gap: 80px;">
+    <div class="quote-block">
+      «У мене працює.»
+      <span class="sub">— developer, локальна машина</span>
+    </div>
+    <div class="quote-block bad">
+      «На сервері падає.»
+      <span class="sub">— production, 02:14 ночі</span>
+    </div>
+  </div>
+
+  <div class="hsep" style="margin: 80px 0 40px;"></div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="label">// причина 01</div>
+      <h3>Різні версії Python</h3>
+      <p>3.9 локально, 3.11 на CI, 3.8 на сервері. Поведінка коду розходиться.</p>
+    </div>
+    <div class="card">
+      <div class="label">// причина 02</div>
+      <h3>Різні залежності</h3>
+      <p>Системні бібліотеки, шляхи, компілятори. Pip-конфлікти між проєктами.</p>
+    </div>
+    <div class="card">
+      <div class="label">// причина 03</div>
+      <h3>Різна ОС</h3>
+      <p>macOS у розробника. Ubuntu у production. Windows у колеги. Drift.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>// це не code problem — це environment problem</div>
+    <div>02 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 03 SOLUTION ============ -->
+<section class="slide" data-screen-label="03 Solution">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>solution</div>
+    <div>// 03 · reproducible execution</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 48px;">// рішення</div>
+  <h2 class="section" style="margin-top: 12px; font-size: 56px; max-width: 1480px;">
+    Контроль середовища&nbsp;<span style="color: var(--accent); text-shadow: 0 0 32px color-mix(in oklab, var(--accent) 35%, transparent);">→</span>&nbsp;передбачуваний результат.
+  </h2>
+
+  <div style="display:grid; grid-template-columns: 1fr 1px 1fr; gap: 56px; margin-top: 44px; align-items: stretch;">
+
+    <!-- LEFT · the artifact + the pipeline -->
+    <div>
+      <div class="label" style="margin-bottom: 22px;">// один артефакт</div>
+
+      <div style="display:grid; grid-template-columns: auto auto; align-items:center; gap: 18px 28px; margin-bottom: 36px;">
+        <div class="mono" style="font-size:26px; color: var(--fg-2);">код</div>
+        <div class="mono" style="font-size:24px; color: var(--fg-3);">// application</div>
+        <div class="mono" style="font-size:26px; color: var(--fg-2);">runtime</div>
+        <div class="mono" style="font-size:24px; color: var(--fg-3);">// python, node, jvm…</div>
+        <div class="mono" style="font-size:26px; color: var(--fg-2);">dependencies</div>
+        <div class="mono" style="font-size:24px; color: var(--fg-3);">// libs, system pkgs</div>
+        <div class="mono" style="font-size:26px; color: var(--fg-2);">config</div>
+        <div class="mono" style="font-size:24px; color: var(--fg-3);">// env, secrets ref</div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap: 18px; margin-bottom: 28px;">
+        <div style="height:1px; flex:1; background: var(--line-soft);"></div>
+        <div class="mono" style="font-size:24px; color: var(--accent);">→ 1 image</div>
+        <div style="height:1px; flex:1; background: var(--line-soft);"></div>
+      </div>
+
+      <!-- pipeline -->
+      <div style="display:flex; gap: 12px; align-items:center; flex-wrap: nowrap;">
+        <span class="pill"><span class="dotc"></span>dev</span>
+        <span class="arrow" style="color: var(--fg-3);">→</span>
+        <span class="pill"><span class="dotc"></span>ci</span>
+        <span class="arrow" style="color: var(--fg-3);">→</span>
+        <span class="pill"><span class="dotc"></span>staging</span>
+        <span class="arrow" style="color: var(--fg-3);">→</span>
+        <span class="pill"><span class="dotc"></span>prod</span>
+      </div>
+      <div class="mono" style="font-size:24px; color: var(--fg-3); margin-top: 14px; text-align:center;">↑ same container, byte-for-byte</div>
+
+      <div class="mono" style="font-size:24px; color: var(--accent); letter-spacing: 0.1em; margin-top: 36px;">// no environment drift</div>
+    </div>
+
+    <!-- vertical divider -->
+    <div style="width:1px; background: linear-gradient(to bottom, transparent, var(--line-soft) 15%, var(--line-soft) 85%, transparent);"></div>
+
+    <!-- RIGHT · before vs after -->
+    <div style="display:flex; flex-direction:column; gap: 28px;">
+
+      <!-- BEFORE -->
+      <div>
+        <div class="mono" style="font-size:24px; color: var(--bad); letter-spacing: 0.12em; margin-bottom: 14px;">// before · chaos</div>
+        <div style="display:flex; flex-direction:column; gap: 10px;">
+          <div class="mono" style="font-size:26px; color: var(--fg-2);"><span style="color: var(--bad); margin-right: 14px;">✕</span>version mismatch</div>
+          <div class="mono" style="font-size:26px; color: var(--fg-2);"><span style="color: var(--bad); margin-right: 14px;">✕</span>«works on my machine»</div>
+          <div class="mono" style="font-size:26px; color: var(--fg-2);"><span style="color: var(--bad); margin-right: 14px;">✕</span>hidden dependencies</div>
+          <div class="mono" style="font-size:26px; color: var(--fg-2);"><span style="color: var(--bad); margin-right: 14px;">✕</span>broken deploy</div>
+        </div>
+      </div>
+
+      <div class="hsep"></div>
+
+      <!-- AFTER -->
+      <div>
+        <div class="mono" style="font-size:24px; color: var(--accent); letter-spacing: 0.12em; margin-bottom: 14px;">// after · control</div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+          <!-- 4 identical container tiles -->
+          <div style="aspect-ratio: 1; border: 1px solid var(--accent); border-radius: 8px; background: color-mix(in oklab, var(--accent) 10%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 10px; padding: 12px;">
+            <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="color: var(--accent);">
+              <rect x="6" y="18" width="52" height="32" rx="2"></rect>
+              <line x1="14" y1="18" x2="14" y2="50"></line>
+              <line x1="22" y1="18" x2="22" y2="50"></line>
+              <line x1="30" y1="18" x2="30" y2="50"></line>
+              <line x1="38" y1="18" x2="38" y2="50"></line>
+              <line x1="46" y1="18" x2="46" y2="50"></line>
+              <line x1="54" y1="18" x2="54" y2="50"></line>
+              <rect x="10" y="14" width="44" height="4" rx="1"></rect>
+            </svg>
+          </div>
+          <div style="aspect-ratio: 1; border: 1px solid var(--accent); border-radius: 8px; background: color-mix(in oklab, var(--accent) 10%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 10px; padding: 12px;">
+            <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="color: var(--accent);">
+              <rect x="6" y="18" width="52" height="32" rx="2"></rect>
+              <line x1="14" y1="18" x2="14" y2="50"></line>
+              <line x1="22" y1="18" x2="22" y2="50"></line>
+              <line x1="30" y1="18" x2="30" y2="50"></line>
+              <line x1="38" y1="18" x2="38" y2="50"></line>
+              <line x1="46" y1="18" x2="46" y2="50"></line>
+              <line x1="54" y1="18" x2="54" y2="50"></line>
+              <rect x="10" y="14" width="44" height="4" rx="1"></rect>
+            </svg>
+          </div>
+          <div style="aspect-ratio: 1; border: 1px solid var(--accent); border-radius: 8px; background: color-mix(in oklab, var(--accent) 10%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 10px; padding: 12px;">
+            <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="color: var(--accent);">
+              <rect x="6" y="18" width="52" height="32" rx="2"></rect>
+              <line x1="14" y1="18" x2="14" y2="50"></line>
+              <line x1="22" y1="18" x2="22" y2="50"></line>
+              <line x1="30" y1="18" x2="30" y2="50"></line>
+              <line x1="38" y1="18" x2="38" y2="50"></line>
+              <line x1="46" y1="18" x2="46" y2="50"></line>
+              <line x1="54" y1="18" x2="54" y2="50"></line>
+              <rect x="10" y="14" width="44" height="4" rx="1"></rect>
+            </svg>
+          </div>
+          <div style="aspect-ratio: 1; border: 1px solid var(--accent); border-radius: 8px; background: color-mix(in oklab, var(--accent) 10%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 10px; padding: 12px;">
+            <svg viewBox="0 0 64 64" width="72" height="72" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" style="color: var(--accent);">
+              <rect x="6" y="18" width="52" height="32" rx="2"></rect>
+              <line x1="14" y1="18" x2="14" y2="50"></line>
+              <line x1="22" y1="18" x2="22" y2="50"></line>
+              <line x1="30" y1="18" x2="30" y2="50"></line>
+              <line x1="38" y1="18" x2="38" y2="50"></line>
+              <line x1="46" y1="18" x2="46" y2="50"></line>
+              <line x1="54" y1="18" x2="54" y2="50"></line>
+              <rect x="10" y="14" width="44" height="4" rx="1"></rect>
+            </svg>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px; text-align:center;">
+          <div class="mono" style="font-size:24px; color: var(--fg-2);">dev</div>
+          <div class="mono" style="font-size:24px; color: var(--fg-2);">ci</div>
+          <div class="mono" style="font-size:24px; color: var(--fg-2);">staging</div>
+          <div class="mono" style="font-size:24px; color: var(--fg-2);">prod</div>
+        </div>
+        <div class="mono" style="font-size:24px; color: var(--accent); margin-top: 14px;">→ same image, every stage</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>// inconsistency = risk</div>
+    <div>03 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 04 MENTAL MODEL ============ -->
+<section class="slide" data-screen-label="04 Mental model">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>mental model</div>
+    <div>// 04 · shipping container</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 64px;">// ментальна модель</div>
+  <h2 class="section" style="margin-top: 18px;">Docker — це вантажний контейнер<br>для софту.</h2>
+
+  <div class="containers" style="margin-top: 56px; height: 220px;">
+    <div class="box">api</div>
+    <div class="box accent">postgres</div>
+    <div class="box">redis</div>
+    <div class="box accent">worker</div>
+    <div class="box">nginx</div>
+    <div class="box accent">ml-model</div>
+    <div class="box">grafana</div>
+  </div>
+  <div class="mono" style="text-align:center; color: var(--fg-3); margin-top: 16px; font-size:24px; letter-spacing:0.12em;">
+    // різний вміст · однаковий інтерфейс · будь-який «корабель»
+  </div>
+
+  <div class="grid-3" style="margin-top: 56px;">
+    <div class="card">
+      <div class="label">// 01 standard</div>
+      <h3>Стандартизація</h3>
+      <p>Один формат — OCI. Будь-який runtime знає, як його запустити.</p>
+    </div>
+    <div class="card">
+      <div class="label">// 02 isolation</div>
+      <h3>Ізоляція</h3>
+      <p>Вміст не залежить від транспорту. Транспорт не залежить від вмісту.</p>
+    </div>
+    <div class="card">
+      <div class="label">// 03 portable</div>
+      <h3>Портативність</h3>
+      <p>Той самий контейнер їде з ноутбука у CI, у Kubernetes, у клієнта.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>// shipping containers · circa 1956 · for software · circa 2013</div>
+    <div>04 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 05 VM vs DOCKER ============ -->
+<section class="slide" data-screen-label="05 VM vs Docker">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>vm vs container</div>
+    <div>// 05 · isolation models</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 64px;">// порівняння</div>
+  <h2 class="section" style="margin-top: 18px;">Не віртуальна машина.<br>Ізоляція на рівні процесу.</h2>
+
+  <div class="grid-2" style="margin-top: 56px; gap: 64px;">
+    <div>
+      <div class="row" style="margin-bottom: 22px; justify-content:space-between;">
+        <div class="label mono" style="color:var(--fg-3); letter-spacing:0.12em;">// virtual machine</div>
+        <span class="pill">~1–10 GB · ~30–60s</span>
+      </div>
+      <div class="stack-vis">
+        <div class="bar app">App</div>
+        <div class="bar app">Libs / Deps</div>
+        <div class="bar os">Guest OS · повне ядро</div>
+        <div class="bar">Hypervisor</div>
+        <div class="bar kernel">Host OS</div>
+        <div class="bar">Hardware</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="row" style="margin-bottom: 22px; justify-content:space-between;">
+        <div class="label mono" style="color:var(--accent); letter-spacing:0.12em;">// docker container</div>
+        <span class="pill" style="border-color: var(--accent-soft); color: var(--fg);">~10–500 MB · ~0.1–2s</span>
+      </div>
+      <div class="stack-vis">
+        <div class="bar app">App</div>
+        <div class="bar app">Libs / Deps</div>
+        <div class="bar">Docker Engine</div>
+        <div class="bar kernel">Host OS · спільне ядро</div>
+        <div class="bar">Hardware</div>
+        <div class="bar" style="opacity: 0.25;">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>// containers share the host kernel — that's the whole trick</div>
+    <div>05 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 06 CORE CONCEPTS ============ -->
+<section class="slide" data-screen-label="06 Core concepts">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>core concepts</div>
+    <div>// 06 · the four primitives</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 64px;">// чотири примітиви</div>
+  <h2 class="section" style="margin-top: 18px;">Все, що тобі треба тримати в голові.</h2>
+
+  <div class="grid-4" style="margin-top: 64px;">
+    <div class="card" style="padding: 32px;">
+      <div class="label" style="color: var(--accent);">// 01</div>
+      <h3 style="font-size:38px;">Image</h3>
+      <p style="font-size:24px; margin-bottom: 24px;">Незмінний шаруватий знімок файлової системи.</p>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">≈ blueprint / клас</div>
+      <div class="hsep" style="margin: 18px 0;"></div>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">build · push · pull</div>
+    </div>
+
+    <div class="card" style="padding: 32px;">
+      <div class="label" style="color: var(--accent);">// 02</div>
+      <h3 style="font-size:38px;">Container</h3>
+      <p style="font-size:24px; margin-bottom: 24px;">Запущений ізольований процес з image + writable layer.</p>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">≈ instance / об'єкт</div>
+      <div class="hsep" style="margin: 18px 0;"></div>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">run · stop · exec</div>
+    </div>
+
+    <div class="card" style="padding: 32px;">
+      <div class="label" style="color: var(--accent);">// 03</div>
+      <h3 style="font-size:38px;">Volume</h3>
+      <p style="font-size:24px; margin-bottom: 24px;">Постійне сховище поза життєвим циклом контейнера.</p>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">≈ usb-флешка</div>
+      <div class="hsep" style="margin: 18px 0;"></div>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">named · bind · tmpfs</div>
+    </div>
+
+    <div class="card" style="padding: 32px;">
+      <div class="label" style="color: var(--accent);">// 04</div>
+      <h3 style="font-size:38px;">Network</h3>
+      <p style="font-size:24px; margin-bottom: 24px;">Віртуальна мережа: сервіси бачать один одного за іменем.</p>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">≈ офісний LAN</div>
+      <div class="hsep" style="margin: 18px 0;"></div>
+      <div class="mono" style="font-size:24px; color: var(--fg-3);">bridge · host · overlay</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 56px; display:flex; gap: 18px; align-items:center; justify-content:center; flex-wrap:wrap;">
+    <span class="pill">Dockerfile</span>
+    <span class="arrow">→ build →</span>
+    <span class="pill" style="border-color:var(--accent-soft);">Image</span>
+    <span class="arrow">→ run →</span>
+    <span class="pill" style="border-color:var(--accent-soft);">Container</span>
+    <span class="arrow">+ mount →</span>
+    <span class="pill">Volume</span>
+    <span class="arrow">+ join →</span>
+    <span class="pill">Network</span>
+  </div>
+
+  <div class="footer">
+    <div>// image is a class · container is an instance</div>
+    <div>06 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 07 ARCHITECTURE ============ -->
+<section class="slide" data-screen-label="07 Architecture">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>architecture</div>
+    <div>// 07 · client · daemon · registry</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 56px;">// архітектура</div>
+  <h2 class="section" style="margin-top: 18px;">Ти не запускаєш Docker напряму —<br>ти говориш з системою.</h2>
+
+  <div class="arch" style="margin-top: 56px; gap: 24px;">
+    <div class="col">
+      <div class="lab">// 01 · you</div>
+      <h4>Developer / CI</h4>
+      <p>Пишеш Dockerfile, виконуєш команди. Працюєш з системою через CLI — не з контейнерами напряму.</p>
+      <div class="mono" style="margin-top:auto; color:var(--fg-3); font-size:24px;">$ docker build / run</div>
+    </div>
+    <div class="col">
+      <div class="lab">// 02 · client</div>
+      <h4>Docker CLI</h4>
+      <p>Тонкий клієнт. Перетворює команди у REST-виклики. Сам нічого не виконує.</p>
+      <div class="mono" style="margin-top:auto; color:var(--fg-3); font-size:24px;">REST · docker.sock</div>
+    </div>
+    <div class="col" style="border-color: var(--accent-soft); background: color-mix(in oklab, var(--accent) 6%, var(--surface));">
+      <div class="lab">// 03 · engine</div>
+      <h4>Docker Daemon · dockerd</h4>
+      <p>Серце системи. Будує образи, керує контейнерами, мережами та volumes. Це він робить всю роботу.</p>
+      <div class="mono" style="margin-top:auto; color:var(--accent); font-size:24px;">images · containers · volumes</div>
+    </div>
+    <div class="col">
+      <div class="lab">// 04 · storage</div>
+      <h4>Registry</h4>
+      <p>Віддалене сховище образів: Docker Hub, GHCR, ECR. Сюди push, звідси pull.</p>
+      <div class="mono" style="margin-top:auto; color:var(--fg-3); font-size:24px;">hub.docker.com · ghcr.io</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 36px; display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:24px; padding: 0 8px;">
+    <div></div>
+    <div style="text-align:center; color: var(--fg-3); font-family:&#39;JetBrains Mono&#39;, monospace; font-size:24px;">command</div>
+    <div style="text-align:center; color: var(--accent); font-family:&#39;JetBrains Mono&#39;, monospace; font-size:24px;">REST API ──────▶</div>
+    <div style="text-align:center; color: var(--fg-3); font-family:&#39;JetBrains Mono&#39;, monospace; font-size:24px;">push / pull</div>
+  </div>
+
+  <div class="footer">
+    <div>// permission denied? → daemon socket access</div>
+    <div>07 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 08 WORKFLOW ============ -->
+<section class="slide" data-screen-label="08 Workflow">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>workflow</div>
+    <div>// 08 · lifecycle</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 56px;">// робочий цикл</div>
+  <h2 class="section" style="margin-top: 18px;">Один цикл — багато ітерацій.</h2>
+
+  <div class="lifecycle" style="margin-top: 48px; grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr 40px 1fr;">
+    <div class="step">
+      <div class="n">// 01</div>
+      <div class="t">Code</div>
+      <div class="d">app + Dockerfile</div>
+    </div>
+    <div class="sep">→</div>
+    <div class="step">
+      <div class="n">// 02</div>
+      <div class="t">Build</div>
+      <div class="d">docker build</div>
+    </div>
+    <div class="sep">→</div>
+    <div class="step">
+      <div class="n">// 03</div>
+      <div class="t">Run</div>
+      <div class="d">docker run</div>
+    </div>
+    <div class="sep">→</div>
+    <div class="step">
+      <div class="n">// 04</div>
+      <div class="t">Debug</div>
+      <div class="d">logs · exec</div>
+    </div>
+    <div class="sep">→</div>
+    <div class="step" style="border-color: var(--accent-soft); background: color-mix(in oklab, var(--accent) 6%, var(--surface));">
+      <div class="n" style="color: var(--accent);">// 05</div>
+      <div class="t">Push</div>
+      <div class="d">→ registry</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 24px; display:flex; justify-content:center;">
+    <div class="mono" style="color: var(--fg-3); font-size: 24px; letter-spacing:0.12em;">
+      ↻  loop debug → fix → rebuild  ·  doors out → push to registry
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 48px; gap: 40px;">
+    <div>
+      <div class="mono" style="font-size:24px; color:var(--fg-3); letter-spacing:0.12em; margin-bottom:14px;">// dockerfile</div>
+      <div class="code" style="font-size: 24px; line-height: 1.5;"><span class="c"># the recipe</span>
+<span class="k">FROM</span> python:<span class="o">3.11-slim</span>
+<span class="k">WORKDIR</span> /app
+<span class="k">COPY</span> requirements.txt .
+<span class="k">RUN</span> pip install -r requirements.txt
+<span class="k">COPY</span> . .
+<span class="k">CMD</span> [<span class="s">"uvicorn"</span>, <span class="s">"main:app"</span>]</div>
+    </div>
+    <div>
+      <div class="mono" style="font-size:24px; color:var(--fg-3); letter-spacing:0.12em; margin-bottom:14px;">// lifecycle</div>
+      <div class="code" style="font-size: 24px; line-height: 1.5;"><span class="c"># one cycle</span>
+$ docker build -t myapi:<span class="o">v1</span> .
+$ docker run -d -p <span class="o">8000:8000</span> myapi:<span class="o">v1</span>
+$ docker logs -f api
+$ docker exec -it api sh
+$ docker push ghcr.io/org/myapi:<span class="o">v1</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>// fast loop = small layers + good ordering</div>
+    <div>08 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 09 NETWORK ============ -->
+<section class="slide" data-screen-label="09 Network">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>network</div>
+    <div>// 09 · how containers talk</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 48px;">// мережа</div>
+  <h2 class="section" style="margin-top: 12px; font-size: 56px;">Контейнери — це сервіси.<br>Сервіси спілкуються.</h2>
+
+  <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px; margin-top: 32px; align-items: stretch;">
+
+    <!-- network diagram -->
+    <div style="border:1px solid var(--line-soft); border-radius:18px; padding: 28px; background: var(--bg-2); position:relative;">
+      <div class="mono" style="font-size:24px; color: var(--accent); letter-spacing:0.14em; margin-bottom:18px;">// bridge network · 172.17.0.0/16</div>
+
+      <!-- internet → host -->
+      <div style="display:grid; grid-template-columns: 1fr 60px 1fr; align-items:center; margin-bottom: 14px;">
+        <div class="node" style="padding:14px 18px;">internet<small style="font-size:24px;">0.0.0.0</small></div>
+        <div class="arrow" style="text-align:center;">→</div>
+        <div class="node accent" style="padding:14px 18px;">host : 80<small style="font-size:24px;">published</small></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 60px 1fr 60px 1fr; gap:0; align-items:center; margin-top: 14px;">
+        <div class="node accent" style="padding:14px 18px;">nginx<small style="font-size:24px;">.0.2</small></div>
+        <div class="arrow" style="text-align:center;">→</div>
+        <div class="node" style="padding:14px 18px;">api<small style="font-size:24px;">.0.3</small></div>
+        <div class="arrow" style="text-align:center;">→</div>
+        <div class="node" style="padding:14px 18px;">postgres<small style="font-size:24px;">.0.4 · internal</small></div>
+      </div>
+
+      <div class="hsep" style="margin: 22px 0;"></div>
+
+      <div class="mono" style="font-size:24px; color: var(--fg-2); line-height:1.55;">
+        <span style="color: var(--fg-3);">// from container 'api':</span><br>
+        $ ping <span style="color:var(--accent);">db</span>     → 172.17.0.4<br>
+        $ curl http://<span style="color:var(--accent);">redis</span>:6379<br>
+        <span style="color: var(--fg-3);">// docker dns @ 127.0.0.11</span>
+      </div>
+    </div>
+
+    <!-- principles + drivers -->
+    <div class="stack">
+      <div class="card" style="padding: 24px 28px;">
+        <div class="label" style="color: var(--accent);">// головне правило</div>
+        <h3 style="font-size: 30px;">Service name == hostname</h3>
+        <p style="font-size: 24px;">Docker має вбудований DNS. Конфігуруй за іменами, ніколи — за IP.</p>
+      </div>
+
+      <div class="card" style="padding: 24px 28px;">
+        <div class="label" style="color: var(--bad);">// безпека</div>
+        <h3 style="font-size: 30px;">Публікуй мінімум</h3>
+        <p style="font-size: 24px;"><span class="mono" style="color:var(--bad);">-p 5432:5432</span> на postgres — БД з інтернету. Внутрішня мережа достатня.</p>
+      </div>
+
+      <div class="card" style="padding: 20px 28px;">
+        <div class="label" style="color: var(--fg-3);">// network drivers</div>
+        <div class="mono" style="font-size:24px; line-height:1.5; margin-top: 6px;">
+          <span style="color:var(--accent);">bridge</span> <span style="color:var(--fg-3);">— default, ізольована</span><br>
+          <span style="color:var(--accent);">host</span>   <span style="color:var(--fg-3);">— без ізоляції</span><br>
+          <span style="color:var(--accent);">none</span>   <span style="color:var(--fg-3);">— без мережі</span><br>
+          <span style="color:var(--accent);">overlay</span> <span style="color:var(--fg-3);">— swarm / k8s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>// внутрішня мережа · DNS · опубліковані порти</div>
+    <div>09 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 10 COMPOSE ============ -->
+<section class="slide" data-screen-label="10 Docker Compose">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>compose</div>
+    <div>// 10 · system orchestration</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 56px;">// багатоконтейнерні системи</div>
+  <h2 class="section" style="margin-top: 14px; font-size: 56px;">Реальний застосунок — це не один контейнер.</h2>
+
+  <div style="display:grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; margin-top: 40px; align-items: start;">
+
+    <!-- system diagram -->
+    <div style="border:1px solid var(--line-soft); border-radius:18px; padding: 28px; background: var(--bg-2);">
+      <div class="mono" style="font-size:24px; color: var(--accent); letter-spacing:0.14em; margin-bottom:18px;">// network: backend</div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+        <div class="node accent" style="padding:18px;">nginx<small style="font-size:24px;">:80 / :443</small></div>
+        <div class="node accent" style="padding:18px;">api<small style="font-size:24px;">fastapi</small></div>
+        <div class="node" style="padding:18px;">worker<small style="font-size:24px;">celery</small></div>
+
+        <div class="arrow" style="grid-column: 1 / span 3; text-align:center; padding: 2px 0;">↓ ↓ ↓</div>
+
+        <div class="node" style="padding:18px;">redis<small style="font-size:24px;">queue</small></div>
+        <div class="node" style="padding:18px;">postgres<small style="font-size:24px;">main db</small></div>
+        <div class="node muted" style="padding:18px;">volume<small style="font-size:24px;">pgdata</small></div>
+      </div>
+
+      <div class="hsep" style="margin: 20px 0;"></div>
+      <div class="mono" style="font-size:24px; color: var(--fg-2); line-height:1.5;">
+        api → postgres://<span style="color:var(--accent);">db</span><br>
+        api → redis://<span style="color:var(--accent);">redis</span><br>
+        <span style="color: var(--fg-3);">// service name == hostname</span>
+      </div>
+    </div>
+
+    <!-- compose yml -->
+    <div class="code" style="font-size: 22px; line-height: 1.45; padding: 24px 28px;"><span class="c"># docker-compose.yml</span>
+<span class="k">services</span>:
+  <span class="k">api</span>:
+    build: ./api
+    ports: [<span class="s">"8000:8000"</span>]
+    depends_on: [db, redis]
+  <span class="k">db</span>:
+    image: postgres:<span class="o">16-alpine</span>
+    volumes: [pgdata:/data]
+  <span class="k">redis</span>:
+    image: redis:<span class="o">7-alpine</span>
+  <span class="k">worker</span>:
+    build: ./worker
+<span class="k">volumes</span>: { pgdata: }</div>
+  </div>
+
+  <div class="footer">
+    <div>// compose up · one command · whole system</div>
+    <div>10 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 10 MISTAKES ============ -->
+<section class="slide" data-screen-label="11 Common mistakes">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>anti-patterns</div>
+    <div>// 11 · common mistakes</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 64px; color: var(--bad);">// типові помилки</div>
+  <h2 class="section" style="margin-top: 18px;">Те, що ламається через місяць.</h2>
+
+  <div class="grid-3" style="margin-top: 64px;">
+    <div class="card" style="border-color: color-mix(in oklab, var(--bad) 35%, var(--line-soft));">
+      <div class="label" style="color: var(--bad);">// 01 · версії</div>
+      <h3>Тег <span class="mono">latest</span></h3>
+      <p>Сьогодні python 3.12, завтра 3.13. Збірка перестає бути відтворюваною. Фіксуй точну версію.</p>
+      <div class="hsep" style="margin: 22px 0;"></div>
+      <div class="mono" style="font-size:24px;"><span style="color:var(--bad);">FROM python:latest</span><br><span style="color:var(--good);">FROM python:3.11-slim</span></div>
+    </div>
+
+    <div class="card" style="border-color: color-mix(in oklab, var(--bad) 35%, var(--line-soft));">
+      <div class="label" style="color: var(--bad);">// 02 · дані</div>
+      <h3>Дані всередині контейнера</h3>
+      <p>Контейнер ефемерний. Все, що записано у writable layer — зникає при rm чи redeploy. Використовуй volumes.</p>
+      <div class="hsep" style="margin: 22px 0;"></div>
+      <div class="mono" style="font-size:24px;"><span style="color:var(--bad);">/app/data → 🗑</span><br><span style="color:var(--good);">vol:/app/data → ok</span></div>
+    </div>
+
+    <div class="card" style="border-color: color-mix(in oklab, var(--bad) 35%, var(--line-soft));">
+      <div class="label" style="color: var(--bad);">// 03 · хотфікси</div>
+      <h3><span class="mono">docker exec</span> для фіксу</h3>
+      <p>Поправив файл всередині запущеного контейнера? Це не фікс — це міна. Зміни йдуть у Dockerfile або код.</p>
+      <div class="hsep" style="margin: 22px 0;"></div>
+      <div class="mono" style="font-size:24px;"><span style="color:var(--bad);">exec → vim main.py</span><br><span style="color:var(--good);">exec → inspect only</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+    <span class="pill">+ забуте <span class="mono">--rm</span></span>
+    <span class="pill">+ <span class="mono">.dockerignore</span></span>
+    <span class="pill">+ <span class="mono">COPY .</span> перед deps</span>
+    <span class="pill">+ публікація db-портів</span>
+    <span class="pill">+ запуск як <span class="mono">root</span></span>
+  </div>
+
+  <div class="footer">
+    <div>// any «one-time fix» inside a container is a bug to file</div>
+    <div>11 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 11 BEST PRACTICES ============ -->
+<section class="slide" data-screen-label="12 Best practices">
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>best practices</div>
+    <div>// 12 · production patterns</div>
+  </div>
+
+  <div class="kicker" style="margin-top: 56px; color: var(--good);">// найкращі практики</div>
+  <h2 class="section" style="margin-top: 18px;">Маленькі, кешовані, багатоетапні.</h2>
+
+  <div style="display:grid; grid-template-columns: 1fr 1.1fr; gap: 64px; margin-top: 48px;">
+    <div class="stack">
+      <div class="card">
+        <div class="label" style="color: var(--good);">// 01 small images</div>
+        <h3>slim · alpine · distroless</h3>
+        <p style="margin-bottom: 22px;">Менший образ — швидший pull, менша поверхня атаки.</p>
+        <div style="display:grid; grid-template-columns: 1fr auto; gap: 12px; font-family:&#39;JetBrains Mono&#39;, monospace; font-size: 20px;">
+          <div style="color: var(--fg-2);">python:3.11</div><div style="color: var(--bad);">~1 GB</div>
+          <div style="color: var(--fg-2);">python:3.11-slim</div><div style="color: var(--fg);">~130 MB</div>
+          <div style="color: var(--fg-2);">python:3.11-alpine</div><div style="color: var(--good);">~50 MB</div>
+          <div style="color: var(--fg-2);">distroless/python3</div><div style="color: var(--good);">~30 MB</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label" style="color: var(--good);">// 02 layer caching</div>
+        <h3>Стабільне → мінливе</h3>
+        <p>Залежності копіюй <b>до</b> коду. Тоді pip install кешується, поки <span class="mono">requirements.txt</span> не змінюється.</p>
+      </div>
+    </div>
+
+    <div class="code" style="font-size: 22px;"><span class="c"># multi-stage · production pattern</span>
+
+<span class="k">FROM</span> python:<span class="o">3.11-slim</span> <span class="k">AS</span> builder
+<span class="k">WORKDIR</span> /build
+<span class="k">COPY</span> requirements.txt .
+<span class="k">RUN</span> pip install --prefix=/install -r requirements.txt
+
+<span class="k">FROM</span> python:<span class="o">3.11-slim</span> <span class="k">AS</span> production
+<span class="k">WORKDIR</span> /app
+<span class="k">COPY</span> --from=builder /install /usr/local
+<span class="k">COPY</span> src/ .
+<span class="k">USER</span> app
+<span class="k">CMD</span> [<span class="s">"python"</span>, <span class="s">"main.py"</span>]
+
+<span class="c"># builder має компілятори</span>
+<span class="c"># production — тільки код + deps</span>
+<span class="c"># менша атака · менший образ</span></div>
+  </div>
+
+  <div class="footer">
+    <div>// slim base + ordered layers + multi-stage = production-grade</div>
+    <div>12 / 13</div>
+  </div>
+</section>
+
+<!-- ============ 12 CONCLUSION ============ -->
+<section class="slide" data-screen-label="13 Conclusion">
+  <div class="grid-bg"></div>
+  <div class="meta">
+    <div class="brand"><b>docker</b><span class="dot"></span>conclusion</div>
+    <div>// 13 · the takeaway</div>
+  </div>
+
+  <div style="position:relative; z-index:1; margin-top: 80px;">
+    <div class="kicker">// головне</div>
+    <h1 class="title" style="font-size: 110px; margin-top: 18px;">
+      Docker — не про команди.
+    </h1>
+    <p class="lead" style="margin-top: 28px;">Команди — це синтаксис. Сила — в моделі мислення.</p>
+  </div>
+
+  <div class="grid-3" style="margin-top: 96px;">
+    <div class="card" style="padding: 48px;">
+      <div class="label" style="color: var(--accent);">// 01</div>
+      <h3 style="font-size:42px;">Reproducibility</h3>
+      <p style="font-size:24px;">Один артефакт — однакова поведінка скрізь. Збірка завтра = збірка сьогодні.</p>
+    </div>
+    <div class="card" style="padding: 48px;">
+      <div class="label" style="color: var(--accent);">// 02</div>
+      <h3 style="font-size:42px;">System control</h3>
+      <p style="font-size:24px;">Ти володієш середовищем — від ОС до runtime. Без сюрпризів від сервера.</p>
+    </div>
+    <div class="card" style="padding: 48px;">
+      <div class="label" style="color: var(--accent);">// 03</div>
+      <h3 style="font-size:42px;">Architecture thinking</h3>
+      <p style="font-size:24px;">Сервіси, межі, контракти, мережі. Те, що відрізняє інженера від кодера.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 80px; display:flex; align-items:center; gap: 24px;">
+    <div class="mark">D</div>
+    <div>
+      <div class="mono" style="font-size:18px; color: var(--fg-3); letter-spacing:0.12em;">// thank you</div>
+      <div style="font-size: 32px; font-weight:600; letter-spacing:-0.01em;">questions → live demo · compose up</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>// думай системами · не командами</div>
+    <div>13 / 13</div>
+  </div>
+</section>
+
+</deck-stage>
+
+
+</body></html>

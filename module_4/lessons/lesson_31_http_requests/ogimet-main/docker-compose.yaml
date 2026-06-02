@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+
+  # ─── FastAPI backend ────────────────────────────────────────────────────
+  # Swagger UI: http://localhost:8000/docs
+  app_fastapi:
+    build:
+      context: ./meteo_telegram
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - MONGO_URL=mongodb://mongo:27017/
+    networks:
+      - meteo_net
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info
+
+  # ─── Streamlit frontend ─────────────────────────────────────────────────
+  # Dashboard: http://localhost:8501
+  streamlit:
+    build:
+      context: ./meteo_telegram
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8501:8501"
+    depends_on:
+      - app_fastapi
+    environment:
+      # API_URL — ім'я сервісу в Docker мережі, не localhost!
+      - API_URL=http://app_fastapi:8000
+    networks:
+      - meteo_net
+    command: >
+      streamlit run streamlit_app.py
+      --server.address 0.0.0.0
+      --server.port 8501
+      --server.headless true
+      --browser.gatherUsageStats false
+
+  # ─── MongoDB ────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:4.4
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - meteo_net
+
+networks:
+  meteo_net:
+    driver: bridge
+
+volumes:
+  mongo-data:

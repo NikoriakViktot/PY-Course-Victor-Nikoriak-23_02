@@ -1,0 +1,145 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+{# forms.css -- стилі форм: .form-card тощо #}
+{% load static %}
+<link rel="stylesheet" href="{% static 'hello_app/css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<!--
+  tag_form.html -- форма створення тегу
+
+  Context:
+  - form   -> TagForm (name + color)
+  - title  -> 'Новий тег'
+  - action -> 'Створити'
+  - next   -> URL для redirect після збереження
+
+  get_or_create семантика:
+  Якщо тег з таким name вже існує -> повертає існуючий (не дублює)
+  clean_name() нормалізує: "  Python  " -> "python"
+-->
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+
+        {# Breadcrumb #}
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="font-size:0.85rem;">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'hello_app:note_list' %}" class="text-decoration-none">
+                        <i class="bi bi-list-ul me-1"></i>Нотатки
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">Новий тег</li>
+            </ol>
+        </nav>
+
+        <div class="form-card card">
+            <div class="card-header py-3">
+                <h2 class="h5 mb-0 fw-semibold">
+                    <i class="bi bi-tag-fill me-2 text-primary"></i>{{ title }}
+                </h2>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {# next -- URL для повернення після збереження #}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {# Назва тегу #}
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                            <i class="bi bi-hash me-1"></i>{{ form.name.label }}
+                            <span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.help_text %}
+                        <div class="form-text">{{ form.name.help_text }}</div>
+                        {% endif %}
+                        {% if form.name.errors %}
+                        <ul class="errorlist">
+                            {% for e in form.name.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Колір тегу + превью #}
+                    <div class="mb-4">
+                        <label for="{{ form.color.id_for_label }}" class="form-label">
+                            <i class="bi bi-palette me-1"></i>{{ form.color.label }}
+                        </label>
+                        <div class="color-preview-row">
+                            {{ form.color }}
+                            <div class="color-preview-strip" id="tagColorStrip"
+                                 style="background: #808080;"></div>
+                            {# Превью тегу -- показує як буде виглядати badge #}
+                            <span class="badge rounded-pill px-3" id="tagPreviewBadge"
+                                  style="background: #808080; font-size:0.85rem;">
+                                #<span id="tagPreviewName">назва</span>
+                            </span>
+                        </div>
+                        {% if form.color.errors %}
+                        <ul class="errorlist mt-1">
+                            {% for e in form.color.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Кнопки #}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-plus-lg me-1"></i>{{ action }}
+                        </button>
+                        <a href="{{ next }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x me-1"></i>Скасувати
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        {# Підказка про get_or_create #}
+        <div class="alert mt-3 py-2 px-3 small" style="
+            background: rgba(124,110,250,0.07);
+            border: 1px solid rgba(124,110,250,0.2);
+            border-radius: 8px;
+            color: #9090c0;">
+            <i class="bi bi-info-circle me-1 text-primary"></i>
+            <strong>get_or_create:</strong> якщо тег з такою назвою вже існує — буде повернуто
+            існуючий без дублювання. Назва нормалізується: <code>"Python"</code> = <code>"python"</code>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Живий превью тегу: оновлює смужку і badge при зміні кольору/назви */
+(function() {
+    const colorInput = document.getElementById('{{ form.color.id_for_label }}');
+    const nameInput  = document.getElementById('{{ form.name.id_for_label }}');
+    const strip      = document.getElementById('tagColorStrip');
+    const badge      = document.getElementById('tagPreviewBadge');
+    const badgeName  = document.getElementById('tagPreviewName');
+
+    function update() {
+        const color = colorInput ? colorInput.value : '#808080';
+        const name  = nameInput  ? (nameInput.value.trim() || 'назва') : 'назва';
+        if (strip) strip.style.background = color;
+        if (badge) badge.style.background = color;
+        if (badgeName) badgeName.textContent = name;
+    }
+
+    if (colorInput) colorInput.addEventListener('input', update);
+    if (nameInput)  nameInput.addEventListener('input', update);
+    update(); // початковий стан
+})();
+</script>
+{% endblock %}

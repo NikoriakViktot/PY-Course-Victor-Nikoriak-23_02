@@ -1,0 +1,153 @@
+{% extends 'hello_app/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Мої нотатки — Bootstrap Notes{% endblock %}
+
+{% block content %}
+
+<!--
+    Page Header.
+    Тут показуємо заголовок сторінки, кількість нотаток
+    і кнопку створення нової нотатки.
+-->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-1">
+            <i class="bi bi-journal-text me-2 text-primary"></i>
+            Мої нотатки
+        </h1>
+
+        <!--
+            Фільтр length рахує кількість елементів у списку notes.
+            Не пишемо тут Django-синтаксис у фігурних дужках, бо HTML-коментарі
+            все одно обробляються Django template engine.
+        -->
+        <p class="text-muted mb-0">
+            {{ notes|length }} нотаток
+        </p>
+    </div>
+
+    <a href="{% url 'hello_app:note_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>
+        Нова нотатка
+    </a>
+</div>
+
+<!--
+    Умова: якщо список notes не порожній, показуємо сітку карток.
+    Якщо список порожній, нижче буде показано Empty State.
+-->
+{% if notes %}
+
+    <!--
+        Bootstrap Grid:
+        row-cols-1 — одна колонка на малих екранах;
+        row-cols-md-2 — дві колонки на середніх екранах;
+        row-cols-lg-3 — три колонки на великих екранах;
+        g-4 — відступи між картками.
+    -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+        <!--
+            Нижче починається цикл по нотатках.
+            Кожна нотатка рендериться як окрема Bootstrap Card.
+            ВАЖЛИВО: не писати Django for-тег у цьому коментарі.
+        -->
+        {% for note in notes %}
+        <div class="col">
+
+            <!--
+                Card — компонент Bootstrap для окремої нотатки.
+                h-100 робить картки однакової висоти в межах рядка.
+                shadow-sm додає легку тінь.
+            -->
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <!--
+                        Назва нотатки є посиланням на сторінку деталей.
+                    -->
+                    <h5 class="card-title">
+                        <a href="{% url 'hello_app:note_detail' pk=note.pk %}"
+                           class="text-decoration-none text-dark">
+                            {{ note.title }}
+                        </a>
+                    </h5>
+
+                    <!--
+                        Якщо в нотатки є content, показуємо короткий preview.
+                        truncatechars обрізає довгий текст до заданої кількості символів.
+                    -->
+                    {% if note.content %}
+                    <p class="card-text text-muted small">
+                        {{ note.content|truncatechars:100 }}
+                    </p>
+                    {% else %}
+                    <p class="card-text text-muted small fst-italic">
+                        Зміст відсутній.
+                    </p>
+                    {% endif %}
+
+                </div>
+
+                <!--
+                    Footer картки: дата створення і кнопки дій.
+                    timesince показує, скільки часу минуло від створення.
+                -->
+                <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-clock me-1"></i>
+                        {{ note.created_at|timesince }} тому
+                    </small>
+
+                    <!--
+                        Група маленьких кнопок: редагувати і видалити.
+                    -->
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'hello_app:note_edit' pk=note.pk %}"
+                           class="btn btn-outline-secondary"
+                           title="Редагувати">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+
+                        <a href="{% url 'hello_app:note_delete' pk=note.pk %}"
+                           class="btn btn-outline-danger"
+                           title="Видалити">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+{% else %}
+
+    <!--
+        Empty State.
+        Показується тоді, коли в базі ще немає жодної нотатки.
+    -->
+    <div class="text-center py-5">
+        <i class="bi bi-journal-x display-1 text-muted d-block mb-3"></i>
+
+        <h4 class="text-muted">
+            Ще немає нотаток
+        </h4>
+
+        <p class="text-muted">
+            Створіть першу нотатку і вона з'явиться тут.
+        </p>
+
+        <a href="{% url 'hello_app:note_create' %}" class="btn btn-primary mt-2">
+            <i class="bi bi-plus-lg me-1"></i>
+            Створити нотатку
+        </a>
+    </div>
+
+{% endif %}
+
+{% endblock %}

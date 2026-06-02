@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bootstrap Notes{% endblock %}</title>
+
+    <!--
+        Bootstrap 5 CSS — підключаємо в <head>.
+        Чому: браузер читає CSS перед рендерингом тіла сторінки.
+        Якщо підключити в кінці — буде "flash of unstyled content".
+        Теорія: CSS_BASICS.md §0 — Rendering Pipeline.
+    -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+
+    <!-- Bootstrap Icons — окрема бібліотека іконок -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Слот для додаткового CSS на конкретних сторінках -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!--
+        NAVBAR — компонент навігації Bootstrap.
+        navbar-expand-lg: на великих екранах горизонтальний, на малих — гамбургер.
+        Теорія: BOOTSTRAP_5.md §5 — Navbar, Responsive collapse.
+    -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+
+            <!-- Brand — назва сайту / логотип -->
+            <a class="navbar-brand fw-bold" href="{% url 'hello_app:note_list' %}">
+                <i class="bi bi-journal-text me-2"></i>Bootstrap Notes
+            </a>
+
+            <!-- Кнопка гамбургер для мобільних (xs/sm/md) -->
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-controls="navbarNav"
+                    aria-expanded="false"
+                    aria-label="Відкрити меню">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Навігаційні посилання (ховаються на мобільних) -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'hello_app:note_list' %}">
+                            <i class="bi bi-list-ul me-1"></i>Всі нотатки
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'hello_app:note_create' %}">
+                            <i class="bi bi-plus-circle me-1"></i>Нова нотатка
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">
+                            <i class="bi bi-gear me-1"></i>Адмін
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Основний вміст -->
+    <main class="container my-4 flex-grow-1">
+
+        <!--
+            Django Messages → Bootstrap Alerts.
+            messages — Context Processor що автоматично доступний у всіх шаблонах.
+            message.tags → 'success'/'danger'/'warning' (маппінг з MESSAGE_TAGS у settings.py).
+            Теорія: BOOTSTRAP_5.md §4 — Alert, DJANGO_TEMPLATES_BOOTSTRAP.md §8 — Bootstrap Forms.
+        -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                        aria-label="Закрити"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!--
+    Слот для вмісту конкретної сторінки.
+    Кожна дочірня сторінка вставляє сюди свій контент.
+    Теорія: DJANGO_TEMPLATES_BOOTSTRAP.md §4 — Template Inheritance.
+         -->
+        {% block content %}{% endblock %}
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-center text-white-50 py-3 mt-5">
+        <small>Bootstrap Notes &copy; 2026 — навчальний проєкт</small>
+    </footer>
+
+    <!--
+        Bootstrap JS Bundle (включає Popper.js).
+        defer — завантажується після HTML.
+        Навіщо: Modal, Navbar collapse, Toast потребують JS.
+        Теорія: BOOTSTRAP_5.md §8 — Bootstrap JS Architecture.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmAgD0SnMiKKmFClVgaFa11iGj0E"
+            crossorigin="anonymous" defer></script>
+
+    <!-- Слот для JS конкретних сторінок -->
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

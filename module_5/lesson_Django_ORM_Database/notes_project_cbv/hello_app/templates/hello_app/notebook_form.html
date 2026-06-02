@@ -1,0 +1,161 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+{# forms.css -- стилі форм: .form-card, .color-preview-row, .default-toggle тощо #}
+{% load static %}
+<link rel="stylesheet" href="{% static 'hello_app/css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<!--
+  notebook_form.html -- форма створення / редагування записника
+
+  Context:
+  - form     -> NotebookForm (порожня або instance=notebook)
+  - title    -> str ('Новий записник' або 'Редагувати: ...')
+  - action   -> str ('Створити' або 'Зберегти')
+  - notebook -> Notebook instance або None (при редагуванні)
+-->
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-xl-5">
+
+        {# Breadcrumb #}
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="font-size:0.85rem;">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'hello_app:notebook_list' %}" class="text-decoration-none">
+                        <i class="bi bi-journals me-1"></i>Записники
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">{{ action }}</li>
+            </ol>
+        </nav>
+
+        <div class="form-card card">
+            <div class="card-header py-3">
+                <h2 class="h5 mb-0 fw-semibold">
+                    <i class="bi bi-{% if notebook %}pencil{% else %}plus-circle{% endif %} me-2 text-primary"></i>
+                    {{ title }}
+                </h2>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {# Назва записника #}
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-type me-1"></i>{{ form.title.label }}
+                            <span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <ul class="errorlist">
+                            {% for e in form.title.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Опис #}
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            <i class="bi bi-text-paragraph me-1"></i>{{ form.description.label }}
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <ul class="errorlist">
+                            {% for e in form.description.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Колір записника + превью смужка #}
+                    <div class="mb-3">
+                        <label for="{{ form.color.id_for_label }}" class="form-label">
+                            <i class="bi bi-palette me-1"></i>{{ form.color.label }}
+                        </label>
+                        {% if form.color.help_text %}
+                        <div class="form-text mb-2">{{ form.color.help_text }}</div>
+                        {% endif %}
+
+                        <div class="color-preview-row">
+                            <!--
+                              HTML5 color picker: <input type="color">
+                              При виборі кольору -> оновлює preview смужку через JS.
+                              value="#RRGGBB" -> повертає HEX рядок.
+                            -->
+                            {{ form.color }}
+                            <div class="color-preview-strip" id="colorStrip"
+                                 style="background: {{ form.instance.color|default:'#4A90E2' }};"></div>
+                        </div>
+                        {% if form.color.errors %}
+                        <ul class="errorlist mt-1">
+                            {% for e in form.color.errors %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# За замовчуванням (toggle) #}
+                    <div class="mb-4">
+                        <label class="default-toggle w-100" for="{{ form.is_default.id_for_label }}">
+                            {{ form.is_default }}
+                            <i class="bi bi-star star-icon" style="font-size:1.1rem; color:#6060a0;"></i>
+                            <div>
+                                <div style="color:#c0c0e0; font-size:0.88rem;">
+                                    {{ form.is_default.label }}
+                                </div>
+                                {% if form.is_default.help_text %}
+                                <div class="form-text" style="margin:0;">
+                                    {{ form.is_default.help_text }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+
+                    {# Кнопки #}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-{% if notebook %}check-lg{% else %}plus-lg{% endif %} me-1"></i>
+                            {{ action }}
+                        </button>
+                        <a href="{% url 'hello_app:notebook_list' %}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-x me-1"></i>Скасувати
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/*
+  Живий превью кольору записника.
+  При зміні color input -> оновлює смужку-превью.
+
+  Це UI-покращення (не бізнес-логіка).
+  Не змінює дані -- тільки відображення.
+*/
+(function() {
+    const colorInput = document.getElementById('{{ form.color.id_for_label }}');
+    const colorStrip = document.getElementById('colorStrip');
+
+    if (colorInput && colorStrip) {
+        // Оновлюємо смужку при зміні кольору
+        colorInput.addEventListener('input', function() {
+            colorStrip.style.background = this.value;
+        });
+    }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Notes App{% endblock %}</title>
+    {% comment %}Bootstrap 5.3 CSS{% endcomment %}
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    {% comment %}Головний темний CSS: sidebar, layout, картки{% endcomment %}
+    <link rel="stylesheet" href="{% static 'hello_app/css/app.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+{% comment %}TOPBAR: navbar-expand = завжди розгорнута, без collapse{% endcomment %}
+<nav class="navbar navbar-expand navbar-dark bg-dark shadow-sm topbar px-3">
+    <a class="navbar-brand fw-bold me-4" href="{% url 'hello_app:note_list' %}">
+        <i class="bi bi-journal-text me-2 text-primary"></i>Notes App
+    </a>
+    <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'hello_app:note_create' %}">
+                <i class="bi bi-plus-circle me-1"></i>Нова нотатка
+            </a>
+        </li>
+    </ul>
+    <form class="d-flex me-3" method="get" action="{% url 'hello_app:note_list' %}">
+        <div class="input-group input-group-sm">
+            <input class="form-control" type="search" name="q"
+                   placeholder="Пошук нотаток..." style="width:200px;">
+            <button class="btn btn-outline-light" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
+    <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                <li>
+                    <a class="dropdown-item" href="{% url 'admin:index' %}">
+                        <i class="bi bi-gear me-2"></i>Admin панель
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="/accounts/logout/">
+                        <i class="bi bi-box-arrow-right me-2"></i>Вийти
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="/accounts/login/">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Увійти
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% comment %}APP WRAPPER: sidebar (fix 240px) + main content (flex 1){% endcomment %}
+<div class="app-wrapper">
+
+    <nav class="sidebar">
+
+        <div class="nav-section-label">
+            <i class="bi bi-pencil-square me-1"></i>Нотатки
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'note_list' and not request.GET.tag and not request.GET.notebook %}active{% endif %}"
+                   href="{% url 'hello_app:note_list' %}">
+                    <i class="bi bi-list-ul"></i> Всі нотатки
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'note_create' %}active{% endif %}"
+                   href="{% url 'hello_app:note_create' %}">
+                    <i class="bi bi-plus-square"></i> Нова нотатка
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'hello_app:note_list' %}?archived=true">
+                    <i class="bi bi-archive"></i> Архів
+                </a>
+            </li>
+        </ul>
+
+        <hr class="sidebar-divider mx-3">
+
+        {% comment %}Записники: sidebar_notebooks з context_processor{% endcomment %}
+        <div class="nav-section-label d-flex justify-content-between align-items-center pe-2">
+            <span><i class="bi bi-journals me-1"></i>Записники</span>
+            <a href="{% url 'hello_app:notebook_create' %}"
+               class="text-muted" title="Новий записник"
+               style="font-size:0.8rem; line-height:1; text-decoration:none;">
+                <i class="bi bi-plus-lg"></i>
+            </a>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'notebook_list' %}active{% endif %}"
+                   href="{% url 'hello_app:notebook_list' %}">
+                    <i class="bi bi-grid-3x3-gap"></i> Всі записники
+                </a>
+            </li>
+            {% for nb in sidebar_notebooks %}
+            <li class="nav-item">
+                <a class="nav-link d-flex justify-content-between align-items-center
+                    {% if request.GET.notebook == nb.id|stringformat:'i' %}active{% endif %}"
+                   href="{% url 'hello_app:note_list' %}?notebook={{ nb.id }}">
+                    <span>
+                        <i class="bi bi-circle-fill me-1"
+                           style="color:{{ nb.color }};font-size:0.5rem;vertical-align:middle;"></i>
+                        {{ nb.title }}
+                    </span>
+                    {% if nb.note_count %}
+                    <span class="badge rounded-pill"
+                          style="background:rgba(255,255,255,0.1);color:#9090b8;font-size:0.68rem;">
+                        {{ nb.note_count }}
+                    </span>
+                    {% endif %}
+                </a>
+            </li>
+            {% empty %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'hello_app:notebook_create' %}">
+                    <i class="bi bi-plus text-primary"></i>
+                    <span class="text-muted">Створити записник</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <hr class="sidebar-divider mx-3">
+
+        <div class="nav-section-label d-flex justify-content-between align-items-center pe-2">
+            <span><i class="bi bi-tags me-1"></i>Теги</span>
+            <a href="{% url 'hello_app:tag_create' %}?next={{ request.path }}"
+               class="text-muted" title="Новий тег"
+               style="font-size:0.8rem; line-height:1; text-decoration:none;">
+                <i class="bi bi-plus-lg"></i>
+            </a>
+        </div>
+        <div class="px-3 pb-2">
+            {% for tag in sidebar_tags %}
+            <a href="{% url 'hello_app:note_list' %}?tag={{ tag.id }}"
+               class="badge text-decoration-none me-1 mb-1
+                   {% if request.GET.tag == tag.id|stringformat:'i' %}opacity-100{% else %}opacity-75{% endif %}"
+               style="background-color:{{ tag.color }};">
+                #{{ tag.name }}
+                {% if tag.note_count %}<small>({{ tag.note_count }})</small>{% endif %}
+            </a>
+            {% empty %}
+            <small class="text-muted">Немає тегів</small>
+            {% endfor %}
+        </div>
+
+        <hr class="sidebar-divider mx-3">
+
+        <div class="nav-section-label">
+            <i class="bi bi-check2-square me-1"></i>Списки справ
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-list-check"></i> Мої списки
+                    <span class="badge bg-secondary ms-1">скоро</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="nav-section-label mt-1">
+            <i class="bi bi-cart3 me-1"></i>Покупки
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-bag"></i> Мої списки
+                    <span class="badge bg-secondary ms-1">скоро</span>
+                </a>
+            </li>
+        </ul>
+
+        <hr class="sidebar-divider mx-3">
+
+        <div class="nav-section-label">
+            <i class="bi bi-tools me-1"></i>Адміністрація
+        </div>
+        <ul class="nav flex-column mb-3">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin:index' %}">
+                    <i class="bi bi-gear"></i> Admin панель
+                </a>
+            </li>
+        </ul>
+
+    </nav>
+
+    <div class="main-content">
+        <div class="inner">
+
+            {% comment %}Django Messages: flash-повідомлення після redirect{% endcomment %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                            aria-label="Закрити"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+
+        </div>
+    </div>
+
+</div>
+
+<footer class="py-2 text-center">
+    <small class="text-white-50">Notes App &copy; 2026</small>
+</footer>
+
+{% comment %}Bootstrap JS Bundle: потрібен для dropdown у navbar{% endcomment %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmAgD0SnMiKKmFClVgaFa11iGj0E"
+        crossorigin="anonymous"></script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>
