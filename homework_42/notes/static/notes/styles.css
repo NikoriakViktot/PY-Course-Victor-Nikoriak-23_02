@@ -1,188 +1,200 @@
+:root{
+    --app-bg: #f7f5f0;
+    --app-ink: #172033;
+    --app-muted: #667085;
+    --app-primary: #3157d5;
+    --app-primary-dark: #2645aa;
+    --app-card: rgba(255, 255, 255, 0.92);
+    --app-border: rgba(23, 32, 51, 0.08);
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
+    min-height: 100vh;
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f5f7fb;
-    color: #1e293b;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--app-ink);
+    background:
+        radial-gradient(circle at top left, rgba(49, 87, 213, 0.12), transparent 32rem),
+        linear-gradient(135deg, #fbfaf7 0%, var(--app-bg) 55%, #eef2ff 100%);
 }
 
-.container {
-    max-width: 980px;
-    margin: 40px auto;
-    padding: 0 20px;
+.app-navbar {
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 28px rgba(23, 32, 51, 0.06);
 }
 
-.site-nav,
-.page-header,
-.actions {
+.navbar-brand {
+    letter-spacing: -0.04em;
+}
+
+.nav-link {
+    color: var(--app-muted);
+    font-weight: 600;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    color: var(--app-primary);
+}
+
+.app-shell {
+    max-width: 1120px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+.hero-card,
+.empty-state {
+    border: 1px solid var(--app-border);
+    border-radius: 2rem;
+    background: var(--app-card);
+    box-shadow: 0 24px 70px rgba(23, 32, 51, 0.08);
+}
+
+.hero-card {
+    padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.page-heading {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
-.site-nav {
-    justify-content: flex-start;
-    margin-bottom: 28px;
-    padding: 14px 16px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+.eyebrow {
+    display: inline-flex;
+    margin-bottom: 0.75rem;
+    color: var(--app-primary);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
-.page-header {
-    justify-content: space-between;
-    margin-bottom: 20px;
+.card,
+.form-control,
+.form-select,
+.btn {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
 }
 
-h1,
-h2 {
-    margin-top: 0;
+.filter-panel,
+.form-card,
+.note-card {
+    border-radius: 1.5rem;
+    background: var(--app-card);
 }
 
-h1 {
-    margin-bottom: 8px;
+.note-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 44px rgba(23, 32, 51, 0.12) !important;
 }
 
-.subtitle,
-.muted {
-    color: #64748b;
-}
-
-.subtitle {
-    margin-top: 0;
-}
-
-a {
-    color: #2563eb;
+.note-card .card-title a {
+    color: var(--app-ink);
     text-decoration: none;
 }
 
-a:hover {
-    text-decoration: underline;
+.note-card .card-title a:hover {
+    color: var(--app-primary);
 }
 
-.notes-grid {
-    display: grid;
-    gap: 16px;
-    margin-top: 24px;
-}
-
-.note-card {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 18px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-}
-
-.note-card h2 {
-    margin-bottom: 10px;
-}
-
-.note-card p {
-    margin: 0 0 10px;
-    line-height: 1.45;
-}
-
-.note-card time {
-    font-size: 0.9rem;
-    color: #64748b;
-}
-
-.filter-form {
-    margin-bottom: 1rem;
-}
-
-.filter-form p,
-.stacked-form p {
-    display: grid;
-    gap: 6px;
-    margin: 0 0 14px;
-}
-
-label {
+.form-label {
+    color: #344054;
     font-weight: 700;
 }
 
-input,
-select,
-textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    font: inherit;
+.form-control,
+.form-select {
+    border: 1px solid #d7dce5;
+    border-radius: 1rem;
+    padding: 0.75rem 0.95rem;
+    background-color: rgba(255, 255, 255, 0.82);
 }
 
-textarea {
+textarea.form-control {
+    min-height: 180px;
     resize: vertical;
 }
 
-button,
-.button {
-    display: inline-block;
-    padding: 10px 14px;
-    border: 0;
-    border-radius: 10px;
-    background: #2563eb;
-    color: #ffffff;
-    font: inherit;
-    cursor: pointer;
+.form-control:focus,
+.form-select:focus {
+    border-color: rgba(49, 87, 213, 0.55);
+    box-shadow: 0 0 0 0.25rem rgba(49, 87, 213, 0.12);
 }
 
-button:hover,
-.button:hover {
-    background: #1d4ed8;
-    text-decoration: none;
+.btn-primary,
+.btn-dark {
+    border-color: var(--app-primary);
+    background: var(--app-primary);
+    box-shadow: 0 12px 26px rgba(49, 87, 213, 0.22);
 }
 
-button.danger,
-.danger {
-    background: #dc2626;
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-dark:hover,
+.btn-dark:focus {
+    border-color: var(--app-primary-dark);
+    background: var(--app-primary-dark);
+    transform: translateY(-1px);
 }
 
-button.danger:hover,
-.danger:hover {
-    background: #b91c1c;
+.btn-outline-primary {
+    color: var(--app-primary);
+    border-color: rgba(49, 87, 213, 0.35);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    border-color: var(--app-primary);
+    background: var(--app-primary);
+}
+
+.badge.text-bg-light {
+    color: #344054 !important;
+    background: #eef2ff !important;
 }
 
 .messages {
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
 }
 
-.message {
-    padding: 12px 14px;
-    border-radius: 10px;
-    background: #dbeafe;
-    border: 1px solid #93c5fd;
+.empty-state {
+    padding: clamp(2rem, 5vw, 4rem);
 }
 
-.message-success {
-    background: #dcfce7;
-    border-color: #86efac;
+.empty-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    margin-bottom: 1rem;
+    border-radius: 999px;
+    color: var(--app-primary);
+    background: #eef2ff;
+    font-size: 1.5rem;
 }
 
-.form-errors {
-    margin-bottom: 14px;
-    color: #b91c1c;
-}
-
-.empty-state,
 .danger-zone {
-    border-style: dashed;
+    border-style: dashed !important;
 }
 
 @media (max-width: 640px) {
-    .container {
-        margin: 20px auto;
-    }
+    .app-shell {
+        padding-top: 1.25rem;
+}
 
-    .page-header {
-        align-items: flex-start;
+    .hero-card,
+    .empty-state,
+    .filter-panel,
+    .form-card,
+    .note-card {
+        border-radius: 1.25rem;
     }
 }

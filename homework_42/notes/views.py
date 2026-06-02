@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from .forms import CategoryForm, NoteFilterForm, NoteForm, DATETIME_LOCAL_FORMAT
 from .models import Category, Note
 
-ALLOWED_ORDERINGS = {"-created_at", "created_at", "reminder", "category_title"}
+ALLOWED_ORDERINGS = {"-created_at", "created_at", "reminder", "category__title"}
 
 
 def notes_list(request):
@@ -79,7 +79,7 @@ def category_create(request):
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Категорію створено.")
-        return redirect("category_list")
+        return redirect("categories_list")
 
     return render(
         request, "notes/category_form.html", {"form": form, "is_create": True}
@@ -93,7 +93,7 @@ def category_update(request, category_id):
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Категорію оновлено.")
-        return redirect("category_list")
+        return redirect("categories_list")
 
     return render(
         request, "notes/category_form.html", {"form": form, "category": category}
@@ -177,7 +177,7 @@ def api_notes(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET", "PATCH","PUT", "POST"])
+@require_http_methods(["GET", "PATCH", "PUT", "POST"])
 def api_note_detail(request, note_id):
     note = get_object_or_404(Note.objects.select_related("category"), id=note_id)
 

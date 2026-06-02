@@ -7,7 +7,7 @@ class Category(models.Model):
     title = models.CharField(max_length=200, unique=True)
 
     class Meta:
-        ordering = ['title']
+        ordering = ["title"]
         verbose_name = "category"
         verbose_name_plural = "categories"
 
@@ -34,4 +34,4 @@ class Note(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("notes:detail", kwargs={"note_id": self.id})
+        return reverse("note_detail", kwargs={"note_id": self.id})

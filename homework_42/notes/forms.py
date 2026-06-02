@@ -10,7 +10,7 @@ class NoteForm(forms.ModelForm):
         required=False,
         label="Нагадування",
         widget=forms.DateTimeInput(
-            attrs={'type': 'datetime-local'},
+            attrs={"type": "datetime-local", "class": "form-control"},
             format=DATETIME_LOCAL_FORMAT,
         ),
         input_formats=[DATETIME_LOCAL_FORMAT],
@@ -25,7 +25,20 @@ class NoteForm(forms.ModelForm):
             "category": "Категорія",
         }
         widgets = {
-            "text": forms.Textarea(attrs={"rows": 6}),
+            "title": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Наприклад: Ідеї для проєкту",
+                }
+            ),
+            "text": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 6,
+                    "placeholder": "Коротко занотуй думку, план або нагадування...",
+                }
+            ),
+            "category": forms.Select(attrs={"class": "form-select"}),
         }
 
 
@@ -34,20 +47,33 @@ class CategoryForm(forms.ModelForm):
         model = Category
         fields = ["title"]
         labels = {"title": "Назва категорії"}
+        widgets = {
+            "title": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Наприклад: Робота"}
+            ),
+        }
 
 
 class NoteFilterForm(forms.Form):
-    query = forms.CharField(required=False, label="Пошук")
+    query = forms.CharField(
+        required=False,
+        label="Пошук",
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Назва або текст"}
+        ),
+    )
     category = forms.ModelChoiceField(
         queryset=Category.objects.none(),
         required=False,
         label="Категорія",
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     reminder_from = forms.DateTimeField(
         required=False,
         label="Нагадування від",
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"}, format=DATETIME_LOCAL_FORMAT
+            attrs={"type": "datetime-local", "class": "form-control"},
+            format=DATETIME_LOCAL_FORMAT,
         ),
         input_formats=[DATETIME_LOCAL_FORMAT],
     )
@@ -55,13 +81,15 @@ class NoteFilterForm(forms.Form):
         required=False,
         label="Нагадування до",
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"}, format=DATETIME_LOCAL_FORMAT
+            attrs={"type": "datetime-local", "class": "form-control"},
+            format=DATETIME_LOCAL_FORMAT,
         ),
         input_formats=[DATETIME_LOCAL_FORMAT],
     )
     ordering = forms.ChoiceField(
         required=False,
         label="Сортування",
+        widget=forms.Select(attrs={"class": "form-select"}),
         choices=(
             ("-created_at", "Нові спочатку"),
             ("created_at", "Старі спочатку"),
