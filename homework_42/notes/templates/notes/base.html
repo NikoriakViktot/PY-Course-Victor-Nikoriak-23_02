@@ -9,21 +9,21 @@
     <link rel="stylesheet" href="{% static 'notes/styles.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top app-navbar" aria-label="Головна навігація">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top app-navbar" aria-label="Головна навігація">
         <div class="container py-2">
-            <a class="navbar-brand fw-bold" href="{% url 'notes_list' %}">NoteSpace</a>
+            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{% url 'notes_list' %}">
+                <span class="brand-mark" aria-hidden="true">N</span>
+                <span>NoteSpace</span>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Перемкнути навігацію">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'notes_list' %}">Головна</a>
+                        <a class="nav-link" href="{% url 'notes_list' %}">Нотатки</a>
                     </li>
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="btn btn-primary rouded-pill px-3" href="{% url 'note_create' %}">Нова нотатка</a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'categories_list' %}">Категорії</a>
                         </li>
@@ -33,17 +33,21 @@
                             </li>
                         {% endif %}
                         <li class="nav-item">
+                            <a class="btn btn-primary px-3" href="{% url 'note_create' %}">+ Нова нотатка</a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center gap-2 px-lg-2 mt-2 mt-lg-0">
+                            <span class="nav-avatar" aria-hidden="true">{{ user.username|first|upper }}</span>
                             <span class="navbar-text small text-secondary">{{ user.username }}</span>
                         </li>
                         <li class="nav-item">
-                            <form method="post" action="{% url 'logout' %}">
+                            <form method="post" action="{% url 'logout' %}" class="m-0">
                                 {% csrf_token %}
-                                <button class="btn btn-outline-secondary rounded-pill px-3" type="submit">Log out</button>
+                                <button class="btn btn-outline-secondary px-3" type="submit">Log out</button>
                             </form>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="btn btn-primary rounded-pill px-3" href="{% url 'login' %}">Увійти</a>
+                            <a class="btn btn-primary px-3" href="{% url 'login' %}">Увійти</a>
                         </li>
                     {% endif %}
                 </ul>

@@ -1,24 +1,28 @@
 {% extends 'notes/base.html' %}
 
-{% block title %}{% if is_create %}Створення нотатки{% else %}Редагування нотатки{% endif %}{% endblock %}
+{% block title %}{% if is_create %}Нова нотатка{% else %}Редагування нотатки{% endif %}{% endblock %}
 
 {% block content %}
-    <header class="page-heading mb-4">
-        <div>
-            <span class="eyebrow">Нотатки</span>
-            <h1 class="fw-bold mb-2">{% if is_create %}Створення нотатки{% else %}Редагування нотатки{% endif %}</h1>
-            <p class="subtitle">Заповни назву, текст, категорію та за потреби нагадування.</p>
-        </div>
-        <a class="btn btn-outline-secondary rounded-pill px-4" href="{% url 'notes_list' %}">Назад до списку</a>
-    </header>
+    <div class="top-bar">
+        <a class="icon-button" href="{% url 'notes_list' %}" aria-label="Назад до списку">←</a>
+        <h1 class="top-bar-title">{% if is_create %}Нова нотатка{% else %}Редагування нотатки{% endif %}</h1>
+    </div>
 
-    <section class="card border-0 shadow-sm form-card">
-        <div class="card-body p-4 p-lg-5">
-            <form method="post" class="row g-4">
-                {% csrf_token %}
+    <section class="page-shell-narrow">
+        <form method="post" class="form-card p-4 p-lg-5" novalidate>
+            {% csrf_token %}
+            <div class="mb-4">
+                <span class="eyebrow">Нотатки</span>
+                <h2 class="h4 fw-bold mb-2">{% if is_create %}Створити нотатку{% else %}Оновити нотатку{% endif %}</h2>
+                <p class="text-secondary mb-0">Додайте назву, текст, категорію, групу для спільного доступу та нагадування.</p>
+            </div>
+
+            <div class="row g-4">
                 {% for field in form %}
                     <div class="{% if field.name == 'text' %}col-12{% else %}col-md-6{% endif %}">
-                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <label class="form-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+                        </label>
                         {{ field }}
                         {% if field.help_text %}
                             <div class="form-text">{{ field.help_text }}</div>
@@ -33,11 +37,11 @@
                         <div class="alert alert-danger mb-0">{{ form.non_field_errors }}</div>
                     </div>
                 {% endif %}
-                <div class="col-12 d-flex gap-2 flex-wrap pt-2">
-                    <button class="btn btn-primary rounded-pill px-4" type="submit">Зберегти</button>
-                    <a class="btn btn-light rounded-pill px-4" href="{% url 'notes_list' %}">Скасувати</a>
+                <div class="col-12 d-flex gap-3 flex-wrap pt-2">
+                    <button class="btn btn-primary px-4" type="submit">Зберегти нотатку</button>
+                    <a class="btn btn-outline-secondary px-4" href="{% url 'notes_list' %}">Скасувати</a>
                 </div>
-            </form>
-        </div>
+             </div>
+        </form>
     </section>
 {% endblock %}

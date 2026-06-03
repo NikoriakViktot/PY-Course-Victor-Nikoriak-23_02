@@ -1,23 +1,40 @@
 {% extends 'notes/base.html' %}
 
-{% block title %}{% if is_create %}Створення категорії{% else %}Редагування категорії{% endif %}{% endblock %}
+{% block title %}{% if is_create %}Нова категорія{% else %}Редагування категорії{% endif %}{% endblock %}
 
 {% block content %}
-    <header class="page-header">
-        <div>
-            <h1>{% if is_create %}Створення категорії{% else %}Редагування категорії{% endif %}</h1>
-            <p class="subtitle">Категорії допомагають групувати нотатки.</p>
-        </div>
-        <a href="{% url 'categories_list' %}">Назад до категорій</a>
-    </header>
+    <div class="top-bar">
+        <a class="icon-button" href="{% url 'categories_list' %}" aria-label="Назад до категорій">←</a>
+        <h1 class="top-bar-title">{% if is_create %}Нова категорія{% else %}Редагування категорії{% endif %}</h1>
+    </div>
 
-    <section class="note-card">
-        <form method="post" class="stacked-form">
+    <section class="page-shell-narrow">
+        <form method="post" class="form-card p-4 p-lg-5" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
-            <div class="actions">
-                <button type="submit">Зберегти</button>
-                <a href="{% url 'categories_list' %}">Скасувати</a>
+            <div class="mb-4">
+                <span class="eyebrow">Категорії</span>
+                <h2 class="h4 fw-bold mb-2">{% if is_create %}Створити категорію{% else %}Оновити категорію{% endif %}</h2>
+                <p class="text-secondary mb-0">Категорії допомагають швидко фільтрувати й знаходити потрібні нотатки.</p>
+            </div>
+
+            {% for field in form %}
+                <div class="mb-4">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="d-flex gap-3 flex-wrap pt-2">
+                <button class="btn btn-primary px-4" type="submit">Зберегти категорію</button>
+                <a class="btn btn-outline-secondary px-4" href="{% url 'categories_list' %}">Скасувати</a>
             </div>
         </form>
     </section>

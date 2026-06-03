@@ -11,14 +11,14 @@
                 <p class="lead text-secondary mb-0">{% if scope == group_scope %}Переглядай нотатки, доступні групам, у яких ти перебуваєш.{% else %}Зберігай ідеї, швидко знаходь потрібне та впорядковуй нотатки за категоріями.{% endif %}</p>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a class="btn btn-primary btn-lg rounded-pill px-4" href="{% url 'note_create' %}">Створити нотатку</a>
+                <a class="btn btn-primary btn-lg px-4" href="{% url 'note_create' %}">Створити нотатку</a>
             </div>
         </div>
     </header>
 
-    <nav class="d-flex gap-2 flex-wrap mb-4" aria-label="Перемикач типу нотаток">
-        <a class="btn {% if scope == personal_scope %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-pill px-4" href="{% url 'notes_list' %}?scope={{ personal_scope }}">Персональні нотатки</a>
-        <a class="btn {% if scope == group_scope %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-pill px-4" href="{% url 'notes_list' %}?scope={{ group_scope }}">Нотатки групи</a>
+    <nav class="scope-tabs" aria-label="Перемикач типу нотаток">
+        <a class="btn {% if scope == personal_scope %}btn-dark{% else %}btn-outline-dark{% endif %} px-4" href="{% url 'notes_list' %}?scope={{ personal_scope }}">Персональні нотатки</a>
+        <a class="btn {% if scope == group_scope %}btn-dark{% else %}btn-outline-dark{% endif %} px-4" href="{% url 'notes_list' %}?scope={{ group_scope }}">Нотатки групи</a>
     </nav>
 
     <form method="get" class="card border-0 shadow-sm filter-panel mb-4">
@@ -43,8 +43,8 @@
                 <div class="alert alert-danger mt-3 mb-0">{{ filter_form.non_field_errors }}</div>
             {% endif %}
             <div class="d-flex gap-2 flex-wrap mt-4">
-                <button class="btn btn-dark rounded-pill px-4" type="submit">Фільтрувати</button>
-                <a class="btn btn-outline-secondary rounded-pill px-4" href="{% url 'notes_list' %}?scope={{ scope }}">Скинути</a>
+                <button class="btn btn-dark px-4" type="submit">Фільтрувати</button>
+                <a class="btn btn-outline-secondary px-4" href="{% url 'notes_list' %}?scope={{ scope }}">Скинути</a>
             </div>
         </div>
     </form>
@@ -77,9 +77,9 @@
                 <article class="empty-state text-center">
                     <span class="empty-icon" aria-hidden="true">✦</span>
                     <h2 class="h3">{% if scope == group_scope %}Групових нотаток поки що немає{% else %}Нотаток поки що немає{% endif %}</h2>
-                    <p class="text-secondsry mb-4">Створи першу категорію, а потім додай нотатку.</p>
+                    <p class="text-secondary mb-4">Створи першу категорію, а потім додай нотатку.</p>
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
-                        <a class="btn btn-outline-primary rounded-pill px-4" href="{% url 'category_create' %}">Створити категорію</a>
+                        <a class="btn btn-outline-primary px-4" href="{% url 'category_create' %}">Створити категорію</a>
                         <a class="btn btn-primary rounded-pill px-4" href="{% url 'note_create' %}">Створити нотатку</a>
                     </div>
                 </article>
