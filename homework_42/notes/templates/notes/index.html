@@ -1,0 +1,89 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}Мої нотатки{% endblock %}
+
+{% block content %}
+    <header class="hero-card mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="eyebrow">Особистий простір</span>
+                <h1 class="display-5 fw-bold mb-3">{% if scope == group_scope %}Нотатки групи{% else %}Мої нотатки{% endif %}</h1>
+                <p class="lead text-secondary mb-0">{% if scope == group_scope %}Переглядай нотатки, доступні групам, у яких ти перебуваєш.{% else %}Зберігай ідеї, швидко знаходь потрібне та впорядковуй нотатки за категоріями.{% endif %}</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a class="btn btn-primary btn-lg px-4" href="{% url 'note_create' %}">Створити нотатку</a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="scope-tabs" aria-label="Перемикач типу нотаток">
+        <a class="btn {% if scope == personal_scope %}btn-dark{% else %}btn-outline-dark{% endif %} px-4" href="{% url 'notes_list' %}?scope={{ personal_scope }}">Персональні нотатки</a>
+        <a class="btn {% if scope == group_scope %}btn-dark{% else %}btn-outline-dark{% endif %} px-4" href="{% url 'notes_list' %}?scope={{ group_scope }}">Нотатки групи</a>
+    </nav>
+
+    <form method="get" class="card border-0 shadow-sm filter-panel mb-4">
+        <input type="hidden" name="scope" value="{{ scope }}">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <h2 class="h5 mb-0">Фільтри</h2>
+                <a class="link-secondary small" href="{% url 'notes_list' %}?scope={{ scope }}">Скинути все</a>
+            </div>
+            <div class="row g-3">
+                {% for field in filter_form %}
+                    <div class="col-md-6 col-xl">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            {% if filter_form.non_field_errors %}
+                <div class="alert alert-danger mt-3 mb-0">{{ filter_form.non_field_errors }}</div>
+            {% endif %}
+            <div class="d-flex gap-2 flex-wrap mt-4">
+                <button class="btn btn-dark px-4" type="submit">Фільтрувати</button>
+                <a class="btn btn-outline-secondary px-4" href="{% url 'notes_list' %}?scope={{ scope }}">Скинути</a>
+            </div>
+        </div>
+    </form>
+
+    <section class="row g-4" aria-label="Список нотаток">
+        {% for note in notes %}
+            <div class="col-md-6 col-xl-4">
+                <article class="card note-card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between gap-3 align-items-start mb-3">
+                            <span class="badge rounded-pill text-bg-light">{{ note.category.title }}</span>
+                            {% if note.group %}
+                                <span class="badge rounded-pill text-bg-primary">{{ note.group.name }}</span>
+                            {% endif %}
+                            <span class="small text-secondary">{{ note.created_at|date:"d.m.Y" }}</span>
+                        </div>
+                        <h2 class="h4 card-title mb-3"><a class="stretched-link" href="{% url 'note_detail' note.id %}">{{ note.title }}</a></h2>
+                        <p class="card-text text-secondary">{{ note.text|truncatechars:120 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0">
+                        <p class="small text-secondary mb-1"><strong>Нагадування:</strong> {{ note.reminder|date:"d.m.Y H:i"|default:"-" }}</p>
+                        {% if note.group %}
+                            <p class="small text-secondary mb-0"><strong>Автор:</strong> {{ note.owner.username|default:"-" }}</p>
+                        {% endif %}
+                    </div>
+                </article>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <article class="empty-state text-center">
+                    <span class="empty-icon" aria-hidden="true">✦</span>
+                    <h2 class="h3">{% if scope == group_scope %}Групових нотаток поки що немає{% else %}Нотаток поки що немає{% endif %}</h2>
+                    <p class="text-secondary mb-4">Створи першу категорію, а потім додай нотатку.</p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary px-4" href="{% url 'category_create' %}">Створити категорію</a>
+                        <a class="btn btn-primary rounded-pill px-4" href="{% url 'note_create' %}">Створити нотатку</a>
+                    </div>
+                </article>
+            </div>
+        {% endfor %}
+    </section>
+{% endblock %}
