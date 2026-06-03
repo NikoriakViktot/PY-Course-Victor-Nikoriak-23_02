@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from .models import Category, Note
 
@@ -18,11 +19,12 @@ class NoteForm(forms.ModelForm):
 
     class Meta:
         model = Note
-        fields = ["title", "text", "reminder", "category"]
+        fields = ["title", "text", "reminder", "category", "group"]
         labels = {
             "title": "Назва",
             "text": "Текст",
             "category": "Категорія",
+            "group": "Група",
         }
         widgets = {
             "title": forms.TextInput(
@@ -39,7 +41,23 @@ class NoteForm(forms.ModelForm):
                 }
             ),
             "category": forms.Select(attrs={"class": "form-select"}),
+            "group": forms.Select(attrs={"class": "form-select"}),
         }
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.fields["group"].queryset = self.get_available_groups()
+        self.fields["group"].required = False
+        self.fields["group"].empty_label = "Лише персональна нотатка"
+        self.fields["group"].help_text = (
+            "Виберіть групу, якщо нотатку мають бачити всі її учасники."
+        )
+
+    def get_available_groups(self):
+        if self.user is not None and self.user.is_authenticated:
+            return self.user.groups.order_by("name")
+        return Group.objects.none()
 
 
 class CategoryForm(forms.ModelForm):

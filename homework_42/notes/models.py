@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -23,6 +24,23 @@ class Note(models.Model):
         Category,
         on_delete=models.CASCADE,
         related_name="notes",
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notes",
+        verbose_name="Користувач",
+        null=True,
+        blank=True,
+    )
+    group = models.ForeignKey(
+        "auth.Group",
+        on_delete=models.SET_NULL,
+        related_name="notes",
+        verbose_name="Група",
+        null=True,
+        blank=True,
+        help_text="Якщо вибрати групу, її учасники зможуть переглядати нотатку.",
     )
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)

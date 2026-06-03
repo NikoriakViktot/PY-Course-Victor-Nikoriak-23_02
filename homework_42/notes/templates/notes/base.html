@@ -12,7 +12,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top app-navbar" aria-label="Головна навігація">
         <div class="container py-2">
             <a class="navbar-brand fw-bold" href="{% url 'notes_list' %}">NoteSpace</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"> aria-controls="mainNavbar" aria-expanded="false" aria-label="Перемкнути навігацію">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Перемкнути навігацію">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
@@ -20,12 +20,32 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'notes_list' %}">Головна</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary rouded-pill px-3" href="{% url 'note_create' %}">Нова нотатка</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'categories_list' %}">Категорії</a>
-                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="btn btn-primary rouded-pill px-3" href="{% url 'note_create' %}">Нова нотатка</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'categories_list' %}">Категорії</a>
+                        </li>
+                        {% if user.is_staff %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'admin:index' %}">Адмінка</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <span class="navbar-text small text-secondary">{{ user.username }}</span>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-secondary rounded-pill px-3" type="submit">Log out</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-primary rounded-pill px-3" href="{% url 'login' %}">Увійти</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -35,9 +55,9 @@
         {% if messages %}
             <section class="messages" aria-label="Повідомлення">
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags|default: 'info' }} shadow-sm" role="alert">{{ message }}</div>
+                    <div class="alert alert-{{ message.tags|default:'info' }} shadow-sm" role="alert">{{ message }}</div>
                 {% endfor %}
-            </section>>
+            </section>
         {% endif %}
 
         {% block content %}{% endblock %}
