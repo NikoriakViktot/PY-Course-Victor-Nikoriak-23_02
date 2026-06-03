@@ -1,0 +1,13 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+motor==3.7.1
+pydantic==2.9.2
+aiohttp==3.10.10
+beautifulsoup4==4.12.3
+lxml==5.3.0
+httpx==0.27.2
+python-multipart==0.0.12
+pymorphy3==2.0.6
+pymorphy3-dicts-uk==2.4.1.1.1663094765
+spacy==3.7.4
+langdetect==1.0.9

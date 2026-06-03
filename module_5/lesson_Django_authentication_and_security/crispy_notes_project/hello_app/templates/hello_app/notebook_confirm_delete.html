@@ -1,0 +1,34 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block topbar_title %}Видалення записника{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6 offset-md-3">
+    <div class="card shadow-sm border-danger">
+      <div class="card-header bg-danger text-white">
+        <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Видалити записник</h6>
+      </div>
+      <div class="card-body">
+        <p>Ти збираєшся видалити записник <strong>«{{ notebook.title }}»</strong>.</p>
+        {% if note_count %}
+        <div class="alert alert-warning">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>{{ note_count }} нотаток</strong> у цьому записнику стануть «без записника».
+          Нотатки не будуть видалені.
+        </div>
+        {% endif %}
+      </div>
+      <div class="card-footer d-flex gap-2">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i>Видалити
+          </button>
+        </form>
+        <a href="{% url 'hello_app:notebook_list' %}" class="btn btn-outline-secondary">Скасувати</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

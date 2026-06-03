@@ -1,0 +1,89 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# docker-compose.yml — Оркестрація мікросервісів для розробки.
+#
+# РОЛЬ У АРХІТЕКТУРІ:
+#   Запускає два контейнери разом:
+#     db  → PostgreSQL (база даних)
+#     web → Django + Gunicorn (веб-додаток)
+#
+#   Схема мережі:
+#     Браузер → localhost:8000 → web (Django) → db:5432 (PostgreSQL)
+#
+# КОМАНДИ:
+#   docker compose up --build    ← зібрати образи і запустити
+#   docker compose up -d         ← запустити у фоні
+#   docker compose down          ← зупинити і видалити контейнери
+#   docker compose logs web      ← логи Django
+#   docker compose exec web bash ← увійти в контейнер Django
+#
+# ПІСЛЯ ПЕРШОГО ЗАПУСКУ:
+#   docker compose exec web python manage.py migrate
+#   docker compose exec web python manage.py createsuperuser
+#   docker compose exec web python manage.py parse_rbc --publish
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
+  db:
+    # Офіційний образ PostgreSQL 16 (Alpine = мінімальна версія)
+    image: postgres:16-alpine
+
+    # Змінні оточення PostgreSQL — створюють БД і користувача при першому запуску
+    environment:
+      POSTGRES_DB: news_portal_db      # Назва бази даних
+      POSTGRES_USER: news_user         # Ім'я користувача
+      POSTGRES_PASSWORD: news_password # Пароль
+
+    # Іменований том для збереження даних БД між перезапусками контейнера.
+    # БЕЗ volumes → всі дані зникнуть при docker compose down!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    # healthcheck перевіряє чи PostgreSQL готовий приймати з'єднання.
+    # web сервіс чекає (depends_on.condition) поки db стане healthy.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U news_user -d news_portal_db"]
+      interval: 5s   # Перевіряти кожні 5 секунд
+      timeout: 5s    # Таймаут однієї перевірки
+      retries: 5     # 5 невдалих спроб → контейнер = unhealthy
+
+
+  # ── Django Web ─────────────────────────────────────────────────────────────
+  web:
+    # build: . → збирати образ з Dockerfile в поточній директорії
+    build: .
+
+    # Публікуємо порт: localhost:8000 → контейнер:8000
+    ports:
+      - "8000:8000"
+
+    # Монтуємо код як том — зміни в коді одразу видно в контейнері
+    # (зручно для розробки; у продакшені не використовують)
+    volumes:
+      - .:/app
+
+    # Змінні оточення для Django
+    # Значення збігаються з тим що в .env.example та PostgreSQL сервісі
+    environment:
+      SECRET_KEY: dev-docker-secret-key-change-in-production
+      DEBUG: "True"
+      ALLOWED_HOSTS: "localhost,127.0.0.1"
+      DB_NAME: news_portal_db
+      DB_USER: news_user
+      DB_PASSWORD: news_password
+      DB_HOST: db        # 'db' = ім'я сервісу PostgreSQL вище (Docker DNS!)
+      DB_PORT: "5432"
+
+    # Запускати web тільки після того як db стане healthy
+    # (без цього Django може спробувати підключитись до БД раніше ніж вона готова)
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+# ── Томи ───────────────────────────────────────────────────────────────────────
+# Іменовані томи — Docker зберігає дані поза контейнерами
+volumes:
+  postgres_data:
+    # driver: local → зберігається на хост-машині (за замовчуванням)

@@ -1,0 +1,117 @@
+{% extends 'layouts/dashboard.html' %}
+{% load crispy_forms_tags %}
+
+{% block topbar_title %}{{ sl.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-9">
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0 fw-semibold">
+            {{ sl.title }}
+            {% if sl.store_name %}
+            <span class="badge bg-secondary ms-2 fw-normal fs-6">{{ sl.store_name }}</span>
+            {% endif %}
+          </h5>
+          {% if total_price %}
+          <small class="text-muted">
+            <i class="bi bi-currency-dollar me-1"></i>Орієнтовна сума: <strong>{{ total_price|floatformat:2 }} ₴</strong>
+          </small>
+          {% endif %}
+        </div>
+        {% if is_owner %}
+        <div class="btn-group btn-group-sm">
+          <a href="{% url 'hello_app:shopping_share' sl.pk %}" class="btn btn-outline-info">
+            <i class="bi bi-share me-1"></i>Поділитись
+          </a>
+          <a href="{% url 'hello_app:shopping_edit' sl.pk %}" class="btn btn-outline-primary">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <a href="{% url 'hello_app:shopping_delete' sl.pk %}" class="btn btn-outline-danger">
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Inline add item form -->
+      <div class="card-body border-bottom pb-3">
+        <form method="post" action="{% url 'hello_app:shop_item_add' sl.pk %}">
+          {% csrf_token %}
+          {% crispy item_form %}
+        </form>
+      </div>
+
+      <!-- Items list -->
+      {% if sl.items.all %}
+      <ul class="list-group list-group-flush">
+        {% for item in sl.items.all %}
+        <li class="list-group-item d-flex align-items-center gap-2
+                   {% if item.is_purchased %}text-muted{% endif %}">
+          <form method="post" action="{% url 'hello_app:shop_item_toggle' item.pk %}" class="mb-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent"
+                    style="font-size: 1.2rem; line-height: 1;">
+              {% if item.is_purchased %}
+              <i class="bi bi-check-circle-fill text-success"></i>
+              {% else %}
+              <i class="bi bi-circle text-secondary"></i>
+              {% endif %}
+            </button>
+          </form>
+          <span class="flex-grow-1 {% if item.is_purchased %}text-decoration-line-through{% endif %}">
+            {{ item.name }}
+          </span>
+          <small class="text-muted me-1">
+            {{ item.quantity }} {{ item.unit }}
+          </small>
+          {% if item.estimated_price %}
+          <small class="text-muted me-2">{{ item.estimated_price }} ₴</small>
+          {% endif %}
+          {% if is_owner %}
+          <form method="post" action="{% url 'hello_app:shop_item_delete' item.pk %}" class="mb-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1">
+              <i class="bi bi-x"></i>
+            </button>
+          </form>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="card-body text-muted small">
+        <i class="bi bi-inbox me-1"></i>Список порожній — додай перший товар
+      </div>
+      {% endif %}
+    </div>
+
+    {% if sl.shared_with.all %}
+    <div class="card shadow-sm border-info">
+      <div class="card-body py-2">
+        <small class="text-info">
+          <i class="bi bi-people me-1"></i>
+          Поділено з:
+          {% for u in sl.shared_with.all %}
+          <span class="badge bg-info text-dark me-1">{{ u.username }}</span>
+          {% endfor %}
+        </small>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <div class="col-lg-3">
+    <a href="{% url 'hello_app:shopping_list' %}" class="btn btn-outline-secondary w-100 mb-2">
+      <i class="bi bi-arrow-left me-1"></i>Всі списки
+    </a>
+    <a href="{% url 'hello_app:shopping_create' %}" class="btn btn-primary w-100">
+      <i class="bi bi-plus-lg me-1"></i>Новий список
+    </a>
+  </div>
+</div>
+{% endblock %}

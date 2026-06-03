@@ -1,0 +1,62 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}{{ note.title }} — Bootstrap Notes{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb — навігаційні хлібні крихти -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{% url 'hello_app:note_list' %}">Нотатки</a>
+        </li>
+        <!--
+            truncatechars:30 — скорочуємо довгу назву в breadcrumb
+            Теорія: DJANGO_TEMPLATES_BOOTSTRAP.md §3 — Filters.
+        -->
+        <li class="breadcrumb-item active" aria-current="page">
+            {{ note.title|truncatechars:30 }}
+        </li>
+    </ol>
+</nav>
+
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h1 class="h4 mb-0">{{ note.title }}</h1>
+        <div class="btn-group">
+            <a href="{% url 'hello_app:note_edit' pk=note.pk %}"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-pencil me-1"></i>Редагувати
+            </a>
+            <a href="{% url 'hello_app:note_delete' pk=note.pk %}"
+               class="btn btn-sm btn btn-outline-dark">
+                <i class="bi bi-trash me-1"></i>Видалити
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        {% if note.content %}
+            <!--
+                linebreaks — конвертує \n у <p> теги.
+                Без нього весь текст буде в один рядок.
+                Теорія: DJANGO_TEMPLATES_BOOTSTRAP.md §3 — linebreaks filter.
+            -->
+            <p class="card-text">{{ note.content|linebreaks }}</p>
+        {% else %}
+            <p class="text-muted fst-italic">Зміст відсутній.</p>
+        {% endif %}
+    </div>
+
+    <div class="card-footer text-muted small">
+        <i class="bi bi-clock me-1"></i>
+        Створено {{ note.created_at|date:"d.m.Y" }} о {{ note.created_at|date:"H:i" }}
+        ({{ note.created_at|timesince }} тому)
+    </div>
+</div>
+
+<a href="{% url 'hello_app:note_list' %}" class="btn btn-link mt-3">
+    <i class="btn btn-outline-dark"> Назад до списку </i>
+</a>
+
+{% endblock %}
