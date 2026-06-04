@@ -19,15 +19,24 @@
         <div class="notes-grid">
             {% for note in notes %}
                 <article class="note-card">
-                    <div class="card-badge">Нотатка №{{ note.id }}</div>
+                    <div class="card-badge">
+                        {% if note.category %}
+                            #{{ note.category.title }}
+                        {% else %}
+                            #Без категорії
+                        {% endif %}
+                    </div>
+
                     <h2>{{ note.title }}</h2>
-                    <p>{{ note.content }}</p>
+
+                    <p>{{ note.text }}</p>
+
                     <div class="card-footer">
-                        <time>📅 {{ note.date }}</time>
+                        <time>⏰ Нагадати: {% if note.reminder %}{{ note.reminder|date:"d.m.Y H:i" }}{% else %}Немає{% endif %}</time>
                     </div>
                 </article>
             {% empty %}
-                <p class="no-notes">Нотаток поки що немає.</p>
+                <p class="no-notes">Нотаток у базі даних поки що немає.</p>
             {% endfor %}
         </div>
     </main>
