@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мої нотатки</title>
+    <link rel="stylesheet" href="{% static 'notes/styles.css' %}">
+</head>
+<body>
+    <main class="container">
+        <h1>Мої нотатки</h1>
+        <p class="subtitle">Текстові дані з view</p>
+
+        <section class="notes-grid">
+            {% for note in notes %}
+                <article class="note-card">
+                    <h2>{{ note.title }}</h2>
+                    <p>{{ note.content }}</p>
+                    <time datetime="{{ note.created_at }}">Створено: {{ note.created_at }}</time>
+                </article>
+            {% empty %}
+                <p>Нотаток поки що немає.</p>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>
