@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Борд Нотаток — Папка HW_39</title>
+    <link rel="stylesheet" href="{% static 'notes/css/style.css' %}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>📌 Мій Борд Нотаток [Папка HW_39]</h1>
+            <p>Основи мови розмітки HTML та стилів CSS</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="notes-grid">
+            {% for note in notes %}
+                <article class="note-card">
+                    <div class="card-badge">
+                        {% if note.category %}
+                            #{{ note.category.title }}
+                        {% else %}
+                            #Без категорії
+                        {% endif %}
+                    </div>
+
+                    <h2>{{ note.title }}</h2>
+
+                    <p>{{ note.text }}</p>
+
+                    <div class="card-footer">
+                        <time>⏰ Нагадати: {% if note.reminder %}{{ note.reminder|date:"d.m.Y H:i" }}{% else %}Немає{% endif %}</time>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="no-notes">Нотаток у базі даних поки що немає.</p>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>
