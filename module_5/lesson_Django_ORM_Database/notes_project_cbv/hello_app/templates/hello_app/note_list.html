@@ -1,0 +1,195 @@
+{% extends 'hello_app/base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Мої нотатки{% endblock %}
+
+{% block content %}
+
+<div class="row g-4">
+
+    <div class="col-xl-3 col-lg-4 d-none d-lg-block">
+
+        <div class="filter-card card mb-3">
+            <div class="card-header fw-semibold small">
+                <i class="bi bi-journals me-1"></i>Записники
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item {% if not active_notebook %}active-item{% endif %}">
+                    <a href="{% url 'hello_app:note_list' %}"
+                       class="text-decoration-none d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-list-ul me-1 text-secondary"></i>Всі нотатки</span>
+                    </a>
+                </li>
+                {% for nb in notebooks %}
+                <li class="list-group-item {% if active_notebook.id == nb.id %}active-item{% endif %}">
+                    <a href="?notebook={{ nb.id }}"
+                       class="text-decoration-none d-flex justify-content-between align-items-center">
+                        <span>
+                            <span class="d-inline-block rounded-circle me-1 flex-shrink-0"
+                                  style="width:10px;height:10px;background:{{ nb.color }};vertical-align:middle;"></span>
+                            {{ nb.title }}
+                        </span>
+                        <span class="badge bg-secondary rounded-pill">{{ nb.note_count }}</span>
+                    </a>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted small fst-italic">
+                    <i class="bi bi-dash"></i> Немає записників
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% if tags %}
+        <div class="filter-card card">
+            <div class="card-header fw-semibold small">
+                <i class="bi bi-tags me-1"></i>Теги
+            </div>
+            <div class="card-body py-2">
+                {% for tag in tags %}
+                <a href="?tag={{ tag.id }}"
+                   class="badge text-decoration-none me-1 mb-1
+                       {% if active_tag.id == tag.id %}opacity-100{% else %}opacity-65{% endif %}"
+                   style="background-color: {{ tag.color }}; font-size:0.78em;">
+                    #{{ tag.name }}
+                    <small class="ms-1 opacity-75">{{ tag.note_count }}</small>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <div class="col-xl-9 col-lg-8">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 mb-0 fw-semibold">
+                <i class="bi bi-pencil-square me-2 text-primary"></i>Нотатки
+                {% if active_notebook %}
+                    <small class="text-secondary fw-normal fs-6">· {{ active_notebook.title }}</small>
+                {% endif %}
+                {% if active_tag %}
+                    <span class="badge ms-2 fs-6" style="background:{{ active_tag.color }};opacity:0.9;">
+                        #{{ active_tag.name }}
+                    </span>
+                {% endif %}
+            </h2>
+            <a href="{% url 'hello_app:note_create' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>Нова нотатка
+            </a>
+        </div>
+
+        <form method="get" class="mb-4">
+            {% if active_tag %}<input type="hidden" name="tag" value="{{ active_tag.id }}">{% endif %}
+            {% if active_notebook %}<input type="hidden" name="notebook" value="{{ active_notebook.id }}">{% endif %}
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary">
+                    <i class="bi bi-search text-secondary"></i>
+                </span>
+                <input type="text" name="q" value="{{ search }}"
+                       class="form-control border-secondary"
+                       placeholder="Пошук по заголовку та вмісту..."
+                       style="background: rgba(255,255,255,0.04);">
+                <button type="submit" class="btn btn-outline-secondary">Шукати</button>
+                {% if search %}
+                <a href="?" class="btn btn-outline-danger">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if notes %}
+        <div class="row row-cols-1 row-cols-xl-2 g-3">
+            {% for note in notes %}
+            <div class="col">
+                <div class="note-card card h-100
+                    {% if note.is_pinned %}pinned{% endif %}
+                    {% if note.priority == 4 %}urgent{% elif note.priority == 3 %}high{% endif %}">
+
+                    <div class="card-body pb-2">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0 fw-semibold" style="font-size:1rem;">
+                                {% if note.is_pinned %}
+                                <i class="bi bi-pin-angle-fill text-warning me-1" title="Закріплено"></i>
+                                {% endif %}
+                                <a href="{% url 'hello_app:note_detail' note.pk %}"
+                                   class="text-decoration-none"
+                                   style="color: var(--text-primary);">
+                                    {{ note.title }}
+                                </a>
+                            </h5>
+                            {% if note.priority > 1 %}
+                            <span class="badge flex-shrink-0 ms-2
+                                {% if note.priority == 4 %}bg-danger
+                                {% elif note.priority == 3 %}bg-warning text-dark
+                                {% else %}bg-info text-dark{% endif %}">
+                                {{ note.get_priority_display }}
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        {% if note.content %}
+                        <p class="card-text small mb-2"
+                           style="color: var(--text-secondary); line-height:1.5;">
+                            {{ note.content|truncatechars:120 }}
+                        </p>
+                        {% endif %}
+
+                        <div>
+                            {% for tag in note.tags.all %}
+                            <a href="?tag={{ tag.id }}"
+                               class="badge text-decoration-none me-1"
+                               style="background-color: {{ tag.color }}; font-size:0.72em; opacity:0.85;">
+                                #{{ tag.name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="card-footer d-flex justify-content-between align-items-center py-2">
+                        <small style="color: var(--text-secondary); font-size: 0.78rem;">
+                            <i class="bi bi-folder2 me-1"></i>{{ note.notebook.title|default:"Без записника" }}
+                            <span class="mx-1 opacity-50">·</span>
+                            {{ note.updated_at|date:"d.m.Y" }}
+                        </small>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'hello_app:note_edit' note.pk %}"
+                               class="btn btn-outline-secondary btn-sm" title="Редагувати">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'hello_app:note_delete' note.pk %}"
+                               class="btn btn-outline-danger btn-sm" title="Видалити">
+                                <i class="bi bi-trash3"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="text-center py-5" style="color: var(--text-secondary);">
+            <i class="bi bi-journal-x" style="font-size:4rem; opacity:0.3;"></i>
+            <h4 class="mt-3 fw-normal">
+                {% if search %}
+                    За запитом "{{ search }}" нічого не знайдено
+                {% elif active_tag %}
+                    Немає нотаток з тегом #{{ active_tag.name }}
+                {% elif active_notebook %}
+                    Записник "{{ active_notebook.title }}" порожній
+                {% else %}
+                    Ще немає жодної нотатки
+                {% endif %}
+            </h4>
+            <a href="{% url 'hello_app:note_create' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-plus-circle me-1"></i>Створити нотатку
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

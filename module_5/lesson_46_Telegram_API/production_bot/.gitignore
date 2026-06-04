@@ -1,0 +1,29 @@
+# Environment
+.env
+*.env
+
+# SSL сертифікати (НІКОЛИ не комітити!)
+docker/ssl/*.pem
+docker/ssl/*.key
+docker/ssl/*.crt
+!docker/ssl/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Alembic
+alembic/versions/*.pyc
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp

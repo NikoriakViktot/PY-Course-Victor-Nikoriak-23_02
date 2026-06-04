@@ -1,0 +1,4 @@
+Django>=5.2,<6
+django-debug-toolbar>=4.0
+django-bootstrap5>=24.0
+django-unfold>=0.40

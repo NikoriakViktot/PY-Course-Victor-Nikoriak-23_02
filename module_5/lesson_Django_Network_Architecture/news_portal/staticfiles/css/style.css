@@ -1,0 +1,55 @@
+/*
+ * style.css — Кастомні стилі новинного порталу.
+ *
+ * РОЛЬ У АРХІТЕКТУРІ:
+ *   Статичний файл — Django роздає через /static/css/style.css
+ *   У продакшені Nginx роздає напряму (без Django взагалі).
+ *   Підключається в base.html через {% static 'css/style.css' %}
+ */
+
+/* ── Загальне оформлення ──────────────────────────────────────────────────── */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+/* ── Картка новини ────────────────────────────────────────────────────────── */
+
+.news-card {
+    /* Плавна анімація при наведенні */
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.news-card:hover {
+    /* Підіймаємо картку при hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── Текст статті ─────────────────────────────────────────────────────────── */
+
+.article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+.article-content p {
+    margin-bottom: 1.2rem;
+}
+
+/* ── Навігаційна панель ───────────────────────────────────────────────────── */
+
+.navbar-brand {
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+}
+
+/* ── Пагінація ────────────────────────────────────────────────────────────── */
+
+.pagination .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+}

@@ -1,0 +1,132 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}Мої записники{% endblock %}
+
+{% block content %}
+<!--
+  notebook_list.html — список записників поточного користувача
+
+  Context від view:
+  - notebooks -> QuerySet[Notebook] з annotate(note_count)
+                 note_count — кількість активних (не архівних) нотаток
+
+  Кожен записник відображається як картка з:
+    - Кольоровою смужкою зліва (колір записника)
+    - Заголовком та описом
+    - Кількістю нотаток (badge)
+    - Кнопками: Відкрити / Редагувати / Видалити
+-->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 fw-semibold mb-1">
+            <i class="bi bi-journals me-2 text-primary"></i>Записники
+        </h2>
+        <p class="text-muted small mb-0">
+            Організуй нотатки у тематичні колекції
+        </p>
+    </div>
+    <a href="{% url 'hello_app:notebook_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Новий записник
+    </a>
+</div>
+
+{% if notebooks %}
+
+{# Сітка записників — 3 колонки на великих екранах #}
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+    {% for nb in notebooks %}
+    <div class="col">
+        <div class="card h-100" style="
+            background: #1e1e2e;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-left: 4px solid {{ nb.color }};
+            border-radius: 10px;
+            transition: transform 0.15s, box-shadow 0.15s;">
+
+            <div class="card-body">
+                {# Заголовок + Default badge #}
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-semibold mb-0" style="color: #e2e8f0;">
+                        <span class="d-inline-block rounded-circle me-2"
+                              style="width:10px;height:10px;background:{{ nb.color }};
+                                     vertical-align:middle;"></span>
+                        {{ nb.title }}
+                    </h5>
+                    {% if nb.is_default %}
+                    <span class="badge bg-primary bg-opacity-25 text-primary ms-2 flex-shrink-0"
+                          style="font-size:0.7rem;">
+                        <i class="bi bi-star-fill me-1"></i>За замовч.
+                    </span>
+                    {% endif %}
+                </div>
+
+                {# Опис #}
+                {% if nb.description %}
+                <p class="card-text small mb-3" style="color: #7b7b9c; line-height:1.5;">
+                    {{ nb.description|truncatechars:100 }}
+                </p>
+                {% else %}
+                <p class="card-text small mb-3 fst-italic" style="color: #4a4a6a;">
+                    Без опису
+                </p>
+                {% endif %}
+
+                {# Статистика — annotate(note_count) з selector, 0 SQL! #}
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge rounded-pill"
+                          style="background: rgba(255,255,255,0.07);
+                                 color: #9090b8;
+                                 font-size:0.78rem;">
+                        <i class="bi bi-file-text me-1"></i>
+                        {{ nb.note_count }} нотат{{ nb.note_count|pluralize:"ка,ки,ок" }}
+                    </span>
+                    <small style="color: #4a4a6a;">
+                        {{ nb.created_at|date:"d.m.Y" }}
+                    </small>
+                </div>
+            </div>
+
+            {# Кнопки дій #}
+            <div class="card-footer d-flex gap-2 py-2"
+                 style="background: rgba(255,255,255,0.02);
+                        border-top: 1px solid rgba(255,255,255,0.06);">
+                <a href="{% url 'hello_app:note_list' %}?notebook={{ nb.id }}"
+                   class="btn btn-sm btn-outline-secondary flex-grow-1"
+                   title="Переглянути нотатки">
+                    <i class="bi bi-list-ul me-1"></i>Відкрити
+                </a>
+                <a href="{% url 'hello_app:notebook_edit' nb.pk %}"
+                   class="btn btn-sm btn-outline-secondary"
+                   title="Редагувати">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'hello_app:notebook_delete' nb.pk %}"
+                   class="btn btn-sm btn-outline-danger"
+                   title="Видалити">
+                    <i class="bi bi-trash3"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+{# Порожній стан #}
+<div class="text-center py-5">
+    <i class="bi bi-journals" style="font-size:4rem; opacity:0.2; color:#7c6efa;"></i>
+    <h4 class="mt-3 fw-normal" style="color:#7b7b9c;">
+        Записників ще немає
+    </h4>
+    <p class="text-muted small mb-3">
+        Записники допомагають організувати нотатки за темами
+    </p>
+    <a href="{% url 'hello_app:notebook_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Створити перший записник
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

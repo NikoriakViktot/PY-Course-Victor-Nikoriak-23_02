@@ -1,0 +1,146 @@
+<!--
+  article_detail.html — Сторінка повної статті.
+
+  РОЛЬ У АРХІТЕКТУРІ:
+    Рендериться з ArticleDetailView.
+    Отримує контекст:
+      article    → один об'єкт Article
+      categories → QuerySet [Category, ...] (для навігації)
+
+  URL: /article/<pk>/
+  Наприклад: /article/42/ → показує статтю з id=42
+
+  URL для повернення назад: кнопка "← Назад"
+    url 'news:article_list' або
+    url 'news:category_detail' slug=article.category.slug
+-->
+
+{% extends "base.html" %}
+
+<!--
+  {{ article.title }} — заголовок статті
+  | — роздільник
+  Новинний Портал — назва сайту
+-->
+{% block title %}{{ article.title }} | Новинний Портал{% endblock %}
+
+{% block content %}
+
+<!-- Хлібні крихти (breadcrumb) — навігаційний ланцюжок -->
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'news:article_list' %}">Всі новини</a>
+    </li>
+
+    {% if article.category %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'news:category_detail' slug=article.category.slug %}">
+        {{ article.category.name }}
+      </a>
+    </li>
+    {% endif %}
+
+    <!-- Активний (поточний) елемент — не є посиланням -->
+    <li class="breadcrumb-item active" aria-current="page">
+      <!--
+        {{ article.title|truncatechars:50 }}
+        |truncatechars:50 → обрізає до 50 символів і додає "..."
+        Щоб заголовок у breadcrumb не був занадто довгим
+      -->
+      {{ article.title|truncatechars:50 }}
+    </li>
+  </ol>
+</nav>
+
+
+<!-- ── Основна картка статті ──────────────────────────────────────────────── -->
+<article class="card shadow-sm">
+  <div class="card-body p-4">
+
+    <!-- Заголовок статті -->
+    <h1 class="h2 card-title mb-3">{{ article.title }}</h1>
+
+    <!-- Метаінформація -->
+    <div class="d-flex flex-wrap gap-3 text-muted small mb-4 pb-3 border-bottom">
+
+      <!-- Категорія -->
+      {% if article.category %}
+      <span>
+        🗂 <a href="{% url 'news:category_detail' slug=article.category.slug %}">
+          {{ article.category.name }}
+        </a>
+      </span>
+      {% endif %}
+
+      <!-- Дата публікації -->
+      <span>
+        📅
+        {% if article.pub_date %}
+          {{ article.pub_date|date:"d.m.Y о H:i" }}
+        {% else %}
+          {{ article.created_at|date:"d.m.Y о H:i" }}
+        {% endif %}
+      </span>
+
+      <!-- Джерело -->
+      {% if article.source_name %}
+      <span>📰 {{ article.source_name }}</span>
+      {% endif %}
+
+    </div>
+
+    <!-- Текст статті -->
+    {% if article.content %}
+      <!--
+        {{ article.content|linebreaks }}
+        |linebreaks → перетворює \n в HTML <br> та <p> теги
+        Зручно для plain text контенту без HTML розмітки
+      -->
+      <div class="article-content">
+        {{ article.content|linebreaks }}
+      </div>
+    {% else %}
+      <!-- Якщо статтю спарсили без тексту (тільки заголовок) -->
+      <div class="alert alert-info">
+        <p class="mb-0">
+          Повний текст недоступний у базі даних.
+          {% if article.source_url %}
+            Читайте на сайті-джерелі:
+          {% endif %}
+        </p>
+      </div>
+    {% endif %}
+
+    <!-- Посилання на оригінал -->
+    {% if article.source_url %}
+    <div class="mt-4 pt-3 border-top">
+      <a href="{{ article.source_url }}"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="btn btn-outline-primary">
+        Читати повністю на {{ article.source_name|default:"джерелі" }} ↗
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</article>
+<!-- ── Кінець картки статті ───────────────────────────────────────────────── -->
+
+
+<!-- Кнопка повернення назад -->
+<div class="mt-4">
+  {% if article.category %}
+  <a href="{% url 'news:category_detail' slug=article.category.slug %}"
+     class="btn btn-secondary">
+    ← Назад до {{ article.category.name }}
+  </a>
+  {% else %}
+  <a href="{% url 'news:article_list' %}" class="btn btn-secondary">
+    ← До всіх новин
+  </a>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,4 @@
+aiogram==3.15.0
+google-genai==1.14.0
+redis==5.2.0
+python-dotenv==1.0.1

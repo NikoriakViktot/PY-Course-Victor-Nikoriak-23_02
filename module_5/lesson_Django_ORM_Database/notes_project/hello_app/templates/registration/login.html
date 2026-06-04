@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вхід — Notes App</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    body { background: #0f0f18; min-height: 100vh; display: flex; align-items: center; }
+    .login-card { background: #1a1a27; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; }
+    .brand-icon { color: #7c6efa; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-sm-8 col-md-5 col-lg-4">
+
+      <div class="text-center mb-4">
+        <i class="bi bi-journal-text fs-1 brand-icon"></i>
+        <h4 class="mt-2 fw-bold text-white">Notes App</h4>
+      </div>
+
+      <div class="card login-card p-4 shadow-lg">
+        <h5 class="mb-3 fw-semibold">Вхід до акаунту</h5>
+
+        {% if form.errors %}
+        <div class="alert alert-danger py-2 small">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          Неправильне ім'я користувача або пароль.
+        </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label small fw-semibold">
+              Ім'я користувача
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-secondary">
+                <i class="bi bi-person text-secondary"></i>
+              </span>
+              <input type="text"
+                     name="{{ form.username.html_name }}"
+                     id="{{ form.username.id_for_label }}"
+                     value="{{ form.username.value|default:'' }}"
+                     class="form-control border-secondary{% if form.username.errors %} is-invalid{% endif %}"
+                     autofocus autocomplete="username" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="{{ form.password.id_for_label }}" class="form-label small fw-semibold">
+              Пароль
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-secondary">
+                <i class="bi bi-lock text-secondary"></i>
+              </span>
+              <input type="password"
+                     name="{{ form.password.html_name }}"
+                     id="{{ form.password.id_for_label }}"
+                     class="form-control border-secondary{% if form.password.errors %} is-invalid{% endif %}"
+                     autocomplete="current-password" required>
+            </div>
+          </div>
+
+          {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+          {% endif %}
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-box-arrow-in-right me-1"></i>Увійти
+            </button>
+          </div>
+        </form>
+
+        <hr class="my-3">
+        <p class="text-center text-muted small mb-0">
+          Немає акаунту?
+          <a href="{% url 'admin:index' %}" class="text-secondary">Зверніться до адміністратора</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmAgD0SnMiKKmFClVgaFa11iGj0E"
+        crossorigin="anonymous"></script>
+</body>
+</html>
