@@ -32,7 +32,7 @@
                     </div>
 
                     <h2>
-                        <a href="{% url 'note_detail' note.id %}" style="color: #2d3748; text-decoration: none; border-bottom: 2px dashed #cbd5e0;">{{ note.title }}</a>
+    <a href="{% url 'note_detail' note_id=note.id %}" style="color: #2d3748; text-decoration: none; border-bottom: 2px dashed #cbd5e0;">{{ note.title }}</a>
                     </h2>
 
                     <p>{{ note.text }}</p>
