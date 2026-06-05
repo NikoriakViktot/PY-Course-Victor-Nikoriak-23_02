@@ -12,11 +12,15 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'notes_index' %}">
-                <span class="fs-4 me-2">📌</span> **Борд Нотаток**
+                <span class="fs-4 me-2">📌</span> <strong>Борд Нотаток</strong>
             </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link active px-3" href="{% url 'notes_index' %}">🏠 Головна</a>
+            <div class="navbar-nav ms-auto align-items-center">
+                <span class="navbar-text text-white-50 me-3">👤 {{ request.user.username }}</span>
+
+                <a class="nav-link active px-2" href="{% url 'notes_index' %}">🏠 Головна</a>
                 <a class="btn btn-primary btn-sm my-auto ms-2" href="{% url 'note_create' %}">➕ Створити нотатку</a>
+
+                <a class="btn btn-outline-light btn-sm ms-2" href="{% url 'logout' %}">🚪 Вийти</a>
             </div>
         </div>
     </nav>
