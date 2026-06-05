@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Створити нотатку</title>
+    <link rel="stylesheet" href="{% static 'notes/css/style.css' %}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>📝 Створити нову нотатку</h1>
+            <p><a href="{% url 'notes_index' %}" style="color: white; text-decoration: underline;">← Назад до борду</a></p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="note-card" style="max-width: 600px; margin: 30px auto; border-top: 6px solid #4c51bf; padding: 20px;">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Заголовок нотатки:</label>
+                    <input type="text" name="title" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Текст нотатки:</label>
+                    <textarea name="text" required rows="5" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0; box-sizing: border-box; font-family: inherit;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Категорія:</label>
+                    <select name="category" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0;">
+                        <option value="">Без категорії</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Час нагадування:</label>
+                    <input type="datetime-local" name="reminder" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0; box-sizing: border-box;">
+                </div>
+
+                <button type="submit" style="background:#4c51bf; color:white; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%; font-size: 1rem;">💾 Зберегти нотатку</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
