@@ -1,0 +1,139 @@
+# GitHub Actions CI — Django Testing Lesson
+#
+# ЧОМУ ЦЕЙ ФАЙЛ ТУТ:
+#   GitHub Actions читає .yml файли ТІЛЬКИ з кореневої папки репозиторію:
+#   <repo-root>/.github/workflows/*.yml
+#
+#   Файл всередині module_5/.../crispy_notes_project/.github/ ігнорується.
+#
+# ЯК ПЕРЕГЛЯНУТИ РЕЗУЛЬТАТИ:
+#   https://github.com/NikoriakViktot/PY-Course-Victor-Nikoriak-23_02/actions
+
+name: Django Tests (module_5/lesson_Django_Testing)
+
+# ── Тригери ───────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      # Запускати ТІЛЬКИ якщо змінились файли цього уроку або workflow
+      - 'module_5/lesson_Django_Testing/**'
+      - '.github/workflows/django-tests.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'module_5/lesson_Django_Testing/**'
+      - '.github/workflows/django-tests.yml'
+  workflow_dispatch:   # кнопка "Run workflow" в GitHub UI → Actions
+
+# ── Jobs ──────────────────────────────────────────────────────────────────────
+jobs:
+
+  # ── Job 1: Unit + Integration тести (без браузера, ~30 секунд) ───────────────
+  unit-and-integration:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+
+    # Усі кроки запускаються з цієї папки
+    defaults:
+      run:
+        working-directory: module_5/lesson_Django_Testing/crispy_notes_project
+
+    steps:
+      # 1. Завантажити весь репозиторій на runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Встановити Python 3.12
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 3. Кешувати pip залежності (наступний run буде швидшим)
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('module_5/lesson_Django_Testing/crispy_notes_project/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4. Встановити залежності
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 5. Перевірити конфігурацію Django (знайти помилки до тестів)
+      - name: Django system check
+        run: python manage.py check
+
+      # 6. Запустити unit + integration тести (123 тести, без браузера)
+      - name: Run unit and integration tests
+        run: |
+          python manage.py test \
+            hello_app.tests.test_models \
+            hello_app.tests.test_services \
+            hello_app.tests.test_forms \
+            hello_app.tests.test_views \
+            -v 2
+
+      # 7. Генерувати coverage report
+      - name: Generate coverage report
+        run: |
+          coverage run manage.py test \
+            hello_app.tests.test_models \
+            hello_app.tests.test_services \
+            hello_app.tests.test_forms \
+            hello_app.tests.test_views
+          coverage report --show-missing
+          coverage xml -o coverage.xml
+
+      # 8. Зберегти coverage.xml як artifact (завантажити після run)
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: module_5/lesson_Django_Testing/crispy_notes_project/coverage.xml
+
+
+  # ── Job 2: Selenium E2E тести ────────────────────────────────────────────────
+  selenium-e2e:
+    name: Selenium E2E Tests
+    runs-on: ubuntu-latest
+    needs: unit-and-integration
+
+    defaults:
+      run:
+        working-directory: module_5/lesson_Django_Testing/crispy_notes_project
+
+    # ЧОМУ БЕЗ service container:
+    #   selenium/standalone-chrome запускає Chrome ВСЕРЕДИНІ Docker-контейнера.
+    #   Коли Chrome намагається відкрити http://localhost:PORT (Django test server),
+    #   він бачить localhost свого контейнера, а не runner → ERR_CONNECTION_REFUSED.
+    #
+    # РІШЕННЯ: використовуємо Chrome що вже встановлений на ubuntu-latest runner.
+    #   Chrome + Django server запускаються на одній машині → localhost працює.
+    #   Selenium Manager автоматично завантажує chromedriver потрібної версії.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('module_5/lesson_Django_Testing/crispy_notes_project/requirements.txt') }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Без SELENIUM_REMOTE_URL → _make_driver() використовує локальний headless Chrome
+      # Chrome 148 є на ubuntu-latest, Selenium Manager скачає chromedriver 148
+      - name: Run Selenium E2E tests
+        run: python manage.py test hello_app.tests.test_selenium -v 2

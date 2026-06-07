@@ -1,0 +1,134 @@
+# ⚠ УВАГА: ЦЕЙ ФАЙЛ НЕ ЗАПУСКАЄТЬСЯ GITHUB ACTIONS
+#
+# GitHub Actions читає workflow ТІЛЬКИ з кореневої папки репозиторію:
+#   <repo-root>/.github/workflows/*.yml
+#
+# Цей файл знаходиться в:
+#   module_5/lesson_Django_Testing/crispy_notes_project/.github/workflows/
+#   → GitHub його ігнорує.
+#
+# Робочий файл знаходиться тут:
+#   PY-Course-Victor-Nikoriak-23_02/.github/workflows/django-tests.yml
+#
+# Цей файл залишений як зразок/довідка для написання workflow.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# GitHub Actions CI/CD — Django Tests (REFERENCE / ЗРАЗОК)
+#
+# Цей файл визначає автоматичний pipeline:
+# кожен push або pull request на main/master → запускаються всі тести.
+#
+# СТРУКТУРА:
+#   on:       коли запускати
+#   jobs:     що робити
+#   steps:    кроки всередині job
+#
+# ЯК ПЕРЕГЛЯНУТИ РЕЗУЛЬТАТИ:
+#   GitHub репозиторій → вкладка "Actions" → вибери workflow → вибери run
+
+name: Django Tests
+
+# ── Тригери: коли запускати pipeline ────────────────────────────────────────
+on:
+  push:
+    branches: [ main, master ]   # кожен push у main
+  pull_request:
+    branches: [ main, master ]   # кожен PR у main
+  workflow_dispatch:             # або вручну через кнопку "Run workflow"
+
+# ── Jobs: паралельні або послідовні блоки роботи ────────────────────────────
+jobs:
+
+  # ── Job 1: Unit + Integration тести (без Selenium) ─────────────────────────
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest       # GitHub-hosted runner: Ubuntu з Python, Chrome
+
+    steps:
+      # 1. Завантажити код репозиторію на runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Встановити потрібну версію Python
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 3. Кешувати pip залежності → прискорює повторні запуски
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4. Встановити залежності
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 5. Перевірити конфігурацію Django (find errors before tests)
+      - name: Django system check
+        run: python manage.py check
+
+      # 6. Запустити unit + integration тести (без Selenium)
+      - name: Run unit and integration tests
+        run: python manage.py test hello_app.tests.test_models hello_app.tests.test_services hello_app.tests.test_forms hello_app.tests.test_views -v 2
+
+      # 7. Coverage report (показати які рядки не покриті)
+      - name: Generate coverage report
+        run: |
+          coverage run manage.py test hello_app.tests.test_models hello_app.tests.test_services hello_app.tests.test_forms hello_app.tests.test_views
+          coverage report
+          coverage xml   # для інтеграції з Codecov / SonarQube
+
+      # 8. Зберегти coverage.xml як artifact (завантажити після run)
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+
+  # ── Job 2: E2E тести через Selenium ─────────────────────────────────────────
+  test-selenium:
+    name: Selenium E2E Tests
+    runs-on: ubuntu-latest
+
+    # Запускати тільки після успіху Job 1
+    needs: test
+
+    # Selenium standalone-chrome як сервісний контейнер
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        options: --shm-size=2gb    # Chrome потребує shared memory
+        ports:
+          - 4444:4444
+        # Healthcheck: чекати поки Selenium готовий
+        options: >-
+          --shm-size=2gb
+          --health-cmd="curl -sf http://localhost:4444/status | python3 -c \"import sys,json; d=json.load(sys.stdin); sys.exit(0 if d.get('value',{}).get('ready') else 1)\""
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Передаємо SELENIUM_REMOTE_URL → _make_driver() підхопить і використає Remote WebDriver
+      # замість локального headless Firefox
+      - name: Run Selenium E2E tests
+        env:
+          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+        run: python manage.py test hello_app.tests.test_selenium -v 2

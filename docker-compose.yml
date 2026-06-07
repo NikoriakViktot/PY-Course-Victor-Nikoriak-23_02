@@ -1,0 +1,124 @@
+# Docker Compose — Модуль 3: Python Advanced
+# Навчальне середовище з усіма базами даних курсу
+#
+# Запуск:   docker compose up -d
+# Зупинка:  docker compose down
+# Дані:     docker compose down -v  (видаляє також всі volumes)
+
+version: "3.9"
+
+services:
+
+  # ─────────────────────────────────────────
+  # Python — виконавче середовище для скриптів
+  # ─────────────────────────────────────────
+  python:
+    image: python:3.11-slim
+    container_name: course-python
+    working_dir: /app
+    volumes:
+      - ./lessons:/app          # всі уроки доступні всередині контейнера
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    command: sleep infinity      # тримаємо контейнер живим для docker exec
+    networks:
+      - course-net
+
+  # ─────────────────────────────────────────
+  # Ubuntu — інтерактивне Linux-середовище
+  # ─────────────────────────────────────────
+  ubuntu:
+    image: ubuntu:24.04
+    container_name: course-ubuntu
+    command: sleep infinity      # тримаємо контейнер живим для docker exec
+    networks:
+      - course-net
+
+  # ─────────────────────────────────────────
+  # PostgreSQL — реляційна БД
+  # ─────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: course-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: python2024
+      POSTGRES_DB: course_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U student -d course_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - course-net
+
+  # ─────────────────────────────────────────
+  # MongoDB — документна NoSQL БД
+  # ─────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: course-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: student
+      MONGO_INITDB_ROOT_PASSWORD: python2024
+      MONGO_INITDB_DATABASE: course_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - course-net
+
+  # ─────────────────────────────────────────
+  # Redis — in-memory кеш і брокер повідомлень
+  # ─────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: course-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - course-net
+
+  # ─────────────────────────────────────────
+  # Neo4j — графова БД
+  # ─────────────────────────────────────────
+  neo4j:
+    image: neo4j:5
+    container_name: course-neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/python2024
+    ports:
+      - "7474:7474"    # Neo4j Browser HTTP  → http://localhost:7474
+      - "7687:7687"    # Bolt protocol       → bolt://localhost:7687
+    volumes:
+      - neo4jdata:/data
+    networks:
+      - course-net
+
+# ─────────────────────────────────────────
+# Постійні volumes (дані зберігаються між перезапусками)
+# ─────────────────────────────────────────
+volumes:
+  pgdata:
+  mongodata:
+  redisdata:
+  neo4jdata:
+
+# ─────────────────────────────────────────
+# Мережа: всі сервіси бачать один одного за іменем
+# ─────────────────────────────────────────
+networks:
+  course-net:
+    driver: bridge

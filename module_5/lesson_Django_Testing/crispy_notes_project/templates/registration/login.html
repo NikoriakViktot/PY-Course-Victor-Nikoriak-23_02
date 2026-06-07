@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Вхід — CrispyNotes{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="card shadow-sm" style="width: 380px;">
+    <div class="card-body p-4">
+
+      <div class="text-center mb-4">
+        <i class="bi bi-journal-text display-4 text-primary"></i>
+        <h5 class="fw-bold mt-2 mb-0">CrispyNotes</h5>
+        <p class="text-muted small">Увійди до свого акаунту</p>
+      </div>
+
+      {% if form.errors %}
+      <div class="alert alert-danger py-2 small">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        Невірний логін або пароль.
+      </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
+            Логін
+          </label>
+          <input type="text"
+                 name="{{ form.username.html_name }}"
+                 id="{{ form.username.id_for_label }}"
+                 class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                 autofocus>
+        </div>
+        <div class="mb-4">
+          <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">
+            Пароль
+          </label>
+          <input type="password"
+                 name="{{ form.password.html_name }}"
+                 id="{{ form.password.id_for_label }}"
+                 class="form-control {% if form.password.errors %}is-invalid{% endif %}">
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-box-arrow-in-right me-1"></i>Увійти
+        </button>
+      </form>
+
+      <hr class="my-3">
+      <p class="text-center text-muted small mb-1">
+        Немає акаунту?
+        <a href="{% url 'hello_app:register' %}">Зареєструватись</a>
+      </p>
+      <p class="text-center text-muted small mb-0">
+        <a href="{% url 'password_reset' %}">Забули пароль?</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

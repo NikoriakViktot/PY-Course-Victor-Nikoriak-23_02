@@ -1,0 +1,35 @@
+{#
+  components/confirm_modal.html — Модальне вікно підтвердження видалення
+  Використання:
+    {% include 'components/confirm_modal.html' with
+        modal_id="deleteNote"
+        title="Видалити нотатку?"
+        body="Цю дію неможливо скасувати."
+        form_action=delete_url
+    %}
+  Тригер: <button data-bs-toggle="modal" data-bs-target="#{{ modal_id }}Modal">Видалити</button>
+#}
+<div class="modal fade" id="{{ modal_id }}Modal" tabindex="-1" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger" id="{{ modal_id }}Label">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ title|default:"Підтвердження" }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-0">{{ body|default:"Ви впевнені, що хочете видалити цей елемент?" }}</p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Скасувати</button>
+        <form method="post" action="{{ form_action }}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i>Видалити
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

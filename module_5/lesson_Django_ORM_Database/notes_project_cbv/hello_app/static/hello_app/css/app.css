@@ -1,0 +1,206 @@
+/*
+ * app.css — головний CSS файл Notes App (темна тема)
+ *
+ * Структура:
+ *   1. CSS Custom Properties (кольорова схема)
+ *   2. Layout (body, topbar, app-wrapper)
+ *   3. Sidebar
+ *   4. Main Content
+ *   5. Note Cards
+ *   6. Filter Cards (note_list бічна колонка)
+ *   7. Scrollbar
+ *   8. Footer
+ *
+ * Bootstrap 5.3 dark mode активується через data-bs-theme="dark" на <html>.
+ * Тут — кастомізація поверх Bootstrap: специфічні кольори та layout.
+ */
+
+/* ══════════════════════════════════════════════════════════
+   1. CSS CUSTOM PROPERTIES (dark palette)
+   ══════════════════════════════════════════════════════════ */
+:root {
+    --sidebar-bg:        #16161e;
+    --sidebar-hover:     rgba(255,255,255,0.06);
+    --sidebar-border:    rgba(255,255,255,0.07);
+    --sidebar-label:     #525270;
+    --topbar-bg:         #0f0f18;
+    --main-bg:           #1a1a27;
+    --card-bg:           #1e1e2e;
+    --card-border:       rgba(255,255,255,0.07);
+    --card-hover-border: rgba(124,110,250,0.5);
+    --text-primary:      #e2e8f0;
+    --text-secondary:    #7b7b9c;
+    --accent:            #7c6efa;
+    --accent-2:          #4a9eff;
+}
+
+/* ══════════════════════════════════════════════════════════
+   2. LAYOUT
+   ══════════════════════════════════════════════════════════ */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--main-bg) !important;
+    color: var(--text-primary);
+}
+
+.topbar {
+    height: 56px;
+    flex-shrink: 0;
+    background: var(--topbar-bg) !important;
+    border-bottom: 1px solid var(--sidebar-border);
+}
+
+.app-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════
+   3. SIDEBAR
+   ══════════════════════════════════════════════════════════ */
+.sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 56px);
+    border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar .nav-section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sidebar-label);
+    padding: 1rem 1rem 0.3rem;
+}
+
+.sidebar .nav-link {
+    color: #9090b8;
+    padding: 0.4rem 1rem;
+    border-radius: 0;
+    transition: background 0.12s, color 0.12s, padding-left 0.12s;
+    font-size: 0.88rem;
+}
+
+.sidebar .nav-link:hover {
+    background: var(--sidebar-hover);
+    color: #d0d0f0;
+    padding-left: 1.3rem;
+}
+
+.sidebar .nav-link.active {
+    background: rgba(124,110,250,0.14);
+    color: var(--accent);
+    border-left: 3px solid var(--accent);
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-divider {
+    border-color: var(--sidebar-border);
+    margin: 0.4rem 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   4. MAIN CONTENT
+   ══════════════════════════════════════════════════════════ */
+.main-content {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--main-bg);
+}
+
+.main-content > .inner {
+    padding: 1.5rem;
+    max-width: 1200px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   5. NOTE CARDS
+   ══════════════════════════════════════════════════════════ */
+.note-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 10px;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.note-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--card-hover-border) !important;
+    box-shadow: 0 4px 20px rgba(124,110,250,0.12);
+}
+
+.note-card.pinned {
+    border-color: rgba(251,191,36,0.45) !important;
+    box-shadow: 0 0 0 1px rgba(251,191,36,0.2);
+}
+
+.note-card.urgent {
+    border-color: rgba(239,68,68,0.5) !important;
+}
+
+.note-card.high {
+    border-color: rgba(251,146,60,0.45) !important;
+}
+
+.note-card .card-footer {
+    background: rgba(255,255,255,0.03) !important;
+    border-top: 1px solid var(--card-border) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   6. FILTER CARDS (note_list бічна колонка)
+   ══════════════════════════════════════════════════════════ */
+.filter-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 8px;
+}
+
+.filter-card .card-header {
+    background: rgba(255,255,255,0.04) !important;
+    border-bottom: 1px solid var(--card-border) !important;
+    color: var(--text-primary);
+}
+
+.filter-card .list-group-item {
+    background: transparent !important;
+    border-color: var(--card-border) !important;
+    color: #9090b8;
+}
+
+.filter-card .list-group-item:hover,
+.filter-card .list-group-item.active-item {
+    background: var(--sidebar-hover) !important;
+    color: var(--text-primary);
+}
+
+/* ══════════════════════════════════════════════════════════
+   7. SCROLLBAR (webkit)
+   ══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ══════════════════════════════════════════════════════════
+   8. FOOTER
+   ══════════════════════════════════════════════════════════ */
+footer {
+    flex-shrink: 0;
+    background: var(--topbar-bg) !important;
+    border-top: 1px solid var(--sidebar-border);
+}

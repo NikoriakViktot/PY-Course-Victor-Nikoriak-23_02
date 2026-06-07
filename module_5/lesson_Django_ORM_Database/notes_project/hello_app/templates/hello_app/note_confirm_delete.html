@@ -1,0 +1,96 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}Видалити нотатку{% endblock %}
+
+{% block content %}
+<!--{#-->
+<!--  note_confirm_delete.html — підтвердження видалення-->
+
+<!--  Context:-->
+<!--  - note → Note instance-->
+
+<!--  Архітектурне пояснення:-->
+<!--  ❌ НЕ можна видаляти через GET-посилання:-->
+<!--     <a href="/notes/42/delete/">Видалити</a>-->
+<!--     GET-запити можуть виконувати боти, Google crawler, prefetch браузера.-->
+<!--     Клікнув на посилання → видалив нотатку без підтвердження.-->
+
+<!--  ✅ ПРАВИЛЬНО: видалення через POST:-->
+<!--     1. GET → ця сторінка підтвердження-->
+<!--     2. POST → views.note_delete → services.delete_note() → redirect-->
+<!--#}-->
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white d-flex align-items-center">
+                    <span class="fs-4 me-2">🗑️</span>
+                    <h4 class="mb-0">Підтвердження видалення</h4>
+                </div>
+
+                <div class="card-body">
+                    <p class="mb-2">Ви збираєтесь видалити нотатку:</p>
+                    <h5 class="text-danger border rounded p-2 bg-light">
+                        📝 {{ note.title }}
+                    </h5>
+
+                    {# Попередження про CASCADE #}
+                    {% with reminder_count=note.reminders.count %}
+                    {% if reminder_count > 0 %}
+                    <div class="alert alert-warning mt-3 mb-2">
+                        <strong>⚠️ Увага!</strong>
+                        Разом з нотаткою буде видалено
+                        <strong>{{ reminder_count }}</strong>
+                        нагадуванн{{ reminder_count|pluralize:"я,ь,ь" }}
+                        (ON DELETE CASCADE).
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    <p class="text-muted small mt-3 mb-0">
+                        <strong>Цю дію неможливо відмінити.</strong>
+                        Нотатка буде видалена назавжди.
+                    </p>
+                </div>
+
+                <div class="card-footer d-flex gap-2 justify-content-between">
+                    <div class="d-flex gap-2">
+<!--                        {#-->
+<!--                          Видалення ТІЛЬКИ через POST!-->
+<!--                          {% csrf_token %} захищає від CSRF атак.-->
+<!--                          View перевіряє: if request.method == 'POST'-->
+<!--                        #}-->
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                ✅ Так, видалити
+                            </button>
+                        </form>
+                        <a href="{% url 'hello_app:note_detail' note.pk %}"
+                           class="btn btn-outline-secondary">
+                            ← Ні, скасувати
+                        </a>
+                    </div>
+                    <a href="{% url 'hello_app:note_list' %}"
+                       class="btn btn-link text-muted text-decoration-none">
+                        До списку
+                    </a>
+                </div>
+            </div>
+
+            {# Навчальна підказка #}
+            <div class="alert alert-light border mt-3 small">
+                <strong>🧠 Чому форма, а не просте посилання?</strong><br>
+                Посилання <code>&lt;a href="/delete/42/"&gt;</code> — це GET запит.
+                GET-запити можуть виконувати браузерні боти та prefetch.
+                Видалення через GET = небезпечно.<br><br>
+                <code>&lt;form method="post"&gt;</code> з <code>{% verbatim %}{% csrf_token %}{% endverbatim %}</code>
+                — єдиний правильний спосіб.
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

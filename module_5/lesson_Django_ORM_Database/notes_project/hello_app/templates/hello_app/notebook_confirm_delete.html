@@ -1,0 +1,89 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}Видалити записник{% endblock %}
+
+{% block content %}
+<!--
+  notebook_confirm_delete.html — підтвердження видалення записника
+
+  Context:
+  - notebook   -> Notebook instance
+  - note_count -> int (кількість нотаток що втратять записник)
+
+  ВАЖЛИВО: on_delete=SET_NULL означає що нотатки НЕ видаляться,
+  але їх notebook_id стане NULL (від'єднані від записника).
+-->
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+
+        <div class="card" style="
+            background: #1e1e2e;
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 12px;">
+
+            <div class="card-header py-3"
+                 style="background: rgba(239,68,68,0.08);
+                        border-bottom: 1px solid rgba(239,68,68,0.2);">
+                <h2 class="h5 mb-0 text-danger fw-semibold">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Видалити записник?
+                </h2>
+            </div>
+
+            <div class="card-body p-4">
+
+                {# Картка записника що видаляється #}
+                <div class="p-3 rounded mb-4" style="
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.07);
+                    border-left: 4px solid {{ notebook.color }};">
+
+                    <div class="fw-semibold mb-1" style="color:#e2e8f0;">
+                        <span class="d-inline-block rounded-circle me-2"
+                              style="width:10px;height:10px;background:{{ notebook.color }};
+                                     vertical-align:middle;"></span>
+                        {{ notebook.title }}
+                    </div>
+                    {% if notebook.description %}
+                    <div class="small mb-2" style="color:#7b7b9c;">{{ notebook.description }}</div>
+                    {% endif %}
+                    <div class="small" style="color:#6060a0;">
+                        <i class="bi bi-file-text me-1"></i>
+                        {{ note_count }} нотат{{ note_count|pluralize:"ка,ки,ок" }}
+                    </div>
+                </div>
+
+                {# Попередження #}
+                {% if note_count > 0 %}
+                <div class="alert alert-warning py-2 px-3 mb-4" style="font-size:0.85rem;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <strong>{{ note_count }} нотатк{{ note_count|pluralize:"а,и,ок" }}</strong>
+                    НЕ буде видалено — вони стануть без записника
+                    ({{ notebook.title }} → <em>Без записника</em>).
+                    <br>
+                    <small class="text-muted">
+                        SQL: UPDATE note SET notebook_id = NULL WHERE notebook_id = {{ notebook.id }}
+                    </small>
+                </div>
+                {% endif %}
+
+                {# Форма підтвердження — тільки POST видаляє! #}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash3 me-1"></i>Так, видалити
+                        </button>
+                        <a href="{% url 'hello_app:notebook_list' %}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Скасувати
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

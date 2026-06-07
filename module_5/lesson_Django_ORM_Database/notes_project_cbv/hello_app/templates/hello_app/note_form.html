@@ -1,0 +1,207 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+{# forms.css -- стилі форм: .form-card, .tag-label, .pin-toggle тощо #}
+{% load static %}
+<link rel="stylesheet" href="{% static 'hello_app/css/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<!--
+  note_form.html -- форма створення / редагування нотатки
+
+  Context:
+  - form    -> NoteForm instance (порожній або заповнений instance=note)
+  - title   -> str ('Нова нотатка' або 'Редагувати: ...')
+  - action  -> str ('Створити' або 'Зберегти зміни')
+  - note    -> Note instance (тільки при редагуванні) або None
+
+  PRG патерн:
+  GET  -> отримуємо порожній form / форму заповнену instance=note
+  POST -> form.is_valid() -> service.create_note() / service.update_note() -> redirect
+
+  CSRF Token обов'язковий для POST форм -- захист від Cross-Site Request Forgery!
+-->
+
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-xl-6">
+
+        {# Breadcrumb #}
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="font-size:0.85rem;">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'hello_app:note_list' %}" class="text-decoration-none">
+                        <i class="bi bi-list-ul me-1"></i>Нотатки
+                    </a>
+                </li>
+                {% if note %}
+                <li class="breadcrumb-item">
+                    <a href="{% url 'hello_app:note_detail' note.pk %}" class="text-decoration-none">
+                        {{ note.title|truncatechars:30 }}
+                    </a>
+                </li>
+                {% endif %}
+                <li class="breadcrumb-item active">{{ action }}</li>
+            </ol>
+        </nav>
+
+        <div class="form-card card">
+            <div class="card-header py-3">
+                <h2 class="h5 mb-0 fw-semibold">
+                    <i class="bi bi-{% if note %}pencil{% else %}plus-circle{% endif %} me-2 text-primary"></i>
+                    {{ title }}
+                </h2>
+            </div>
+
+            <div class="card-body p-4">
+                <!--
+                  method="post" -- дані йдуть у тілі HTTP запиту (не в URL!)
+                  novalidate   -- вимикаємо браузерну валідацію,
+                                  Django валідує на сервері (правильно!)
+                -->
+                <form method="post" novalidate>
+                    <!--
+                      csrf_token вставляє прихований input:
+                      <input type="hidden" name="csrfmiddlewaretoken" value="abc123...">
+                      Django відхиляє POST без цього токена.
+                    -->
+                    {% csrf_token %}
+
+                    {# Заголовок #}
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-type me-1"></i>{{ form.title.label }}
+                            <span class="text-danger ms-1">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.title.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Зміст #}
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="bi bi-text-paragraph me-1"></i>{{ form.content.label }}
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.content.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Пріоритет + Записник в одному рядку #}
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label for="{{ form.priority.id_for_label }}" class="form-label">
+                                <i class="bi bi-flag me-1"></i>{{ form.priority.label }}
+                            </label>
+                            {{ form.priority }}
+                            <div class="priority-hint mt-1">
+                                <span class="bg-secondary bg-opacity-25">🟢 Низький</span>
+                                <span class="bg-warning bg-opacity-25">🟠 Високий</span>
+                                <span class="bg-danger bg-opacity-25">🔴 Терміново</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label for="{{ form.notebook.id_for_label }}" class="form-label">
+                                <i class="bi bi-journals me-1"></i>{{ form.notebook.label }}
+                            </label>
+                            {{ form.notebook }}
+                            {% if form.notebook.help_text %}
+                            <div class="form-text">{{ form.notebook.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Теги (кастомний checkbox-badge UI) #}
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-tags me-1"></i>{{ form.tags.label }}
+                        </label>
+                        {% if form.tags.help_text %}
+                        <div class="form-text mb-2">{{ form.tags.help_text }}</div>
+                        {% endif %}
+
+                        <div class="tags-grid">
+                            {% for checkbox in form.tags %}
+                            <!--
+                              form.tags ітерується по кожному checkbox окремо.
+                              Ми ховаємо рідний input і стилізуємо label як бейдж.
+                            -->
+                            <div>
+                                {# Рідний checkbox -- hidden, але функціональний #}
+                                <input type="checkbox"
+                                       class="tag-checkbox-item"
+                                       name="{{ form.tags.html_name }}"
+                                       value="{{ checkbox.data.value }}"
+                                       id="{{ checkbox.id_for_label }}"
+                                       {% if checkbox.data.selected %}checked{% endif %}>
+                                <label for="{{ checkbox.id_for_label }}" class="tag-label"
+                                       style="--tag-color: #7c6efa;">
+                                    <i class="bi bi-tag-fill" style="font-size:0.7rem;"></i>
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                            {% empty %}
+                            <span class="text-muted small fst-italic">
+                                Немає тегів.
+                                <a href="{% url 'hello_app:tag_create' %}?next={{ request.path }}"
+                                   class="text-primary">Створити тег</a>
+                            </span>
+                            {% endfor %}
+                        </div>
+
+                        {% if form.tags.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.tags.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {# Закріпити нотатку #}
+                    <div class="mb-4">
+                        <label class="pin-toggle w-100" for="{{ form.is_pinned.id_for_label }}">
+                            {{ form.is_pinned }}
+                            <i class="bi bi-pin-angle pin-icon" style="font-size:1.1rem; color:#6060a0;"></i>
+                            <div>
+                                <div style="color:#c0c0e0; font-size:0.88rem;">{{ form.is_pinned.label }}</div>
+                                {% if form.is_pinned.help_text %}
+                                <div class="form-text" style="margin:0;">{{ form.is_pinned.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+
+                    {# Кнопки дій #}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-{% if note %}check-lg{% else %}plus-lg{% endif %} me-1"></i>
+                            {{ action }}
+                        </button>
+                        {% if note %}
+                        <a href="{% url 'hello_app:note_detail' note.pk %}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-x me-1"></i>Скасувати
+                        </a>
+                        {% else %}
+                        <a href="{% url 'hello_app:note_list' %}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-x me-1"></i>Скасувати
+                        </a>
+                        {% endif %}
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
