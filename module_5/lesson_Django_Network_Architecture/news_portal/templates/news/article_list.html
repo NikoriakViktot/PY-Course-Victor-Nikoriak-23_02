@@ -1,0 +1,185 @@
+<!--
+  article_list.html — Список новин (головна сторінка і сторінка категорії).
+
+  РОЛЬ У АРХІТЕКТУРІ:
+    Цей шаблон рендериться з ArticleListView і CategoryArticleListView.
+    Отримує контекст:
+      articles         → QuerySet [Article, ...] (поточна сторінка)
+      categories       → QuerySet [Category, ...] (для навігації)
+      page_title       → рядок заголовку
+      current_category → поточна категорія (або None на головній)
+      page_obj         → об'єкт пагінації (від ListView)
+      is_paginated     → True якщо є більше одної сторінки
+
+  EXTENDS:
+    extends "base.html" → наслідуємо base.html
+    Ми перевизначаємо лише block title і block content.
+    Решта (nav, footer) береться з base.html автоматично.
+-->
+
+{% extends "base.html" %}
+
+<!-- Перевизначаємо заголовок вкладки браузера -->
+{% block title %}{{ page_title|default:"Новини" }} | Новинний Портал{% endblock %}
+
+<!-- Перевизначаємо основний блок контенту -->
+{% block content %}
+
+<!-- Заголовок сторінки -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h2 mb-0">
+    <!--
+      {{ page_title|default:"Всі новини" }}
+      |default:"..." → фільтр: якщо page_title порожній або None → показати "Всі новини"
+    -->
+    {{ page_title|default:"Всі новини" }}
+  </h1>
+
+  <!-- Лічильник: "42 статей" -->
+  {% if is_paginated %}
+    <span class="badge bg-secondary">
+      Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}
+    </span>
+  {% endif %}
+</div>
+
+
+<!-- ── Список статей ──────────────────────────────────────────────────────── -->
+{% if articles %}
+
+  <div class="row">
+  <!--
+    for article in articles
+    articles — QuerySet зі статтями поточної сторінки.
+    Django ітерує і рендерить блок для кожної статті.
+  -->
+  {% for article in articles %}
+    <div class="col-12 mb-3">
+      <div class="card h-100 shadow-sm news-card">
+        <div class="card-body">
+
+          <!-- Категорія і дата -->
+          <div class="d-flex justify-content-between align-items-start mb-2">
+
+            {% if article.category %}
+            <!--
+              url 'news:category_detail' slug=article.category.slug
+              Генерує URL: /category/ekonomika/
+              Зверни увагу: article.category.slug → Django ORM звертається
+              до зв'язаного об'єкта Category — select_related() в views.py
+              гарантує що це НЕ додатковий SQL запит!
+            -->
+            <a href="{% url 'news:category_detail' slug=article.category.slug %}"
+               class="badge bg-primary text-decoration-none">
+              {{ article.category.name }}
+            </a>
+            {% else %}
+            <span class="badge bg-secondary">Без категорії</span>
+            {% endif %}
+
+            <!-- Дата публікації -->
+            <small class="text-muted">
+              <!--
+                {{ article.pub_date|date:"d M Y, H:i" }}
+                |date:"формат" → фільтр форматування дати
+                d = день (01), M = місяць скорочено (Jan), Y = рік (2024), H:i = ЧЧ:ХХ
+                Якщо pub_date = None → показуємо created_at
+              -->
+              {% if article.pub_date %}
+                {{ article.pub_date|date:"d.m.Y H:i" }}
+              {% else %}
+                {{ article.created_at|date:"d.m.Y H:i" }}
+              {% endif %}
+            </small>
+          </div>
+
+          <!-- Заголовок-посилання на повну статтю -->
+          <h5 class="card-title">
+            <!--
+              url 'news:article_detail' pk=article.pk
+              Генерує: /article/42/
+              pk=article.pk → передаємо первинний ключ статті
+            -->
+            <a href="{% url 'news:article_detail' pk=article.pk %}"
+               class="text-decoration-none text-dark stretched-link">
+              {{ article.title }}
+            </a>
+          </h5>
+
+          <!-- Джерело -->
+          {% if article.source_name %}
+          <small class="text-muted">Джерело: {{ article.source_name }}</small>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+
+{% else %}
+  <!-- Показуємо коли список порожній -->
+  <div class="alert alert-info">
+    <h4 class="alert-heading">Новин не знайдено</h4>
+    <p>
+      Щоб наповнити базу даних, запустіть команду парсера:<br>
+      <code>python manage.py parse_rbc --publish</code>
+    </p>
+  </div>
+{% endif %}
+<!-- ── Кінець списку статей ───────────────────────────────────────────────── -->
+
+
+<!-- ── Пагінація ─────────────────────────────────────────────────────────── -->
+<!--
+  is_paginated — True якщо ListView автоматично розбив результат на сторінки.
+  page_obj     — об'єкт Paginator з інформацією про поточну сторінку.
+-->
+{% if is_paginated %}
+<nav aria-label="Пагінація" class="mt-4">
+  <ul class="pagination justify-content-center">
+
+    <!-- Попередня сторінка -->
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <!--
+        ?page={{ page_obj.previous_page_number }}
+        Django's ListView читає параметр 'page' з GET запиту
+        і автоматично повертає відповідну сторінку
+      -->
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+        ← Попередня
+      </a>
+    </li>
+    {% endif %}
+
+    <!-- Номери сторінок -->
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <!-- Поточна сторінка — не є посиланням -->
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <!-- Показуємо лише 3 сторінки навколо поточної -->
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Наступна сторінка -->
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+        Наступна →
+      </a>
+    </li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}
+<!-- ── Кінець пагінації ───────────────────────────────────────────────────── -->
+
+{% endblock %}

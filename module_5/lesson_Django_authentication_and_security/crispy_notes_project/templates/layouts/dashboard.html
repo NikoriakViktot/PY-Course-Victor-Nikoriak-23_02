@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{#
+  layouts/dashboard.html — SaaS Dashboard Layout
+  ════════════════════════════════════════════════
+  Рівень 2 ієрархії шаблонів:
+    base.html → layouts/dashboard.html → hello_app/note_list.html
+
+  Цей шаблон надає:
+    - Sidebar з навігацією та sidebar_context (notebooks, tags)
+    - Topbar з пошуком та аватаром
+    - Систему Django Messages → Bootstrap alerts
+    - Слоти: [block content], [block topbar_title]
+#}
+
+{% block body %}
+<div class="d-flex vh-100 overflow-hidden">
+
+  <!-- ════════════════════════════════════════════════════════
+       SIDEBAR
+       sidebar_context (notebooks, tags) надходить з
+       hello_app/context_processors.py → автоматично у всіх вью
+  ════════════════════════════════════════════════════════ -->
+  <nav id="sidebar" class="sidebar d-flex flex-column p-3" style="width: 260px; min-height: 100vh;">
+
+    <!-- Бренд -->
+    <a href="{% url 'hello_app:note_list' %}"
+       class="d-flex align-items-center mb-3 text-decoration-none"
+       style="color: var(--text-primary);">
+      <i class="bi bi-journal-text fs-4 me-2" style="color: var(--accent);"></i>
+      <span class="fs-5 fw-semibold">CrispyNotes</span>
+    </a>
+
+    <hr>
+
+    <!-- Нотатки -->
+    <p class="sidebar-label text-uppercase fw-semibold mb-1 px-2">Нотатки</p>
+    <ul class="nav nav-pills flex-column mb-3">
+      <li class="nav-item">
+        <a href="{% url 'hello_app:notebook_list' %}"
+           class="nav-link {% if 'notebook' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="bi bi-collection me-2"></i>Записники
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'hello_app:note_list' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'note_list' %}active{% endif %}">
+          <i class="bi bi-journal-text me-2"></i>Всі нотатки
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'hello_app:note_create' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'note_create' %}active{% endif %}">
+          <i class="bi bi-plus-circle me-2"></i>Нова нотатка
+        </a>
+      </li>
+    </ul>
+
+    <!-- Задачі -->
+    <p class="sidebar-label text-uppercase fw-semibold mb-1 px-2">Задачі</p>
+    <ul class="nav nav-pills flex-column mb-3">
+      <li>
+        <a href="{% url 'hello_app:todo_list' %}"
+           class="nav-link {% if 'todo' in request.resolver_match.url_name %}active{% endif %} d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-check2-square me-2"></i>Список справ</span>
+          {% if sidebar_todo_count %}
+          <span class="badge bg-primary rounded-pill">{{ sidebar_todo_count }}</span>
+          {% endif %}
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'hello_app:shopping_list' %}"
+           class="nav-link {% if 'shopping' in request.resolver_match.url_name %}active{% endif %} d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-cart me-2"></i>Покупки</span>
+          {% if sidebar_shopping_count %}
+          <span class="badge bg-secondary rounded-pill">{{ sidebar_shopping_count }}</span>
+          {% endif %}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Групи -->
+    <p class="sidebar-label text-uppercase fw-semibold mb-1 px-2">Групи</p>
+    <ul class="nav nav-pills flex-column mb-3">
+      <li>
+        <a href="{% url 'hello_app:group_list' %}"
+           class="nav-link {% if 'group' in request.resolver_match.url_name %}active{% endif %}">
+          <i class="bi bi-people me-2"></i>Мої групи
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'hello_app:group_create' %}" class="nav-link">
+          <i class="bi bi-person-plus me-2"></i>Нова група
+        </a>
+      </li>
+    </ul>
+
+    <hr>
+
+    <!-- Записники (з sidebar_context) -->
+    {% if sidebar_notebooks %}
+    <p class="sidebar-label text-uppercase fw-semibold mb-1 px-2">Записники</p>
+    <ul class="nav nav-pills flex-column mb-3">
+      {% for nb in sidebar_notebooks %}
+      <li>
+        <a href="{% url 'hello_app:note_list' %}?notebook={{ nb.pk }}"
+           class="nav-link py-1 d-flex align-items-center justify-content-between">
+          <span>
+            <span class="me-1" style="color: {{ nb.color }};">●</span>
+            {{ nb.title|truncatechars:18 }}
+          </span>
+          <span class="badge bg-secondary rounded-pill">{{ nb.note_count }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <!-- Теги -->
+    <p class="sidebar-label text-uppercase fw-semibold mb-1 px-2">Теги</p>
+    {% if sidebar_tags %}
+    <div class="px-2 mb-2 d-flex flex-wrap gap-1">
+      {% for tag in sidebar_tags %}
+      <a href="{% url 'hello_app:note_list' %}?tag={{ tag.pk }}"
+         class="badge text-decoration-none"
+         style="background-color: {{ tag.color }}; color: white;">
+        #{{ tag.name }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <ul class="nav nav-pills flex-column mb-3">
+      <li>
+        <a href="{% url 'hello_app:tag_create' %}" class="nav-link">
+          <i class="bi bi-tags me-2"></i>Новий тег
+        </a>
+      </li>
+    </ul>
+
+
+  </nav>
+  <!-- /SIDEBAR -->
+
+  <!-- ════════════════════════════════════════════════════════
+       MAIN: Topbar + Content
+  ════════════════════════════════════════════════════════ -->
+  <div class="d-flex flex-column flex-grow-1 overflow-auto">
+
+    <!-- TOPBAR -->
+    <header class="topbar d-flex align-items-center px-4 py-2">
+      <h6 class="mb-0 me-auto fw-semibold" style="color: var(--text-primary);">
+        {% block topbar_title %}Нотатки{% endblock %}
+      </h6>
+
+      <!-- Пошук -->
+      <form class="d-flex me-3" method="get" action="{% url 'hello_app:note_list' %}">
+        <div class="input-group input-group-sm">
+          <input type="search" name="q" value="{{ request.GET.q|default:'' }}"
+                 class="form-control" placeholder="Пошук нотаток...">
+          <button class="btn btn-outline-secondary" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Профіль / Вихід -->
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
+           style="color: var(--text-primary);"
+           data-bs-toggle="dropdown">
+          <i class="bi bi-person-circle fs-5 me-1"></i>
+          <span class="small fw-semibold">{{ request.user.username }}</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end text-small shadow">
+          <li><a class="dropdown-item" href="{% url 'hello_app:notebook_list' %}">Мої записники</a></li>
+          <li><a class="dropdown-item" href="{% url 'hello_app:group_list' %}">
+            <i class="bi bi-people me-1"></i>Мої групи
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{% url 'password_change' %}">
+            <i class="bi bi-key me-1"></i>Змінити пароль
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item text-danger">
+                <i class="bi bi-box-arrow-right me-1"></i>Вийти
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </header>
+    <!-- /TOPBAR -->
+
+    <!-- DJANGO MESSAGES → Bootstrap Alerts -->
+    {% if messages %}
+    <div class="px-4 pt-3">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- PAGE CONTENT -->
+    <main class="flex-grow-1 p-4 overflow-auto">
+      {% block content %}{% endblock %}
+    </main>
+    <!-- /PAGE CONTENT -->
+
+  </div>
+  <!-- /MAIN -->
+
+</div>
+{% endblock %}

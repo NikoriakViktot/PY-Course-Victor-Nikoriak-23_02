@@ -1,0 +1,39 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block topbar_title %}Видалення нотатки{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6 offset-md-3">
+    <div class="card shadow-sm border-danger">
+      <div class="card-header bg-danger text-white">
+        <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Підтвердити видалення</h6>
+      </div>
+      <div class="card-body">
+        <p>Ти збираєшся видалити нотатку:</p>
+        <blockquote class="blockquote bg-secondary bg-opacity-25 p-3 rounded">
+          <p class="mb-0 fw-semibold">{{ note.title }}</p>
+          {% if note.content %}
+          <footer class="blockquote-footer mt-1">{{ note.content|truncatechars:100 }}</footer>
+          {% endif %}
+        </blockquote>
+        <p class="text-danger small mt-3 mb-0">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          Цю дію неможливо скасувати.
+        </p>
+      </div>
+      <div class="card-footer d-flex gap-2">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i>Видалити
+          </button>
+        </form>
+        <a href="{% url 'hello_app:note_detail' note.pk %}" class="btn btn-outline-secondary">
+          Скасувати
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

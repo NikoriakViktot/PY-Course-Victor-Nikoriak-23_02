@@ -29,3 +29,5 @@ tqdm
 nltk
 pymorphy3
 pymorphy3-dicts-uk
+pdfkit
+pytest

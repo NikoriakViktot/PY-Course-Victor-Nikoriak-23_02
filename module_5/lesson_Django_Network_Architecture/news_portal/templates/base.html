@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--
+  base.html — Базовий шаблон сайту (батьківський).
+
+  РОЛЬ У АРХІТЕКТУРІ:
+    Це основний каркас HTML — header, навігація, footer.
+    Всі інші шаблони наслідують звідси через extends "base.html".
+    Вони перевизначають тільки блоки (block) — решта залишається з base.html.
+
+  ІЄРАРХІЯ ШАБЛОНІВ:
+    base.html
+      ├── news/article_list.html   (block content — список статей)
+      └── news/article_detail.html (block content — одна стаття)
+
+  DTL (Django Template Language):
+    {{ variable }}    → виводить значення (з автоматичним HTML-екрануванням)
+    tag               → логіка: for, if, url, block, extends
+    url 'name'        → генерує URL по імені маршруту (з urls.py)
+
+  БЕЗПЕКА:
+    Django автоматично екранує HTML у {{ variables }}:
+    '<script>' → '&lt;script&gt;' → XSS-атаки не проходять.
+-->
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--
+    block title ... endblock
+    Дочірні шаблони можуть перевизначити цей блок:
+    block title - Деталі статті | block.super - endblock
+    block.super → вставляє вміст батьківського блоку
+  -->
+  <title>{% block title %}Новинний Портал{% endblock %}</title>
+
+  <!-- Bootstrap 5 — CSS фреймворк для адаптивної верстки -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!--
+    load static         → завантажує шаблонний тег для статичних файлів
+    static 'path'       → генерує URL: /static/css/style.css
+    Чому не просто href="/static/css/style.css"?
+    → Django може бути розгорнутий на піддомені або з іншим STATIC_URL
+    → static завжди використовує правильний STATIC_URL зі settings.py
+  -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<!-- ── Навігаційна панель ─────────────────────────────────────────────────── -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+
+    <!-- Логотип / назва сайту — посилання на головну -->
+    <!--
+      url 'news:article_list'
+      'news:' — простір імен (app_name = 'news' в news/urls.py)
+      'article_list' — ім'я маршруту (name= в urlpatterns)
+      Результат: /
+    -->
+    <a class="navbar-brand fw-bold" href="{% url 'news:article_list' %}">
+      📰 Новинний Портал
+    </a>
+
+    <!-- Кнопка collapse для мобільних пристроїв -->
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+
+        <!-- Головна сторінка -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'news:article_list' %}">Всі новини</a>
+        </li>
+
+        <!--
+          for category in categories
+          categories передається з get_context_data() у views.py
+          → Django рендерить цей блок для кожної категорії зі списку
+        -->
+        {% for category in categories %}
+        <li class="nav-item">
+          <!--
+            url 'news:category_detail' slug=category.slug
+            Генерує: /category/ekonomika/
+            slug= → передаємо значення параметру <slug:slug> з urls.py
+          -->
+          <a class="nav-link
+             {% if current_category == category %}active{% endif %}"
+             href="{% url 'news:category_detail' slug=category.slug %}">
+            {{ category.name }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <!-- Посилання на адмін-панель (тільки для авторизованих) -->
+      <ul class="navbar-nav ms-auto">
+        {% if user.is_staff %}
+        <li class="nav-item">
+          <a class="nav-link text-warning" href="/admin/">⚙ Адмінка</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+
+  </div>
+</nav>
+<!-- ── Кінець навігації ───────────────────────────────────────────────────── -->
+
+
+<!-- ── Основний контент ──────────────────────────────────────────────────── -->
+<main class="container my-4">
+
+  <!--
+    Flash повідомлення (messages framework).
+    Після редиректу Django може передати повідомлення типу success/error.
+    Middleware: django.contrib.messages.middleware.MessageMiddleware
+  -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!--
+    block content / endblock
+    Головний блок контенту — КОЖЕН дочірній шаблон замінює його.
+    Якщо дочірній шаблон не визначає цей блок → тут буде порожньо.
+  -->
+  {% block content %}
+  {% endblock %}
+
+</main>
+<!-- ── Кінець основного контенту ─────────────────────────────────────────── -->
+
+
+<!-- ── Футер ──────────────────────────────────────────────────────────────── -->
+<footer class="bg-dark text-light py-3 mt-4">
+  <div class="container text-center">
+    <small>
+      Навчальний проєкт Django | Джерело новин:
+      <a href="https://www.rbc.ua" target="_blank" class="text-light">rbc.ua</a>
+    </small>
+  </div>
+</footer>
+<!-- ── Кінець футеру ──────────────────────────────────────────────────────── -->
+
+<!-- Bootstrap 5 JavaScript (для navbar collapse) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Блок для кастомних скриптів в дочірніх шаблонах -->
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

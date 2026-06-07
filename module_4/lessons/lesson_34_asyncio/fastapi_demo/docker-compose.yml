@@ -1,0 +1,45 @@
+services:
+
+  # ── FastAPI Backend ─────────────────────────────────────────────────────────
+  fastapi-demo:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: fastapi-asyncio-demo
+    ports:
+      - "8001:8000"       # хост:контейнер
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONASYNCIODEBUG=1
+    restart: unless-stopped
+    networks:
+      - demo-net
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # ── Streamlit Frontend ──────────────────────────────────────────────────────
+  streamlit-demo:
+    build:
+      context: .                         # контекст = fastapi_demo/
+      dockerfile: streamlit/Dockerfile   # Dockerfile всередині streamlit/
+    container_name: streamlit-asyncio-demo
+    ports:
+      - "8534:8534"       # хост:контейнер
+    environment:
+      - FASTAPI_HOST=http://fastapi-demo:8000   # ← внутрішня Docker мережа
+      - BROWSER_HOST=http://localhost:8001      # ← URL для браузера з хоста
+    depends_on:
+      fastapi-demo:
+        condition: service_healthy        # чекає поки FastAPI здоровий
+    restart: unless-stopped
+    networks:
+      - demo-net
+
+networks:
+  demo-net:
+    driver: bridge

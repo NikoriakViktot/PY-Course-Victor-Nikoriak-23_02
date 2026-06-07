@@ -1,0 +1,25 @@
+{% extends 'layouts/dashboard.html' %}
+{% load crispy_forms_tags %}
+
+{% block topbar_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header py-3">
+        <h6 class="mb-0 fw-semibold">
+          <i class="bi bi-people me-2 text-primary"></i>{{ title }}
+        </h6>
+      </div>
+      <div class="card-body p-4">
+        <p class="text-muted small mb-4">
+          Після створення групи ти автоматично стаєш першим учасником.
+          Запроси інших через сторінку групи.
+        </p>
+        {% crispy form %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

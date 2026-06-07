@@ -1,0 +1,100 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block topbar_title %}Список справ{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="fw-semibold mb-0">Мої списки справ</h5>
+  <a href="{% url 'hello_app:todo_create' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>Новий список
+  </a>
+</div>
+
+{% if todo_lists %}
+<div class="row g-3 mb-4">
+  {% for todo in todo_lists %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card h-100 shadow-sm {% if todo.is_completed %}opacity-75{% endif %}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6 class="card-title mb-0">
+            {% if todo.is_completed %}<s class="text-muted">{% endif %}
+            {{ todo.title }}
+            {% if todo.is_completed %}</s>{% endif %}
+          </h6>
+          {% if todo.is_completed %}
+          <span class="badge bg-success ms-2">Виконано</span>
+          {% endif %}
+        </div>
+        {% if todo.description %}
+        <p class="card-text text-muted small">{{ todo.description|truncatechars:80 }}</p>
+        {% endif %}
+        <div class="d-flex align-items-center gap-2 mt-2">
+          <span class="badge bg-primary">{{ todo.done_items }}/{{ todo.total_items }} виконано</span>
+          {% if todo.total_items > 0 %}
+          <div class="progress flex-grow-1" style="height: 6px;">
+            <div class="progress-bar"
+                 style="width: {% widthratio todo.done_items todo.total_items 100 %}%;"></div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-footer d-flex gap-2 bg-transparent">
+        <a href="{% url 'hello_app:todo_detail' todo.pk %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+          <i class="bi bi-list-check me-1"></i>Відкрити
+        </a>
+        <a href="{% url 'hello_app:todo_edit' todo.pk %}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-pencil"></i>
+        </a>
+        <a href="{% url 'hello_app:todo_delete' todo.pk %}" class="btn btn-sm btn-outline-danger">
+          <i class="bi bi-trash"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center text-muted py-5">
+  <i class="bi bi-check2-square display-4 opacity-50"></i>
+  <p class="mt-2">Немає списків справ.</p>
+  <a href="{% url 'hello_app:todo_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Створити перший
+  </a>
+</div>
+{% endif %}
+
+{% if shared_lists %}
+<h6 class="fw-semibold text-muted mb-3 mt-2">
+  <i class="bi bi-people me-2"></i>Поділились зі мною
+</h6>
+<div class="row g-3">
+  {% for todo in shared_lists %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card h-100 shadow-sm border-info">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6 class="card-title mb-0">{{ todo.title }}</h6>
+          <span class="badge bg-info text-dark ms-2">від {{ todo.user.username }}</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-2">
+          <span class="badge bg-secondary">{{ todo.done_items }}/{{ todo.total_items }}</span>
+          {% if todo.total_items > 0 %}
+          <div class="progress flex-grow-1" style="height: 6px;">
+            <div class="progress-bar bg-info"
+                 style="width: {% widthratio todo.done_items todo.total_items 100 %}%;"></div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-footer bg-transparent">
+        <a href="{% url 'hello_app:todo_detail' todo.pk %}" class="btn btn-sm btn-outline-info w-100">
+          <i class="bi bi-list-check me-1"></i>Відкрити
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

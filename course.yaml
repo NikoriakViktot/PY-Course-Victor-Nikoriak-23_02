@@ -38,5 +38,5 @@ modules:
     slug: python-networking
     title: "Module 4 — Network & Concurrent Systems"
     path: module_4/lessons
-    lessons: [30, 31, 32, 33]
+    lessons: [30, 31, 32, 33, 34]
 
