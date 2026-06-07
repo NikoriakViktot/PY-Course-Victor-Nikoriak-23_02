@@ -54,6 +54,7 @@
                 </div>
             </form>
         {% else %}
+            <div class="alert alert-info" role="status">Перегляд групової нотатки</div>
             <div class="detail-content mb-4">
                 {% if note.text %}{{ note.text|linebreaksbr }}{% else %}<span class="text-secondary fst-italic">Немає тексту.</span>{% endif %}
             </div>

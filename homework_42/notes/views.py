@@ -1,5 +1,6 @@
 import json
 
+from asgiref.sync import sync_to_async
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -35,7 +36,7 @@ def scoped_notes_for_user(user, scope):
 
 
 @login_required
-def notes_list(request):
+def _sync_notes_list(request):
     scope = request.GET.get("scope", NOTE_SCOPE_PERSONAL)
     if scope not in {NOTE_SCOPE_PERSONAL, NOTE_SCOPE_GROUP}:
         scope = NOTE_SCOPE_PERSONAL
@@ -72,7 +73,7 @@ def notes_list(request):
 
 
 @login_required
-def note_create(request):
+def _sync_note_create(request):
     form = NoteForm(request.POST or None, user=request.user)
     if request.method == "POST" and form.is_valid():
         note = form.save(commit=False)
@@ -85,7 +86,7 @@ def note_create(request):
 
 
 @login_required
-def note_detail(request, note_id):
+def _sync_note_detail(request, note_id):
     note = get_object_or_404(accessible_notes_for_user(request.user), id=note_id)
     can_edit = note.owner_id == request.user.id
 
@@ -109,7 +110,7 @@ def note_detail(request, note_id):
 
 
 @login_required
-def note_delete(request, note_id):
+def _sync_note_delete(request, note_id):
     note = get_object_or_404(Note, id=note_id, owner=request.user)
     if request.method == "POST":
         note.delete()
@@ -119,13 +120,13 @@ def note_delete(request, note_id):
 
 
 @login_required
-def categories_list(request):
+def _sync_categories_list(request):
     categories = Category.objects.prefetch_related("notes")
     return render(request, "notes/categories_list.html", {"categories": categories})
 
 
 @login_required
-def category_create(request):
+def _sync_category_create(request):
     form = CategoryForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -138,7 +139,7 @@ def category_create(request):
 
 
 @login_required
-def category_update(request, category_id):
+def _sync_category_update(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     form = CategoryForm(request.POST or None, instance=category)
 
@@ -153,7 +154,7 @@ def category_update(request, category_id):
 
 
 @login_required
-def category_delete(request, category_id):
+def _sync_category_delete(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     if request.method == "POST":
         category.delete()
@@ -163,10 +164,67 @@ def category_delete(request, category_id):
 
 
 @require_POST
-def logout_view(request):
+def _sync_logout_view(request):
     logout(request)
     messages.success(request, "Ви вийшли з системи.")
     return redirect("login")
+
+
+async def run_sync_view(view_func, request, *args, **kwargs):
+    return await sync_to_async(view_func, thread_sensitive=True)(
+        request, *args, **kwargs
+    )
+
+
+@login_required
+async def notes_list(request):
+    return await run_sync_view(_sync_notes_list, request)
+
+
+@login_required
+async def note_create(request):
+    return await run_sync_view(_sync_note_create, request)
+
+
+@login_required
+async def note_detail(request, note_id):
+    return await run_sync_view(_sync_note_detail, request, note_id)
+
+
+@login_required
+async def note_delete(request, note_id):
+    return await run_sync_view(_sync_note_delete, request, note_id)
+
+
+@login_required
+async def categories_list(request):
+    return await run_sync_view(_sync_categories_list, request)
+
+
+@login_required
+async def categories_create(request):
+    return await run_sync_view(_sync_category_create, request)
+
+
+# Backward-compatible alias for the common pluralized typo used in older files.
+@login_required
+async def categories_create(request):
+    return await run_sync_view(_sync_category_create, request)
+
+
+@login_required
+async def categories_update(request, category_id):
+    return await run_sync_view(_sync_category_update, request, category_id)
+
+
+@login_required
+async def categories_delete(request, category_id):
+    return await run_sync_view(_sync_category_delete, request, category_id)
+
+
+@login_required
+async def logout_view(request):
+    return await run_sync_view(_sync_logout_view, request)
 
 
 def note_to_dict(note):
@@ -226,7 +284,7 @@ def build_note_form_data(payload, note=None):
 @csrf_exempt
 @login_required
 @require_http_methods(["GET", "POST"])
-def api_notes(request):
+def _sync_api_notes(request):
     if request.method == "GET":
         scope = request.GET.get("scope", NOTE_SCOPE_PERSONAL)
         if scope not in {NOTE_SCOPE_PERSONAL, NOTE_SCOPE_GROUP}:
@@ -251,7 +309,7 @@ def api_notes(request):
 @csrf_exempt
 @login_required
 @require_http_methods(["GET", "PATCH", "PUT", "POST"])
-def api_note_detail(request, note_id):
+def _sync_api_note_detail(request, note_id):
     note = get_object_or_404(accessible_notes_for_user(request.user), id=note_id)
 
     if request.method == "GET":
@@ -279,3 +337,33 @@ def api_note_detail(request, note_id):
 
     note = form.save()
     return JsonResponse({"note": note_to_dict(note)})
+
+
+@csrf_exempt
+@login_required
+@require_http_methods(["GET", "POST"])
+async def api_notes(request):
+    return await run_sync_view(_sync_api_notes, request)
+
+
+@csrf_exempt
+@login_required
+@require_http_methods(["GET", "POST"])
+async def api_note_detail(request, note_id):
+    return await run_sync_view(_sync_api_note_detail, request, note_id)
+
+
+__all__ = [
+    "api_note_detail",
+    "api_notes",
+    "categories_list",
+    "category_create",
+    "categories_create",
+    "category_delete",
+    "category_update",
+    "note_create",
+    "note_delete",
+    "note_detail",
+    "notes_list",
+    "logout_view",
+]

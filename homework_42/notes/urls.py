@@ -1,37 +1,31 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from .views import (
-    api_note_detail,
-    api_notes,
-    categories_list,
-    category_create,
-    category_delete,
-    category_update,
-    note_create,
-    note_delete,
-    note_detail,
-    notes_list,
-    logout_view,
-)
+from . import views
 
 urlpatterns = [
-    path("", notes_list, name="notes_list"),
+    path("", views.notes_list, name="notes_list"),
     path(
         "login/",
         auth_views.LoginView.as_view(template_name="notes/login.html"),
         name="login",
     ),
-    path("logout/", logout_view, name="logout"),
-    path("create/", note_create, name="note_create"),
-    path("categories/", categories_list, name="categories_list"),
-    path("api/notes/", api_notes, name="api_notes"),
-    path("api/notes/<int:note_id>/", api_note_detail, name="api_note_detail"),
-    path("categories/create/", category_create, name="category_create"),
-    path("categories/<int:category_id>/edit", category_update, name="category_update"),
+    path("logout/", views.logout_view, name="logout"),
+    path("create/", views.note_create, name="note_create"),
+    path("categories/", views.categories_list, name="categories_list"),
+    path("api/notes/", views.api_notes, name="api_notes"),
+    path("api/notes/<int:note_id>/", views.api_note_detail, name="api_note_detail"),
+    path("categories/create/", views.categories_create, name="category_create"),
     path(
-        "categories/<int:category_id>/delete", category_delete, name="category_delete"
+        "categories/<int:category_id>/edit",
+        views.category_update,
+        name="category_update",
     ),
-    path("<int:note_id>/", note_detail, name="note_detail"),
-    path("<int:note_id>/delete/", note_delete, name="note_delete"),
+    path(
+        "categories/<int:category_id>/delete",
+        views.category_delete,
+        name="category_delete",
+    ),
+    path("<int:note_id>/", views.note_detail, name="note_detail"),
+    path("<int:note_id>/delete/", views.note_delete, name="note_delete"),
 ]
