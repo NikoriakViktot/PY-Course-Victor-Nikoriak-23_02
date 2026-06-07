@@ -18,13 +18,13 @@ urlpatterns = [
     path("categories/create/", views.categories_create, name="category_create"),
     path(
         "categories/<int:category_id>/edit",
-        views.category_update,
-        name="category_update",
+        views.categories_update,
+        name="categories_update",
     ),
     path(
         "categories/<int:category_id>/delete",
-        views.category_delete,
-        name="category_delete",
+        views.categories_delete,
+        name="categories_delete",
     ),
     path("<int:note_id>/", views.note_detail, name="note_detail"),
     path("<int:note_id>/delete/", views.note_delete, name="note_delete"),
