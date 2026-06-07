@@ -56,4 +56,11 @@ data/
 
 module_2/lessons/lesson_21_module2_review/amazon_ecommerce_1M.csv
 
+# ===============================
+# Django local database
+# ===============================
+
+/db.sqlite3
+/homework_41/db.sqlite3
+*.sqlite3
 .claude/
