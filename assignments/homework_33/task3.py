@@ -2,25 +2,25 @@
 # Додаток «Погода»
 # Напишіть консольну програму, яка приймає в якості вхідних даних назву міста та
 # повертає інформацію про поточну погоду у вибраному вами форматі. Для виконання цього
-# завдання ви можете скористатися будь-яким API або веб-сайтом з даними про погоду, а
-# також веб-сайтом openweathermap.org
+# завдання ви можете скористатися будь-яким API або вебсайтом з даними про погоду, а
+# також вебсайтом openweathermap.org
 import requests
 def get_current_weather(city_name):
     # API КЛЮЧ
-    API_KEY = "952cab2db13dc4cb65676acd88d3bd2e"
+    api_key = "952cab2db13dc4cb65676acd88d3bd2e"
     # Базовий URL для запиту поточних погодних умов
-    BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+    base_url = "https://api.openweathermap.org/data/2.5/weather"
     # Формуємо параметри запиту:
     # q - назва міста, appid - токен, units=metric - градуси Цельсія, lang=uk - українська мова
     params = {
         "q": city_name,
-        "appid": API_KEY,
+        "appid": api_key,
         "units": "metric",
         "lang": "uk",
     }
     try:
         # Надсилаємо GET-запит до API
-        response = requests.get(BASE_URL, params=params, timeout=10)
+        response = requests.get(base_url, params=params, timeout=10)
         # Перевіряємо статус відповіді
         if response.status_code == 200:
             data = response.json()
