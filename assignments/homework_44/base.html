@@ -1,0 +1,26 @@
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex space-x-8 items-center">
+                <a href="{% url 'main_page' %}" class="font-bold text-xl text-indigo-600">📝 Блокнот</a>
+                {% if user.is_authenticated %}
+                <div class="hidden md:flex space-x-4">
+                    <a href="{% url 'main_page' %}" class="text-gray-600 hover:text-indigo-600 text-sm font-medium">Головна сторінка</a>
+                </div>
+                {% endif %}
+            </div>
+            <!-- Блок користувача -->
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    <span class="text-sm text-gray-500">Привіт, <strong>{{ user.username }}</strong></span>
+                    <a href="{% url 'logout_action' %}" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-md text-sm font-medium transition border border-red-200">
+                        Вийти
+                    </a>
+                {% else %}
+                    <a href="{% url 'login_page' %}" class="text-indigo-600 text-sm font-medium">Увійти</a>
+                    <a href="{% url 'register_page' %}" class="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm font-medium">Реєстрація</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
