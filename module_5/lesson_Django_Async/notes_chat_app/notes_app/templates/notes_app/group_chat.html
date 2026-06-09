@@ -1,0 +1,106 @@
+{% extends 'layouts/dashboard.html' %}
+{% load static %}
+
+{% block topbar_title %}
+  <i class="bi bi-chat-dots me-2 text-primary"></i>Чат групи: {{ group.name }}
+{% endblock %}
+
+{% block content %}
+{#
+  group_chat.html — Real-time груповий чат (WebSocket + Django Channels)
+
+  Як ця сторінка працює:
+  ──────────────────────
+  1. Browser робить GET /groups/7/chat/  → Django view рендерить цей HTML
+  2. HTML завантажується в браузер
+  3. group_chat.js виконується → new WebSocket('ws://host/ws/groups/7/chat/')
+  4. WebSocket з'єднання встановлюється → consumers.GroupChatConsumer.connect()
+  5. Consumer надсилає останні 50 повідомлень (history)
+  6. JS відображає їх у #chat-messages
+  7. Відтепер — повний real-time: будь-хто пише → всі бачать миттєво
+
+  Data flow (data-атрибути):
+  ──────────────────────────
+  #chat-config передає group.pk і username у JavaScript.
+  Чому не inline <script> з {{ group.pk }}?
+    Inline script з template variable — це змішування HTML/JS шарів.
+    data-* атрибути — стандартний підхід: HTML передає дані, JS читає.
+    Крім того, Content Security Policy (CSP) може блокувати inline scripts.
+#}
+
+<div class="d-flex flex-column" style="height: calc(100vh - 130px);">
+
+  <!-- ── Status bar ──────────────────────────────────────────────────────── -->
+  {# Показує стан WebSocket з'єднання: підключення / підключено / відключено #}
+  <div id="chat-status"
+       class="d-flex align-items-center gap-2 px-3 py-2 mb-2 rounded small"
+       style="background: var(--card-bg); border: 1px solid var(--card-border);">
+    <span id="status-dot"
+          style="width:8px; height:8px; border-radius:50%; background:#6c757d;
+                 display:inline-block; transition: background .3s;"></span>
+    <span id="status-text" class="text-muted">Підключення...</span>
+    <span class="ms-auto text-muted">
+      <i class="bi bi-people me-1"></i>{{ group.name }}
+    </span>
+  </div>
+
+  <!-- ── Message feed ────────────────────────────────────────────────────── -->
+  {#
+    flex-grow-1: займає весь доступний простір між статус-баром і формою.
+    overflow-y: auto: скролиться коли повідомлень більше ніж висота.
+    JS автоматично скролить вниз після кожного нового повідомлення.
+  #}
+  <div id="chat-messages"
+       class="flex-grow-1 overflow-y-auto p-3 mb-2"
+       style="background: var(--card-bg); border-radius: 10px;
+              border: 1px solid var(--card-border);">
+    {# Повідомлення вставляються сюди через JavaScript (appendMessage) #}
+    {# При connect(): history повідомлення (type='history') #}
+    {# При receive(): нові повідомлення (type='message') #}
+
+    <!-- Placeholder поки JS не завантажив повідомлення -->
+    <div id="chat-placeholder" class="text-center text-muted py-5">
+      <i class="bi bi-chat-dots fs-1 opacity-25 d-block mb-2"></i>
+      <small>Завантаження повідомлень...</small>
+    </div>
+  </div>
+
+  <!-- ── Input bar ───────────────────────────────────────────────────────── -->
+  {#
+    form#chat-form: JS перехоплює submit через addEventListener.
+    НЕ action/method атрибути — повідомлення надсилаються через WebSocket,
+    не через HTTP POST.
+  #}
+  <form id="chat-form" class="d-flex gap-2" autocomplete="off">
+    <input id="chat-input"
+           type="text"
+           class="form-control"
+           placeholder="Напишіть повідомлення..."
+           maxlength="2000"
+           autocomplete="off">
+    <button type="submit" class="btn btn-primary px-4" id="chat-send-btn">
+      <i class="bi bi-send"></i>
+    </button>
+  </form>
+
+</div>
+
+{#
+  #chat-config: прихований div з data-атрибутами для JavaScript.
+
+  data-group-pk  → group.pk  (ID групи для формування WS URL)
+  data-username  → request.user.username (для відображення своїх повідомлень праворуч)
+
+  JS читає: document.getElementById('chat-config').dataset.groupPk
+  (dataset автоматично конвертує data-group-pk → groupPk)
+#}
+<div id="chat-config"
+     data-group-pk="{{ group.pk }}"
+     data-username="{{ request.user.username }}"
+     style="display:none;"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'notes_app/js/group_chat.js' %}"></script>
+{% endblock %}

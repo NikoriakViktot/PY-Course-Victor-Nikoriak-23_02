@@ -24,3 +24,10 @@ def notes_list_view(request):
         "test_notes": test_notes,
     }
     return render(request, "notes_list.html", context)
+from django.shortcuts import render
+from .models import Note
+
+def main_page(request):
+    # Отримуємо всі нотатки разом з їхніми категоріями
+    notes = Note.objects.select_related('category').all()
+    return render(request, 'index.html', {'notes': notes})

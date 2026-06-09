@@ -1,4 +1,4 @@
-# GitHub Actions CI — Django Testing Lesson
+# GitHub Actions CI — Django Tests (Testing + Async lessons)
 #
 # ЧОМУ ЦЕЙ ФАЙЛ ТУТ:
 #   GitHub Actions читає .yml файли ТІЛЬКИ з кореневої папки репозиторію:
@@ -9,20 +9,22 @@
 # ЯК ПЕРЕГЛЯНУТИ РЕЗУЛЬТАТИ:
 #   https://github.com/NikoriakViktot/PY-Course-Victor-Nikoriak-23_02/actions
 
-name: Django Tests (module_5/lesson_Django_Testing)
+name: Django Tests (lesson_Django_Testing + lesson_Django_Async)
 
 # ── Тригери ───────────────────────────────────────────────────────────────────
 on:
   push:
     branches: [ main, master ]
     paths:
-      # Запускати ТІЛЬКИ якщо змінились файли цього уроку або workflow
+      # Запускати якщо змінились файли будь-якого з двох уроків або workflow
       - 'module_5/lesson_Django_Testing/**'
+      - 'module_5/lesson_Django_Async/**'
       - '.github/workflows/django-tests.yml'
   pull_request:
     branches: [ main, master ]
     paths:
       - 'module_5/lesson_Django_Testing/**'
+      - 'module_5/lesson_Django_Async/**'
       - '.github/workflows/django-tests.yml'
   workflow_dispatch:   # кнопка "Run workflow" в GitHub UI → Actions
 
@@ -137,3 +139,77 @@ jobs:
       # Chrome 148 є на ubuntu-latest, Selenium Manager скачає chromedriver 148
       - name: Run Selenium E2E tests
         run: python manage.py test hello_app.tests.test_selenium -v 2
+
+
+  # ── Job 3: Async unit + integration тести ─────────────────────────────────────
+  # lesson_Django_Async/crispy_notes_project
+  # Тестує: sync views (регрес), async views (AsyncClient), async ORM, sync_to_async
+  #
+  # ЧОМУ БЕЗ UVICORN:
+  #   AsyncClient — Django вбудований async тест-клієнт.
+  #   Запити йдуть через Django ASGI machinery напряму (без мережі).
+  #   Uvicorn потрібен тільки для запуску сервера вручну, не для тестів.
+  async-unit-and-integration:
+    name: Async Unit & Integration Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: module_5/lesson_Django_Async/crispy_notes_project
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-async-${{ hashFiles('module_5/lesson_Django_Async/crispy_notes_project/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-async-
+            ${{ runner.os }}-pip-
+
+      # channels, uvicorn, httpx, wsproto — всі у requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Django system check
+        run: python manage.py check
+
+      # Sync тести — регресія (переконатись що async-зміни не зламали sync)
+      - name: Run sync tests (regression)
+        run: |
+          python manage.py test \
+            hello_app.tests.test_models \
+            hello_app.tests.test_services \
+            hello_app.tests.test_forms \
+            hello_app.tests.test_views \
+            -v 2
+
+      # Async тести — async views, AsyncClient, async ORM, sync_to_async
+      - name: Run async view tests
+        run: python manage.py test hello_app.tests.test_async_views -v 2
+
+      # Coverage по всіх тестах (sync + async разом)
+      - name: Generate coverage report
+        run: |
+          coverage run manage.py test \
+            hello_app.tests.test_models \
+            hello_app.tests.test_services \
+            hello_app.tests.test_forms \
+            hello_app.tests.test_views \
+            hello_app.tests.test_async_views
+          coverage report --show-missing
+          coverage xml -o coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: async-coverage-xml
+          path: module_5/lesson_Django_Async/crispy_notes_project/coverage.xml

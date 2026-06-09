@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CrispyNotes — Навчальний Проєкт{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex flex-column justify-content-center align-items-center">
+  <div class="text-center px-4" style="max-width: 600px;">
+    <i class="bi bi-journal-text display-1 text-primary mb-3"></i>
+    <h1 class="display-5 fw-bold mb-3">CrispyNotes</h1>
+    <p class="lead text-muted mb-4">
+      Навчальний Django-проєкт, що демонструє
+      <strong>django-crispy-forms</strong> + Bootstrap5 +
+      SaaS Dashboard Template Architecture.
+    </p>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap mb-5">
+      <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-5">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Увійти
+      </a>
+    </div>
+
+    <div class="row g-3 text-start">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body">
+            <i class="bi bi-1-circle text-primary fs-4 mb-2 d-block"></i>
+            <h6 class="fw-semibold">Raw Django</h6>
+            <p class="small text-muted mb-0">
+              <code>{{ form.as_p }}</code> — без стилів, тільки HTML
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body">
+            <i class="bi bi-2-circle text-secondary fs-4 mb-2 d-block"></i>
+            <h6 class="fw-semibold">Manual Bootstrap</h6>
+            <p class="small text-muted mb-0">
+              Ручне написання Bootstrap HTML для кожного поля — 60+ рядків
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 bg-primary text-white shadow-sm">
+          <div class="card-body">
+            <i class="bi bi-3-circle fs-4 mb-2 d-block"></i>
+            <h6 class="fw-semibold">Crispy Forms</h6>
+            <p class="small mb-0">
+              <code>{% verbatim %}{% crispy form %}{% endverbatim %}</code> — один тег,
+              Python Layout, нуль HTML у шаблоні
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
