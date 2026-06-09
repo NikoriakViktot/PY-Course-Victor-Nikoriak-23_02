@@ -3,21 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <title>Мої Нотатки</title>
+    <style>
+        .container { max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; }
+        .form-section, .filter-section { background: #f4f4f4; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .note-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .form-control { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
+    </style>
 </head>
 <body>
-    <h1>Список нотаток</h1>
-    <div class="notes-container">
+    <div class="container">
+        <h1>Блокнот</h1>
+
+        <!-- Блок пошуку та фільтрації (Extra) -->
+        <div class="filter-section">
+            <form method="GET" action="">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Пошук за назвою..." class="form-control">
+
+                <select name="category" class="form-control">
+                    <option value="">Всі категорії</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.title }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="time" class="form-control">
+                    <option value="">Будь-який час</option>
+                    <option value="upcoming" {% if selected_time == 'upcoming' %}selected{% endif %}>Майбутні нагадування</option>
+                    <option value="past" {% if selected_time == 'past' %}selected{% endif %}>Минулі нагадування</option>
+                </select>
+
+                <button type="submit">Застосувати фільтри</button>
+                <a href="{% url 'main_page' %}">Скинути</a>
+            </form>
+        </div>
+
+        <!-- Форма створення нотатки -->
+        <div class="form-section">
+            <h3>Створити нову нотатку</h3>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Зберегти нотатку</button>
+            </form>
+        </div>
+
+        <!-- Список нотаток -->
+        <h2>Список нотаток</h2>
         {% for note in notes %}
-            <div style="border: 1px solid #ccc; margin-bottom: 15px; padding: 10px;">
-                <h2>{{ note.title }}</h2>
+            <div class="note-card">
+                <h3><a href="{% url 'note_detail' note.id %}">{{ note.title }}</a></h3>
                 <p><strong>Категорія:</strong> {{ note.category.title }}</p>
-                <p>{{ note.text }}</p>
+                <p>{{ note.text|truncatewords:20 }}</p>
                 {% if note.reminder %}
-                    <p><small>⏰ Нагадування: {{ note.reminder|date:"d.m.Y H:i" }}</small></p>
+                    <p><small>⏰ {{ note.reminder|date:"d.m.Y H:i" }}</small></p>
                 {% endif %}
             </div>
         {% empty %}
-            <p>Нотаток поки немає.</p>
+            <p>Нотаток не знайдено.</p>
         {% endfor %}
     </div>
 </body>

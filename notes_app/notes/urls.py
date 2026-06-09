@@ -1,10 +1,7 @@
 from django.urls import path
-from .views import hello_notes
-
-# urlpatterns = [
-#     path("", hello_notes, name="hello_notes"),
-# ]
+from . import views
 
 urlpatterns = [
-    path("", notes_list_view, name="notes_list"),
+    path('', views.main_page, name='main_page'),
+    path('note/<int:note_id>/', views.note_detail, name='note_detail'),
 ]
