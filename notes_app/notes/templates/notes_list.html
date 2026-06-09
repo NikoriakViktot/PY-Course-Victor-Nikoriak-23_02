@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Мої Нотатки</title>
+    <!-- підключаємо зовнішній css файл з папки static -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Застосунок Нотаток</h1>
+        <div class="notes-grid">
+            <!-- цикл для виведення списку тестових нотаток -->
+            {% for note in test_notes %}
+                <div class="note-card">
+                    <h3 class="note-title">{{ note.title }}</h3>
+                    <p class="note-content">{{ note.content }}</p>
+                    <div class="note-date">{{ note.created_at }}</div>
+                </div>
+            {% empty %}
+                <p>Нотаток поки немає.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
