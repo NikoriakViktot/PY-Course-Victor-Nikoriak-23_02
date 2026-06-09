@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Мої Нотатки</title>
+</head>
+<body>
+    <h1>Список нотаток</h1>
+    <div class="notes-container">
+        {% for note in notes %}
+            <div style="border: 1px solid #ccc; margin-bottom: 15px; padding: 10px;">
+                <h2>{{ note.title }}</h2>
+                <p><strong>Категорія:</strong> {{ note.category.title }}</p>
+                <p>{{ note.text }}</p>
+                {% if note.reminder %}
+                    <p><small>⏰ Нагадування: {{ note.reminder|date:"d.m.Y H:i" }}</small></p>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>Нотаток поки немає.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
