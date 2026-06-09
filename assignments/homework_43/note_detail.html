@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}{{ note.title }} — Редагування{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Посилання назад -->
+    <a href="{% url 'main_page' %}" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-6 transition">
+        &larr; Назад до списку нотаток
+    </a>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-6 sm:p-8">
+            <h1 class="text-2xl font-bold text-gray-900 mb-6">Редагування деталей нотатки</h1>
+            <!-- Форма редагування -->
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-md transition shadow-sm text-sm">
+                    Зберегти зміни
+                </button>
+            </form>
+        </div>
+        <!-- Небезпечна зона (Видалення) -->
+        <div class="bg-red-50 border-t border-red-100 p-6 sm:p-8">
+            <h3 class="text-base font-bold text-red-800 mb-1">Небезпечна зона</h3>
+            <p class="text-sm text-red-600 mb-4">Цю дію не можна буде скасувати. Нотатка буде видалена назавжди.</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="delete" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md text-sm transition shadow-sm"
+                        onclick="return confirm('Ви впевнені, що хочете видалити цю нотатку?');">
+                    Видалити нотатку
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
