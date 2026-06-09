@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Головна сторінка — Мої Нотатки{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Ліва колонка: Фільтри та Список нотаток -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Блок пошуку та фільтрації -->
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Пошук та фільтрація</h2>
+            <form method="GET" action="" class="space-y-3 md:space-y-0 md:flex md:gap-3">
+                <div class="flex-1">
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Пошук за назвою..." 
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm p-2 border">
+                </div>
+                <div>
+                    <select name="category" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm p-2 border bg-white">
+                        <option value="">Всі категорії</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <select name="time" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm p-2 border bg-white">
+                        <option value="">Будь-який час</option>
+                        <option value="upcoming" {% if selected_time == 'upcoming' %}selected{% endif %}>Майбутні</option>
+                        <option value="past" {% if selected_time == 'past' %}selected{% endif %}>Минулі</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition shadow-sm">
+                        Застосувати
+                    </button>
+                    <a href="{% url 'main_page' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition text-center flex items-center">
+                        Скинути
+                    </a>
+                </div>
+            </form>
+        </div>
+        <!-- Список нотаток -->
+        <div class="space-y-4">
+            <h2 class="text-xl font-bold text-gray-900">Ваші нотатки</h2>
+            {% for note in notes %}
+                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition">
+                            <a href="{% url 'note_detail' note.id %}">{{ note.title }}</a>
+                        </h3>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-800 border border-indigo-200">
+                            {{ note.category.title }}
+                        </span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4 whitespace-pre-line">{{ note.text|truncatewords:30 }}</p>
+                    {% if note.reminder %}
+                        <div class="flex items-center text-xs font-medium text-amber-600 bg-amber-50 px-3 py-1.5 rounded-md inline-block">
+                            <span class="mr-1.5">⏰ Нагадування:</span> {{ note.reminder|date:"d.m.Y H:i" }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <div class="bg-white text-center py-12 rounded-xl border border-gray-200 shadow-sm text-gray-500">
+                    Нотаток не знайдено за вашим запитом.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Права колонка: Форма створення нотатки (Фіксована при скролі на великих екранах) -->
+    <div class="lg:col-span-1">
+        <div id="note_form_section" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-24">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <span class="mr-2">➕</span> Створити нову нотатку
+            </h3>
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-md transition shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Зберегти нотатку
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

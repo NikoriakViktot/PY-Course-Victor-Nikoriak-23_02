@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if type == 'login' %}Вхід{% else %}Реєстрація{% endif %}</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md border border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">
+            {% if type == 'login' %}Вхід у систему{% else %}Реєстрація профілю{% endif %}
+        </h2>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                    <div class="mt-1">
+                        <!-- Спрощене налаштування стилів для стандартних Django-форм автентифікації -->
+                        <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 p-2.5 border text-sm">
+                    </div>
+                    {% if field.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-md transition text-sm">
+                {% if type == 'login' %}Авторизуватися{% else %}Зареєструватися{% endif %}
+            </button>
+        </form>
+        <div class="mt-4 text-center text-sm">
+            {% if type == 'login' %}
+                <span>Немає акаунту? </span><a href="{% url 'register_page' %}" class="text-indigo-600 hover:underline">Створити</a>
+            {% else %}
+                <span>Вже є акаунт? </span><a href="{% url 'login_page' %}" class="text-indigo-600 hover:underline">Увійти</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
