@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ note.title }} — Редагування</title>
+    <style>
+        .container { max-width: 600px; margin: 40px auto; font-family: Arial, sans-serif; }
+        .danger-zone { margin-top: 30px; padding: 15px; border: 1px solid #ff0000; background: #fff5f5; }
+        .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 10px 15px; cursor: pointer; }
+        .form-control { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'main_page' %}">← Назад до списку</a>
+
+        <h1>Деталі нотатки</h1>
+
+        <!-- Форма редагування назви, тексту, нагадування та категорії -->
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Зберегти зміни</button>
+        </form>
+
+        <!-- Блок видалення нотатки -->
+        <div class="danger-zone">
+            <h3>Небезпечна зона</h3>
+            <p>Цю дію не можна буде скасувати.</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="delete" class="btn-delete" onclick="return confirm('Ви впевнені, що хочете видалити цю нотатку?');">
+                    Видалити нотатку
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
