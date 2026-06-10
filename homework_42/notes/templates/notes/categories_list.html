@@ -1,0 +1,52 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}Категорії{% endblock %}
+
+{% block content %}
+    <header class="hero-card mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="eyebrow">Організація</span>
+                <h1 class="display-6 fw-bold mb-3">Категорії</h1>
+                <p class="lead text-secondary mb-0">Керуйте темами нотаток, щоб швидше знаходити робочі, навчальні або особисті записи.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a class="btn btn-primary btn-lg px-4" href="{% url 'category_create' %}">+ Створити категорію</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="row g-4" aria-label="Список категорій">
+        {% for category in categories %}
+            <div class="col-md-6 col-xl-4">
+                <article class="category-card h-100 p-4">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                        <div>
+                            <span class="badge badge-soft rounded-pill mb-2">Категорія</span>
+                            <h2 class="h4 fw-bold mb-1">{{ category.title }}</h2>
+                            <p class="text-secondary mb-0"><strong>{{ category.notes.count }}</strong> нотаток у цій категорії</p>
+                        </div>
+                        <span class="category-icon" aria-hidden="true">🏷</span>
+                    </div>
+                    <div class="divider my-3"></div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm px-3" href="{% url 'category_update' category.id %}">Редагувати</a>
+                        <form method="post" action="{% url 'category_delete' category.id %}" class="m-0">
+                            {% csrf_token %}
+                            <button class="btn btn-danger-soft btn-sm px-3" type="submit" onclick="return confirm('Видалити категорію разом із нотатками?');">Видалити</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <article class="empty-state text-center">
+                    <span class="empty-icon" aria-hidden="true">🏷</span>
+                    <h2 class="h3">Категорій поки що немає</h2>
+                    <p class="text-secondary mb-4">Створіть першу категорію, щоб впорядкувати нотатки.</p>
+                    <a class="btn btn-primary px-4" href="{% url 'category_create' %}">Створити категорію</a>
+                </article>
+            </div>
+        {% endfor %}
+    </section>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}Вхід користувача{% endblock %}
+
+{% block content %}
+    <section class="auth-layout" aria-label="Сторінка входу">
+        <div class="auth-card">
+            <div class="d-flex flex-column align-items-center text-center mb-4">
+                <div class="auth-avatar mb-3" aria-hidden="true">N</div>
+                <span class="eyebrow mb-2">Автентифікація</span>
+                <h1 class="h3 fw-bold mb-2">Вхід користувача</h1>
+                <p class="text-secondary mb-0">Увійдіть, щоб працювати з персональними та груповими нотатками.</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    Невірний логін або пароль. Спробуйте ще раз.
+                </div>
+            {% endif %}
+
+            {% if next %}
+                <div class="alert alert-info" role="alert">
+                    Для доступу до цієї сторінки потрібно авторизуватися.
+                </div>
+            {% endif %}
+
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Ім'я користувача</label>
+                    <input class="form-control" type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" value="{{ form.username.value|default:'' }}" placeholder="username" required autofocus>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.password.id_for_label }}">Пароль</label>
+                    <input class="form-control" type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" placeholder="••••••••" required>
+                </div>
+                <div class="col-12 d-grid pt-2">
+                    <button class="btn btn-primary" type="submit">Увійти</button>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}
