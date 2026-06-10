@@ -1,0 +1,85 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block topbar_title %}Покупки{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="fw-semibold mb-0">Мої списки покупок</h5>
+  <a href="{% url 'hello_app:shopping_create' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>Новий список
+  </a>
+</div>
+
+{% if shopping_lists %}
+<div class="row g-3 mb-4">
+  {% for sl in shopping_lists %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <h6 class="card-title mb-0">{{ sl.title }}</h6>
+          {% if sl.store_name %}
+          <span class="badge bg-secondary ms-2">{{ sl.store_name }}</span>
+          {% endif %}
+        </div>
+        <div class="mt-2">
+          <span class="badge bg-warning text-dark">{{ sl.pending_items }} ще купити</span>
+          <span class="text-muted small ms-2">з {{ sl.total_items }}</span>
+        </div>
+      </div>
+      <div class="card-footer d-flex gap-2 bg-transparent">
+        <a href="{% url 'hello_app:shopping_detail' sl.pk %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+          <i class="bi bi-cart me-1"></i>Відкрити
+        </a>
+        <a href="{% url 'hello_app:shopping_edit' sl.pk %}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-pencil"></i>
+        </a>
+        <a href="{% url 'hello_app:shopping_delete' sl.pk %}" class="btn btn-sm btn-outline-danger">
+          <i class="bi bi-trash"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center text-muted py-5">
+  <i class="bi bi-cart display-4 opacity-50"></i>
+  <p class="mt-2">Немає списків покупок.</p>
+  <a href="{% url 'hello_app:shopping_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Створити перший
+  </a>
+</div>
+{% endif %}
+
+{% if shared_lists %}
+<h6 class="fw-semibold text-muted mb-3 mt-2">
+  <i class="bi bi-people me-2"></i>Поділились зі мною
+</h6>
+<div class="row g-3">
+  {% for sl in shared_lists %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card h-100 shadow-sm border-info">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <h6 class="card-title mb-0">{{ sl.title }}</h6>
+          <span class="badge bg-info text-dark ms-2">від {{ sl.user.username }}</span>
+        </div>
+        {% if sl.store_name %}
+        <small class="text-muted">{{ sl.store_name }}</small>
+        {% endif %}
+        <div class="mt-2">
+          <span class="badge bg-warning text-dark">{{ sl.pending_items }} ще купити</span>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent">
+        <a href="{% url 'hello_app:shopping_detail' sl.pk %}" class="btn btn-sm btn-outline-info w-100">
+          <i class="bi bi-cart me-1"></i>Відкрити
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

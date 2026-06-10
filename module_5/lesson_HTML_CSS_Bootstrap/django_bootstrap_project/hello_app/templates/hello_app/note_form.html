@@ -1,0 +1,85 @@
+{% extends 'hello_app/base.html' %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}{{ title }} — Bootstrap Notes{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h1 class="h4 mb-0">
+                    <i class="bi bi-{% if note %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+                    {{ title }}
+                </h1>
+            </div>
+
+            <div class="card-body">
+                <!--
+                    {% csrf_token %} — ОБОВ'ЯЗКОВО в кожній POST формі!
+                    Без нього Django поверне 403 Forbidden.
+                    CSRF: Cross-Site Request Forgery protection.
+                    Теорія: DJANGO_TEMPLATES_BOOTSTRAP.md §8 — CSRF.
+                -->
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!--
+                        Варіант 1 — ручний рендеринг форми (Bootstrap класи явно).
+                        Кожне поле: label → input → помилки.
+                        Теорія: DJANGO_TEMPLATES_BOOTSTRAP.md §7 — Manual Form.
+                    -->
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                            {{ field.label }}
+                            {% if field.field.required %}
+                                <span class="text-danger" title="Обов'язкове поле">*</span>
+                            {% endif %}
+                        </label>
+
+                        <!--
+                            field — це Django BoundField.
+                            При рендерингу використовує widget з forms.py.
+                            Ми вже додали class='form-control' у NoteForm.
+                            Теорія: DJANGO_TEMPLATES_BOOTSTRAP.md §7 — Widget attrs.
+                        -->
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <div class="form-text text-muted">{{ field.help_text }}</div>
+                        {% endif %}
+
+                        <!--
+                            Помилки валідації — Bootstrap is-invalid клас.
+                            field.errors — список рядків з помилками.
+                        -->
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">
+                                <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <!-- Кнопки форми -->
+                    <div class="d-flex justify-content-between align-items-center pt-2">
+                        <a href="{% if note %}{% url 'hello_app:note_detail' pk=note.pk %}{% else %}{% url 'hello_app:note_list' %}{% endif %}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>{{ action }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

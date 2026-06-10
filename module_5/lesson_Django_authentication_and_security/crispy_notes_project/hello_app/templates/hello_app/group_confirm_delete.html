@@ -1,0 +1,30 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block topbar_title %}Видалити групу{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-danger">
+      <div class="card-body p-4 text-center">
+        <i class="bi bi-exclamation-triangle display-4 text-danger mb-3"></i>
+        <h5 class="fw-bold">Видалити групу «{{ group.name }}»?</h5>
+        <p class="text-muted">
+          Всі нотатки та списки покупок, що належать цій групі,
+          стануть особистими (group = NULL).
+          Вміст <strong>не видаляється</strong>.
+        </p>
+        <hr>
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger me-2">
+            <i class="bi bi-trash me-1"></i>Так, видалити
+          </button>
+        </form>
+        <a href="{% url 'hello_app:group_detail' group.pk %}"
+           class="btn btn-outline-secondary">Скасувати</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

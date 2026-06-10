@@ -1,0 +1,88 @@
+/* ============================================================
+   Queue Policy Lab — Dark Operational Console Theme
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0f0f0f;
+  color: #ccc;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: #111; }
+::-webkit-scrollbar-thumb        { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: #444; }
+
+/* ── Control buttons ── */
+.btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn:hover    { opacity: 0.85; }
+.btn:active   { transform: scale(0.97); }
+.btn-green    { background: #2e7d32; color: #a5d6a7; border: 1px solid #388e3c; }
+.btn-yellow   { background: #f57f17; color: #fff9c4; border: 1px solid #f9a825; }
+.btn-red      { background: #b71c1c; color: #ffcdd2; border: 1px solid #c62828; }
+.btn-blue     { background: #1565c0; color: #bbdefb; border: 1px solid #1976d2; }
+.btn-purple   { background: #4a148c; color: #e1bee7; border: 1px solid #6a1b9a; }
+
+/* ── Dispatch panels ── */
+.dispatch-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Dash Dropdown override ── */
+.dark-dropdown .Select-control {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  color: #ccc !important;
+}
+.dark-dropdown .Select-menu-outer {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+}
+.dark-dropdown .Select-option { background: #1a1a1a !important; color: #ccc !important; }
+.dark-dropdown .Select-option:hover,
+.dark-dropdown .Select-option.is-focused { background: #262626 !important; color: #fff !important; }
+.dark-dropdown .Select-value-label { color: #ccc !important; }
+.dark-dropdown .Select-placeholder { color: #555 !important; }
+.dark-dropdown .Select-arrow { border-top-color: #555 !important; }
+
+/* ── Slider ── */
+.dark-slider .rc-slider-rail      { background: #2a2a2a; }
+.dark-slider .rc-slider-track     { background: #4ECDC4; }
+.dark-slider .rc-slider-handle    {
+  border-color: #4ECDC4 !important;
+  background: #0f0f0f !important;
+  box-shadow: 0 0 0 2px #4ECDC444 !important;
+}
+.dark-slider .rc-slider-handle:hover { border-color: #7eddd9 !important; }
+
+/* ── DataTable (policy lab) ── */
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td,
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* ── Plotly chart background fix ── */
+.js-plotly-plot .plotly .bg { fill: transparent !important; }
+
+/* ── Responsive tweaks ── */
+@media (max-width: 900px) {
+  #dispatch-row  { flex-direction: column; }
+  #charts-row    { flex-direction: column; }
+  .dispatch-panel { min-height: 200px; }
+}

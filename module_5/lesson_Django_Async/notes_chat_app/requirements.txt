@@ -1,0 +1,42 @@
+Django>=5.2,<6.0
+django-crispy-forms>=2.3
+crispy-bootstrap5>=2024.2
+django-debug-toolbar>=4.0
+selenium>=4.6.0
+coverage>=7.0
+pytest>=7.0
+pytest-django>=4.5
+
+# ── Async ────────────────────────────────────────────────────────────────────
+# uvicorn: ASGI-сервер для запуску Django в async-режимі.
+# Використовується замість runserver для демонстрації повного async stack.
+# Команда: uvicorn notes_project.asgi:application --reload --port 8001
+uvicorn>=0.30.0
+
+# wsproto: WebSocket протокол для uvicorn.
+# Потрібен для обробки WebSocket-з'єднань (чат).
+# Без нього uvicorn видає: "No supported WebSocket library detected"
+# і повертає 404 на всі WS-запити замість прийняття з'єднання.
+# Альтернатива: pip install "uvicorn[standard]" (встановлює websockets<15).
+wsproto>=1.2.0
+
+# httpx: async HTTP-клієнт (альтернатива до requests для async views).
+# requests.get() блокує event loop — httpx.AsyncClient з await — не блокує.
+httpx>=0.27.0
+
+# ── Django Channels (WebSocket) ───────────────────────────────────────────────
+# channels: розширює Django для обробки WebSocket-з'єднань.
+# Додає Consumer (async аналог view для WebSocket), channel layers (pub/sub),
+# ProtocolTypeRouter (HTTP + WebSocket в одному ASGI-додатку).
+#
+# Для запуску WebSocket чату:
+#   uvicorn notes_project.asgi:application --reload --port 8001
+#
+# channels-redis НЕ потрібен для розробки — використовуємо InMemoryChannelLayer.
+# В production: pip install channels-redis (потребує Redis сервера).
+channels>=4.0
+
+# daphne: ASGI сервер від Django Channels команди.
+# Потрібен для channels.testing (WebsocketCommunicator у тестах).
+# channels.testing.live імпортує daphne.testing → без нього тести не стартують.
+daphne>=4.0

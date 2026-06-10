@@ -1,0 +1,58 @@
+networks:
+  news-net:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb-news
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - news-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  fastapi-news:
+    build: ./app
+    container_name: fastapi-news
+    ports:
+      - "8002:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017
+      - MONGODB_DB=news_db
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - news-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  streamlit-news:
+    build:
+      context: .
+      dockerfile: streamlit/Dockerfile
+    container_name: streamlit-news
+    ports:
+      - "8535:8535"
+    environment:
+      - FASTAPI_HOST=http://fastapi-news:8000
+    depends_on:
+      fastapi-news:
+        condition: service_healthy
+    networks:
+      - news-net

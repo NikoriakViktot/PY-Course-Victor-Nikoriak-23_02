@@ -1,0 +1,8 @@
+/* project.css — Глобальні CSS-змінні для CrispyNotes
+   Це project-level static (STATICFILES_DIRS).
+   App-level static: hello_app/static/hello_app/css/app.css
+*/
+:root {
+  --sidebar-width: 260px;
+  --topbar-height: 56px;
+}

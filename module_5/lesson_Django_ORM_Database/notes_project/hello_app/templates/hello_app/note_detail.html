@@ -1,0 +1,147 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+
+<!--
+  note_detail.html -- деталь нотатки
+
+  Context від view:
+  - note      -> Note instance з select_related('notebook', 'user')
+                  та prefetch_related('tags')
+  - reminders -> list[Reminder] (майбутні, через Prefetch to_attr='upcoming_reminders')
+                  0 SQL -- вже завантажені в selectors.get_note_detail()
+-->
+
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            {# Django Messages #}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+
+            {# Breadcrumb #}
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'hello_app:note_list' %}">Нотатки</a>
+                    </li>
+                    {% if note.notebook %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'hello_app:note_list' %}?notebook={{ note.notebook.id }}">
+                            {{ note.notebook.title }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ note.title|truncatechars:40 }}</li>
+                </ol>
+            </nav>
+
+            {# Основна картка нотатки #}
+            <div class="card">
+
+                {# Заголовок #}
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h1 class="h3 mb-1">
+                                {% if note.is_pinned %}
+                                <span title="Закріплено" class="me-1">📌</span>
+                                {% endif %}
+                                {{ note.title }}
+                            </h1>
+                            <div class="text-muted small">
+                                <span title="Автор">👤 {{ note.user.username }}</span>
+                                &nbsp;·&nbsp;
+                                <span title="Створено">📅 {{ note.created_at|date:"d.m.Y H:i" }}</span>
+                                {% if note.updated_at != note.created_at %}
+                                &nbsp;·&nbsp;
+                                <span title="Оновлено" class="text-secondary">
+                                    ✏️ {{ note.updated_at|date:"d.m.Y H:i" }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {# Пріоритет #}
+                        <span class="badge
+                            {% if note.priority == 4 %}bg-danger
+                            {% elif note.priority == 3 %}bg-warning text-dark
+                            {% elif note.priority == 2 %}bg-info text-dark
+                            {% else %}bg-secondary{% endif %} ms-2">
+                            {{ note.get_priority_display }}
+                        </span>
+                    </div>
+
+                    {# Теги -- з prefetch кешу (0 SQL) #}
+                    {% with tags=note.tags.all %}
+                    {% if tags %}
+                    <div class="mt-2">
+                        {% for tag in tags %}
+                        <a href="{% url 'hello_app:note_list' %}?tag={{ tag.id }}"
+                           class="badge text-decoration-none me-1"
+                           style="background-color: {{ tag.color }};">
+                            #{{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                {# Вміст нотатки #}
+                <div class="card-body">
+                    {% if note.content %}
+                    <div class="note-content" style="white-space: pre-wrap; line-height: 1.7;">
+                        {{ note.content }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted fst-italic">Нотатка без вмісту.</p>
+                    {% endif %}
+                </div>
+
+                {# Нагадування (з prefetch to_attr='upcoming_reminders') #}
+                {% if reminders %}
+                <div class="card-footer">
+                    <h6 class="mb-2">⏰ Майбутні нагадування:</h6>
+                    {% for reminder in reminders %}
+                    <div class="d-flex align-items-center mb-1 p-2 rounded" style="background:rgba(255,255,255,0.05);">
+                        <span class="badge bg-secondary me-2">
+                            {{ reminder.remind_at|date:"d.m.Y H:i" }}
+                        </span>
+                        {% if reminder.repeat_pattern != 'none' %}
+                        <span class="badge bg-info text-dark me-2">
+                            🔄 {{ reminder.get_repeat_pattern_display }}
+                        </span>
+                        {% endif %}
+                        {% if reminder.message %}
+                        <small class="text-muted">{{ reminder.message }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            {# Кнопки дій #}
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                <a href="{% url 'hello_app:note_edit' note.pk %}"
+                   class="btn btn-primary">✏️ Редагувати</a>
+                <a href="{% url 'hello_app:note_delete' note.pk %}"
+                   class="btn btn-outline-danger">🗑️ Видалити</a>
+                <a href="{% url 'hello_app:note_list' %}"
+                   class="btn btn-outline-secondary">← До списку</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

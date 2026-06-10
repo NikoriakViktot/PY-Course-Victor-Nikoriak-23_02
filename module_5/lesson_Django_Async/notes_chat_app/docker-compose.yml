@@ -1,0 +1,24 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/app
+    environment:
+      SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
+      WEB_HOST: web
+    depends_on:
+      selenium:
+        condition: service_healthy
+
+  selenium:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "4444:4444"
+    shm_size: "2gb"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4444/wd/hub/status || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 5

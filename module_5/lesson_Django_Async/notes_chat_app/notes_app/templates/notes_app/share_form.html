@@ -1,0 +1,70 @@
+{% extends 'layouts/dashboard.html' %}
+{% load crispy_forms_tags %}
+
+{% block topbar_title %}Поділитись списком{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-7">
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-share me-2"></i>Поділитись: <strong>{{ obj.title }}</strong>
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if error %}
+        <div class="alert alert-danger py-2 small">
+          <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+        </div>
+        {% endif %}
+
+        <p class="text-muted small mb-3">
+          Введи ім'я користувача — він отримає доступ до цього списку.
+        </p>
+
+        {% crispy form %}
+      </div>
+    </div>
+
+    {% if shared_with %}
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-people me-2"></i>Хто має доступ</h6>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for user in shared_with %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-person me-2"></i>{{ user.username }}</span>
+          <form method="post" class="mb-0">
+            {% csrf_token %}
+            <input type="hidden" name="username" value="{{ user.username }}">
+            <input type="hidden" name="action" value="remove">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-person-dash me-1"></i>Забрати доступ
+            </button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}
+    <p class="text-muted small">Ще ніхто не має доступу до цього списку.</p>
+    {% endif %}
+
+  </div>
+
+  <div class="col-lg-5">
+    {% if obj_type == 'todo' %}
+    <a href="{% url 'notes_app:todo_detail' obj.pk %}" class="btn btn-outline-secondary w-100">
+      <i class="bi bi-arrow-left me-1"></i>Назад до списку
+    </a>
+    {% else %}
+    <a href="{% url 'notes_app:shopping_detail' obj.pk %}" class="btn btn-outline-secondary w-100">
+      <i class="bi bi-arrow-left me-1"></i>Назад до списку
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
