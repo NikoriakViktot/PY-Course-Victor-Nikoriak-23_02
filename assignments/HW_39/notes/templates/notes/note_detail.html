@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редагувати нотатку</title>
+    <link rel="stylesheet" href="{% static 'notes/css/style.css' %}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>⚙️ Управління нотаткою</h1>
+            <p><a href="{% url 'notes_index' %}" style="color: white; text-decoration: underline;">← Назад до борду</a></p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="note-card" style="max-width: 600px; margin: 30px auto; border-top: 6px solid #3182ce; padding: 20px;">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Заголовок:</label>
+                    <input type="text" name="title" value="{{ note.title }}" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Текст нотатки:</label>
+                    <textarea name="text" required rows="5" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0; box-sizing: border-box; font-family: inherit;">{{ note.text }}</textarea>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Категорія:</label>
+                    <select name="category" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0;">
+                        <option value="">Без категорії</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if note.category.id == cat.id %}selected{% endif %}>{{ cat.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Час нагадування:</label>
+                    <input type="datetime-local" name="reminder" value="{{ note.reminder|date:'Y-m-d\TH:i' }}" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0; box-sizing: border-box;">
+                </div>
+
+                <button type="submit" style="background:#3182ce; color:white; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%; font-size: 1rem;">🔄 Оновити зміни</button>
+            </form>
+
+            <hr style="margin: 25px 0; border: 0; border-top: 1px solid #edf2f7;">
+
+            <form method="POST" action="{% url 'note_delete' note.id %}" onsubmit="return confirm('Ви впевнені, що хочете видалити цю нотатку?');">
+                {% csrf_token %}
+                <button type="submit" style="background:#e53e3e; color:white; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; font-weight:bold; width: 100%; font-size: 1rem;">🗑️ Видалити нотатку</button>
+            </form>
+
+        </div>
+    </main>
+</body>
+</html>
