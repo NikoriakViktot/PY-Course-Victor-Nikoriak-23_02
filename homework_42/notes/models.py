@@ -44,6 +44,18 @@ class Note(models.Model):
     )
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+    telegram_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        editable=False,
+        verbose_name="Надіслано в Telegram",
+    )
+    reminder_telegram_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        editable=False,
+        verbose_name="Нагадування надіслано в Telegram",
+    )
 
     class Meta:
         ordering = ["-created_at", "-id"]

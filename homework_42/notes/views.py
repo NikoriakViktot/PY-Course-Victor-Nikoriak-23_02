@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from .forms import CategoryForm, DATETIME_LOCAL_FORMAT, NoteFilterForm, NoteForm
 from .models import Category, Note
+from .telegram import publish_created_note
 
 ALLOWED_ORDERINGS = {"-created_at", "created_at", "reminder", "category__title"}
 NOTE_SCOPE_GROUP = "group"
@@ -79,7 +80,21 @@ def _sync_note_create(request):
         note = form.save(commit=False)
         note.owner = request.user
         note.save()
-        messages.success(request, "Нотатку створено.")
+        telegram_result = publish_created_note(note)
+        if telegram_result.sent:
+            messages.success(request, "Нотатку створено та надіслано в Telegram канал.")
+        elif telegram_result.skipped:
+            messages.warning(
+                request,
+                "Нотатку створено, але Telegram не налаштовано: "
+                f"{telegram_result.reason}",
+            )
+        else:
+            messages.warning(
+                request,
+                "Нотатку створено, але не вдалося надіслати в Telegram: "
+                f"{telegram_result.reason}",
+            )
         return redirect(note)
 
     return render(request, "notes/note_form.html", {"form": form, "is_create": True})
@@ -206,9 +221,8 @@ async def categories_create(request):
     return await run_sync_view(_sync_category_create, request)
 
 
-# Backward-compatible alias for the common pluralized typo used in older files.
 @login_required
-async def categories_create(request):
+async def category_create(request):
     return await run_sync_view(_sync_category_create, request)
 
 
@@ -218,7 +232,17 @@ async def categories_update(request, category_id):
 
 
 @login_required
+async def category_update(request, category_id):
+    return await run_sync_view(_sync_category_update, request, category_id)
+
+
+@login_required
 async def categories_delete(request, category_id):
+    return await run_sync_view(_sync_category_delete, request, category_id)
+
+
+@login_required
+async def category_delete(request, category_id):
     return await run_sync_view(_sync_category_delete, request, category_id)
 
 
@@ -241,6 +265,14 @@ def note_to_dict(note):
         "reminder": note.reminder.isoformat() if note.reminder else None,
         "created_at": note.created_at.isoformat() if note.created_at else None,
         "updated_at": note.updated_at.isoformat() if note.updated_at else None,
+        "telegram_sent_at": (
+            note.telegram_sent_at.isoformat() if note.telegram_sent_at else None
+        ),
+        "reminder_telegram_sent_at": (
+            note.reminder_telegram_sent_at.isoformat()
+            if note.reminder_telegram_sent_at
+            else None
+        ),
     }
 
 
@@ -303,7 +335,14 @@ def _sync_api_notes(request):
     note = form.save(commit=False)
     note.owner = request.user
     note.save()
-    return JsonResponse({"note": note_to_dict(note)}, status=201)
+    telegram_result = publish_created_note(note)
+    response_data = {"note": note_to_dict(note)}
+    response_data["telegram"] = {
+        "sent": telegram_result.sent,
+        "skipped": telegram_result.skipped,
+        "reason": telegram_result.reason,
+    }
+    return JsonResponse(response_data, status=201)
 
 
 @csrf_exempt
@@ -348,7 +387,7 @@ async def api_notes(request):
 
 @csrf_exempt
 @login_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["GET", "PATCH", "PUT", "POST"])
 async def api_note_detail(request, note_id):
     return await run_sync_view(_sync_api_note_detail, request, note_id)
 

@@ -18,9 +18,19 @@ class NoteAdmin(admin.ModelAdmin):
         "group",
         "reminder",
         "created_at",
+        "telegram_sent_at",
+        "reminder_telegram_sent_at",
         "updated_at",
     )
-    list_filter = ("owner", "group", "category", "reminder", "created_at")
+    list_filter = (
+        "owner",
+        "group",
+        "category",
+        "reminder",
+        "telegram_sent_at",
+        "reminder_telegram_sent_at",
+        "created_at",
+    )
     search_fields = ("title", "text", "owner__username", "group__name")
     date_hierarchy = "created_at"
     autocomplete_fields = ("owner", "category", "group")

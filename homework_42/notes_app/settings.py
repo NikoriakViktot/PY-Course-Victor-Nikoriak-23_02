@@ -124,3 +124,11 @@ STATIC_URL = "static/"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "notes_list"
 LOGOUT_REDIRECT_URL = "login"
+# Telegram Bot API settings. Set these in the environment to enable sending
+# newly-created notes and scheduled reminders to a Telegram channel.
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID", "")
+TELEGRAM_TIMEOUT = int(os.getenv("TELEGRAM_TIMEOUT", "10"))
+TELEGRAM_POLL_TIMEOUT = int(os.getenv("TELEGRAM_POLL_TIMEOUT", "25"))
+TELEGRAM_DEFAULT_CATEGORY = os.getenv("TELEGRAM_DEFAULT_CATEGORY", "Telegram")
+TELEGRAM_NOTE_OWNER_USERNAME = os.getenv("TELEGRAM_NOTE_OWNER_USERNAME", "")

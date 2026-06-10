@@ -2,11 +2,20 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.test import TestCase
+from django.core.management import call_command
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from .models import Category, Note
+from .telegram import (
+    TelegramBotClient,
+    TelegramResult,
+    create_note_from_telegram_text,
+    format_note_message,
+    handle_telegram_update,
+    parse_telegram_note_payload,
+)
 
 User = get_user_model()
 
@@ -415,3 +424,168 @@ class NoteApiIntegrationTests(AuthenticatedNotesTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("errors", response.json())
         self.assertFalse(Note.objects.filter(title="Без категорії").exists())
+
+
+class TelegramIntegrationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="olena", password="pass12345")
+        self.category = Category.objects.create(title="Навчання")
+
+    def test_parse_telegram_note_command_with_reminder(self):
+        payload = parse_telegram_note_payload(
+            "/note Навчання | Telegram бот | Зробити ДЗ | 2026-06-10 14:30"
+        )
+
+        self.assertEqual(payload.category_title, "Навчання")
+        self.assertEqual(payload.title, "Telegram бот")
+        self.assertEqual(payload.text, "Зробити ДЗ")
+        self.assertIsNotNone(payload.reminder)
+
+    def test_create_note_from_plain_telegram_text_uses_default_category(self):
+        note = create_note_from_telegram_text("Швидка нотатка з Telegram")
+
+        self.assertEqual(note.category.title, "Telegram")
+        self.assertEqual(note.title, "Швидка нотатка з Telegram")
+        self.assertEqual(note.text, "Швидка нотатка з Telegram")
+
+    def test_handle_telegram_update_creates_note_and_replies(self):
+        class FakeClient:
+            channel_id = "@notes"
+
+            def __init__(self):
+                self.messages = []
+
+            def send_message(self, text):
+                self.messages.append(("channel", text))
+                return TelegramResult(sent=True)
+
+            def send_chat_message(self, chat_id, text):
+                self.messages.append((chat_id, text))
+                return TelegramResult(sent=True)
+
+        client = FakeClient()
+        update = {
+            "update_id": 1,
+            "message": {
+                "chat": {"id": 123},
+                "text": "/note Робота | Зустріч | Підготувати порядок денний",
+            },
+        }
+
+        handled = handle_telegram_update(update, client=client)
+
+        note = Note.objects.get(title="Зустріч")
+        self.assertTrue(handled)
+        self.assertEqual(note.category.title, "Робота")
+        self.assertIsNotNone(note.telegram_sent_at)
+        self.assertEqual(client.messages[0][0], "channel")
+        self.assertEqual(client.messages[1][0], 123)
+
+    def test_handle_telegram_update_returns_categories(self):
+        class FakeClient:
+            def __init__(self):
+                self.messages = []
+
+            def send_chat_message(self, chat_id, text):
+                self.messages.append((chat_id, text))
+                return TelegramResult(sent=True)
+
+        client = FakeClient()
+        update = {"message": {"chat": {"id": 123}, "text": "/categories"}}
+
+        handled = handle_telegram_update(update, client=client)
+
+        self.assertTrue(handled)
+        self.assertIn("Навчання", client.messages[0][1])
+
+    def test_format_note_message_contains_note_details(self):
+        reminder = timezone.now() + timezone.timedelta(hours=1)
+        note = Note.objects.create(
+            title="Telegram нотатка",
+            text="Надіслати в канал",
+            category=self.category,
+            reminder=reminder,
+            owner=self.user,
+        )
+
+        message = format_note_message(note)
+
+        self.assertIn("Нова нотатка", message)
+        self.assertIn("Telegram нотатка", message)
+        self.assertIn("Навчання", message)
+        self.assertIn("olena", message)
+
+    @override_settings(TELEGRAM_BOT_TOKEN="", TELEGRAM_CHANNEL_ID="")
+    def test_telegram_client_skips_when_not_configured(self):
+        result = TelegramBotClient().send_message("test")
+
+        self.assertFalse(result.sent)
+        self.assertTrue(result.skipped)
+
+    def test_created_note_is_published_from_web_form(self):
+        self.client.force_login(self.user)
+
+        class FakeClient:
+            def send_message(self, text):
+                return TelegramResult(sent=True)
+
+        from .telegram import publish_created_note
+
+        note = Note.objects.create(
+            title="Чернетка",
+            text="Текст",
+            category=self.category,
+            owner=self.user,
+        )
+        result = publish_created_note(note, client=FakeClient())
+
+        note.refresh_from_db()
+        self.assertTrue(result.sent)
+        self.assertIsNotNone(note.telegram_sent_at)
+
+    def test_send_telegram_reminders_marks_due_notes(self):
+        due_note = Note.objects.create(
+            title="Нагадати зараз",
+            text="Пора виконати задачу",
+            category=self.category,
+            reminder=timezone.now() - timezone.timedelta(minutes=5),
+            owner=self.user,
+        )
+        future_note = Note.objects.create(
+            title="Нагадати завтра",
+            text="Ще не час",
+            category=self.category,
+            reminder=timezone.now() + timezone.timedelta(days=1),
+            owner=self.user,
+        )
+
+        class FakeClient:
+            def send_message(self, text):
+                return TelegramResult(sent=True)
+
+        from .telegram import publish_due_reminders
+
+        sent_count, failed_count = publish_due_reminders(client=FakeClient())
+
+        due_note.refresh_from_db()
+        future_note.refresh_from_db()
+        self.assertEqual(sent_count, 1)
+        self.assertEqual(failed_count, 0)
+        self.assertIsNotNone(due_note.reminder_telegram_sent_at)
+        self.assertIsNone(future_note.reminder_telegram_sent_at)
+
+    @override_settings(TELEGRAM_BOT_TOKEN="", TELEGRAM_CHANNEL_ID="")
+    def test_send_telegram_reminders_management_command_runs(self):
+        Note.objects.create(
+            title="Без налаштувань",
+            text="Команда не падає без токена",
+            category=self.category,
+            reminder=timezone.now() - timezone.timedelta(minutes=5),
+            owner=self.user,
+        )
+
+        call_command("send_telegram_reminders")
+
+    @override_settings(TELEGRAM_BOT_TOKEN="")
+    def test_run_telegram_bot_command_exits_without_token(self):
+        call_command("run_telegram_bot", once=True)
