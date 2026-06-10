@@ -1,0 +1,6 @@
+Fibonacci Search has O(log n) time complexity and O(1) extra space complexity.
+Binary Search also has O(log n) time complexity.
+Recursive Binary Search uses O(log n) extra space because of recursive calls.
+Both algorithms work with sorted lists.
+Binary Search is usually simpler and faster in practice.
+Fibonacci Search uses Fibonacci numbers to split the list and can be useful when sequential access is cheaper than random access.
