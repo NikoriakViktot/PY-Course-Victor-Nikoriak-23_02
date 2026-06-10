@@ -48,5 +48,8 @@ import random
 
 def run(state: dict) -> dict:
     # Пиши свій код тут
+    food_found = random.randint(0, 10)
+    state["food"] += food_found
+    print(f"You found food: {food_found}")
 
     return state

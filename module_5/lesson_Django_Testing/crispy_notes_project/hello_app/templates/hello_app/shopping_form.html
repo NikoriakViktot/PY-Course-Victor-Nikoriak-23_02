@@ -1,0 +1,19 @@
+{% extends 'layouts/dashboard.html' %}
+{% load crispy_forms_tags %}
+
+{% block topbar_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-xl-6 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h5 class="mb-0">{{ title }}</h5>
+      </div>
+      <div class="card-body">
+        {% crispy form %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

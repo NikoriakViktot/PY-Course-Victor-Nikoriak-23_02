@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Мої нотатки</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+        .note { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .date { color: #888; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+
+    <h1>Нотатки</h1>
+
+    {# if notes — перевіряємо чи є нотатки в списку #}
+    {# 'notes' — це ім'я змінної яку передає view (context['notes']) #}
+    {% if notes %}
+
+        {# for note in notes — цикл по кожній нотатці зі списку #}
+        {# Django рендерить цей блок для кожного об'єкта #}
+        {% for note in notes %}
+        <div class="note">
+            <!-- {{ note.title }} — виводить значення поля title об'єкта note -->
+            <h2>{{ note.title }}</h2>
+
+            <!--
+                {{ note.content }} — текст нотатки.
+                Якщо content порожній — нічого не виведеться.
+            -->
+
+            {% if note.content %}
+                <p>{{ note.content }}</p>
+            {% endif %}
+
+            <!--
+                {{ note.created_at|date:"d.m.Y H:i" }}
+                |date:"формат" — фільтр для форматування дати
+            -->
+            <p class="date">{{ note.created_at|date:"d.m.Y H:i" }}</p>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <!-- Показуємо якщо нотаток немає -->
+        <p>Нотаток поки немає.
+           <a href="/admin/hello_app/note/add/">Додати в адмін-панелі →</a>
+            <a href="https://www.w3schools.com/html/default.asp">w3 →</a>
+        </p>
+    {% endif %}
+
+    <hr>
+    <a href="/admin/">← Адмін-панель</a>
+
+</body>
+</html>

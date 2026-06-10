@@ -539,6 +539,7 @@ app = dash.Dash(
     title="🍽️ Bistro Analytics",
 )
 
+
 app.layout = dbc.Container(fluid=True, style={
     "background": COLORS["bg"], "minHeight": "100vh", "padding": "1rem 1.5rem",
 }, children=[

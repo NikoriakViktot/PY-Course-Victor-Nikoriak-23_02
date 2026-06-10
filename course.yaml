@@ -28,5 +28,15 @@ modules:
     slug: python-intermediate
     title: "Module 2 — Python Intermediate"
     path: module_2/lessons
-    lessons: []
+    lessons: [13, 14, 15]
+  - number: 3
+    slug: python-advanced
+    title: "Module 3 — Python Advanced"
+    path: module_3/lessons
+    lessons: [22, 23, 24, 25, 26, 27, 28]
+  - number: 4
+    slug: python-networking
+    title: "Module 4 — Network & Concurrent Systems"
+    path: module_4/lessons
+    lessons: [30, 31, 32, 33, 34]
 

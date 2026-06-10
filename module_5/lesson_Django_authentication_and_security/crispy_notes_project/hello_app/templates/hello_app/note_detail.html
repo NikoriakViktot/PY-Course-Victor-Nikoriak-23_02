@@ -1,0 +1,117 @@
+{% extends 'layouts/dashboard.html' %}
+{% load crispy_forms_tags %}
+
+{% block topbar_title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          {% if note.priority >= 4 %}
+          <span class="badge bg-danger me-2">{{ note.get_priority_display }}</span>
+          {% elif note.priority == 3 %}
+          <span class="badge bg-warning text-dark me-2">{{ note.get_priority_display }}</span>
+          {% endif %}
+          {% if note.is_pinned %}
+          <span class="badge bg-warning text-dark"><i class="bi bi-pin-fill me-1"></i>Закріплено</span>
+          {% endif %}
+        </div>
+        <div class="btn-group btn-group-sm">
+          <a href="{% url 'hello_app:note_edit' note.pk %}" class="btn btn-outline-primary">
+            <i class="bi bi-pencil me-1"></i>Редагувати
+          </a>
+          <a href="{% url 'hello_app:note_delete' note.pk %}" class="btn btn-outline-danger">
+            <i class="bi bi-trash me-1"></i>Видалити
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <h4>{{ note.title }}</h4>
+
+        {% if note.content %}
+        <p class="text-muted" style="white-space: pre-wrap;">{{ note.content }}</p>
+        {% else %}
+        <p class="text-muted fst-italic">Нотатка без змісту</p>
+        {% endif %}
+      </div>
+
+      <div class="card-footer text-muted small d-flex flex-wrap gap-3">
+        <span><i class="bi bi-calendar me-1"></i>Створено: {{ note.created_at|date:"d.m.Y H:i" }}</span>
+        <span><i class="bi bi-clock me-1"></i>Оновлено: {{ note.updated_at|date:"d.m.Y H:i" }}</span>
+        {% if note.notebook %}
+        <span>
+          <i class="bi bi-collection me-1" style="color: {{ note.notebook.color }};"></i>
+          {{ note.notebook.title }}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Теги -->
+    {% if note.tags.all %}
+    <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+      <span class="text-muted small">Теги:</span>
+      {% for tag in note.tags.all %}
+      <a href="{% url 'hello_app:note_list' %}?tag={{ tag.pk }}"
+         class="badge text-decoration-none"
+         style="background-color: {{ tag.color }}; color: white; font-size: 0.85rem;">
+        #{{ tag.name }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Нагадування -->
+    <div class="card mt-3 border-info">
+      <div class="card-header bg-info bg-opacity-10 text-info py-2">
+        <i class="bi bi-bell me-2"></i>Нагадування
+      </div>
+
+      {% if note.upcoming_reminders %}
+      <ul class="list-group list-group-flush">
+        {% for reminder in note.upcoming_reminders %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <i class="bi bi-clock me-2 text-info"></i>
+            {{ reminder.remind_at|date:"d.m.Y H:i" }}
+            {% if reminder.message %} — {{ reminder.message }}{% endif %}
+            {% if reminder.repeat_pattern != 'none' %}
+            <span class="badge bg-secondary ms-1">{{ reminder.get_repeat_pattern_display }}</span>
+            {% endif %}
+          </span>
+          <form method="post" action="{% url 'hello_app:reminder_delete' reminder.pk %}" class="ms-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1"
+                    onclick="return confirm('Видалити нагадування?')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="card-body text-muted small py-2">
+        <i class="bi bi-bell-slash me-1"></i>Немає нагадувань
+      </div>
+      {% endif %}
+
+      <div class="card-footer bg-transparent">
+        {% crispy reminder_form %}
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-lg-4">
+    <a href="{% url 'hello_app:note_list' %}" class="btn btn-outline-secondary w-100 mb-3">
+      <i class="bi bi-arrow-left me-1"></i>Всі нотатки
+    </a>
+    <a href="{% url 'hello_app:note_create' %}" class="btn btn-primary w-100">
+      <i class="bi bi-plus-lg me-1"></i>Нова нотатка
+    </a>
+  </div>
+</div>
+{% endblock %}

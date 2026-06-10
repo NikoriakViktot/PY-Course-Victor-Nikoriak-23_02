@@ -54,6 +54,27 @@ GIT:
 
 
 def run(state: dict) -> dict:
-    # Пиши свій код тут
+    if state['food'] == 0:
+        state['health'] -= 10
+        print('Health change: -10')
+
+    else:
+        state['health'] += 5
+        print('Health change: +5')
+
+
+    return state
+
+
+def run1(state: dict) -> dict:
+    if not state['food']:
+        state['health'] -= 10
+        print('Health change: -10')
+        return state
+
+
+    state['health'] += 5
+    print('Health change: +5')
+
 
     return state

@@ -55,6 +55,16 @@ import random
 
 
 def run(state: dict) -> dict:
-    # Пиши свій код тут
+    weather_option = ["Sunny", "Rainy", "Storm"]
+    current_weather = random.choice(weather_option)
+    if current_weather == "Sunny":
+        state['energy'] += 10
+    elif current_weather == "Rainy":
+        pass
+    elif current_weather == "Storm":
+        state['energy'] -= 15
+
+    print(f'weather: {current_weather}')
 
     return state
+

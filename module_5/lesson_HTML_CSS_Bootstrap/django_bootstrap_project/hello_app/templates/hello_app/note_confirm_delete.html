@@ -1,0 +1,55 @@
+{% extends 'hello_app/base.html' %}
+
+{% block title %}Видалити нотатку — Bootstrap Notes{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6">
+
+        <!--
+            Bootstrap Alert з danger класом — попередження.
+            Теорія: BOOTSTRAP_5.md §4 — Alerts.
+        -->
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Підтвердіть видалення
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">
+                    Ви справді хочете видалити нотатку
+                    <strong>"{{ note.title }}"</strong>?
+                </p>
+                <p class="text-danger small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Цю дію не можна скасувати.
+                </p>
+
+                <!--
+                    Видалення через POST — ніколи не через GET.
+                    GET може бути виконаний автоматично (prefetch, боти).
+                    POST вимагає навмисної дії користувача + CSRF захист.
+                    Теорія: DJANGO_TEMPLATES_BOOTSTRAP.md §8 — HTTP Methods.
+                -->
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'hello_app:note_detail' pk=note.pk %}"
+                           class="btn btn-outline-secondary flex-fill">
+                            <i class="bi bi-x-lg me-1"></i>Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-danger flex-fill">
+                            <i class="bi bi-trash me-1"></i>Видалити
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

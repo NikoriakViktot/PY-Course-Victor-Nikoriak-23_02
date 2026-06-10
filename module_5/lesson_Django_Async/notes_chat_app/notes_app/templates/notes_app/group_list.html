@@ -1,0 +1,47 @@
+{% extends 'layouts/dashboard.html' %}
+
+{% block topbar_title %}Мої групи{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="fw-semibold mb-0">
+    <i class="bi bi-people me-2 text-primary"></i>Мої групи
+  </h5>
+  <a href="{% url 'notes_app:group_create' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-person-plus me-1"></i>Нова група
+  </a>
+</div>
+
+{% if groups %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    {% for group in groups %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title fw-semibold">
+            <i class="bi bi-people-fill me-2 text-primary"></i>{{ group.name }}
+          </h6>
+          <p class="text-muted small mb-3">
+            {{ group.member_count }} учасник{{ group.member_count|pluralize:",,ів" }}
+          </p>
+        </div>
+        <div class="card-footer bg-transparent border-top-0">
+          <a href="{% url 'notes_app:group_detail' group.pk %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-arrow-right me-1"></i>Відкрити
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-people display-1 text-muted"></i>
+    <h5 class="mt-3 text-muted">Груп ще немає</h5>
+    <p class="text-muted">Створи групу (наприклад «Сімя»), щоб ділитись нотатками та списками покупок.</p>
+    <a href="{% url 'notes_app:group_create' %}" class="btn btn-primary mt-2">
+      <i class="bi bi-plus-lg me-1"></i>Створити групу
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

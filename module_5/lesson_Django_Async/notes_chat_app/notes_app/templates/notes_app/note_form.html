@@ -1,0 +1,29 @@
+{% extends 'layouts/dashboard.html' %}
+{% load crispy_forms_tags %}
+
+{#
+  note_form.html — TIER 3: Crispy Forms
+  ════════════════════════════════════════════════════════
+  Детальне порівняння TIER 1/2/3 — у README.md §03 «Еволюція форм».
+
+  TIER 1 ({{ form.as_p }}): <p><label><input></p> — без Bootstrap-класів.
+  TIER 2 (~80 рядків): кожне поле вручну з form-control, is-invalid тощо.
+  TIER 3 (цей файл): Layout у forms.py → {% crispy form %} — один тег.
+#}
+
+{% block topbar_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-6 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h6 class="mb-0"><i class="bi bi-journal-plus me-2"></i>{{ title }}</h6>
+      </div>
+      <div class="card-body p-4">
+        {% crispy form %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
