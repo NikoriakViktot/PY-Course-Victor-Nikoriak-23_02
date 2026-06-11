@@ -1,0 +1,102 @@
+{% extends "notes/base.html" %}
+
+{% block title %}Notes{% endblock %}
+
+{% block content %}
+    <div class="hero-card p-4 p-lg-5 mb-4 text-white rounded-4 shadow-sm">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <h1 class="display-6 fw-bold mb-2">Your notes workspace</h1>
+                <p class="mb-0 opacity-75">Create personal notes or share group notes with your team.</p>
+            </div>
+            <a class="btn btn-light btn-lg text-primary" href="{% url 'note_create' %}">Create note</a>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a class="btn {% if view_mode == 'personal' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{% url 'notes_list' %}?view=personal">
+            Personal notes
+        </a>
+        <a class="btn {% if view_mode == 'group' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{% url 'notes_list' %}?view=group">
+            Group notes
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form class="row g-3 align-items-end" method="get">
+                <input type="hidden" name="view" value="{{ view_mode }}">
+
+                <div class="col-md-5">
+                    <label class="form-label" for="category">Category</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:'s' %}selected{% endif %}>
+                                {{ category.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label" for="reminder">Reminder</label>
+                    <select class="form-select" id="reminder" name="reminder">
+                        <option value="">All notes</option>
+                        <option value="with_reminder" {% if selected_reminder == 'with_reminder' %}selected{% endif %}>With reminder</option>
+                        <option value="without_reminder" {% if selected_reminder == 'without_reminder' %}selected{% endif %}>Without reminder</option>
+                        <option value="today" {% if selected_reminder == 'today' %}selected{% endif %}>Today</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">Filter</button>
+                    <a class="btn btn-outline-secondary" href="{% url 'notes_list' %}?view={{ view_mode }}">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if view_mode == 'group' and not user_groups %}
+        <div class="alert alert-warning">
+            You are not a member of any group yet. Ask admin to add your user to a group in Django admin.
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+        {% for note in notes %}
+            <div class="col-md-6 col-xl-4">
+                <article class="card h-100 shadow-sm border-0 note-card">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between gap-2 mb-3">
+                            <span class="badge text-bg-primary">{{ note.category.title }}</span>
+                            {% if note.group %}
+                                <span class="badge text-bg-success">{{ note.group.name }}</span>
+                            {% else %}
+                                <span class="badge text-bg-light text-dark">Personal</span>
+                            {% endif %}
+                        </div>
+
+                        <h2 class="h5 card-title">{{ note.title }}</h2>
+                        <p class="card-text text-muted flex-grow-1">{{ note.text|truncatechars:120 }}</p>
+
+                        <div class="small text-muted mb-3">
+                            <div>Owner: {{ note.owner.username }}</div>
+                            {% if note.reminder %}
+                                <div>Reminder: {{ note.reminder|date:"Y-m-d H:i" }}</div>
+                            {% else %}
+                                <div>No reminder</div>
+                            {% endif %}
+                        </div>
+
+                        <a class="btn btn-outline-primary mt-auto" href="{% url 'note_detail' note.pk %}">Open note</a>
+                    </div>
+                </article>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info mb-0">No notes found.</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
