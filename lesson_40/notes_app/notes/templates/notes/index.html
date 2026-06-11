@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes</title>
+    <link rel="stylesheet" href="{% static 'notes/style.css' %}">
+</head>
+<body>
+    <main class="container">
+        <h1>Notes</h1>
+
+        <div class="notes-list">
+            {% for note in notes %}
+                <article class="note-card">
+                    <h2>{{ note.title }}</h2>
+                    <p class="category">Category: {{ note.category.title }}</p>
+                    <p>{{ note.text }}</p>
+                    {% if note.reminder %}
+                        <p class="reminder">Reminder: {{ note.reminder|date:"Y-m-d H:i" }}</p>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p>No notes yet.</p>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>
