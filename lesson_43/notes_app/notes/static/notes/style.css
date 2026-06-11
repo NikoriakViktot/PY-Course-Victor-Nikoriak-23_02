@@ -1,0 +1,30 @@
+body {
+    background: #f6f8fb;
+}
+
+.navbar-brand {
+    letter-spacing: 0.3px;
+}
+
+.note-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.note-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12) !important;
+}
+
+.card {
+    border: 0;
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+
+textarea {
+    resize: vertical;
+}
