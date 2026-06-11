@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'notes/style.css' %}">
+</head>
+<body>
+    <main class="container">
+        <h1>{{ title }}</h1>
+
+        <form class="note-form" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button>
+            <a class="secondary-link" href="{% url 'notes_list' %}">Back</a>
+        </form>
+    </main>
+</body>
+</html>
