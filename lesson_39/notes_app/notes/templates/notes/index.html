@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes App</title>
+    <link rel="stylesheet" href="{% static 'notes/style.css' %}">
+</head>
+<body>
+    <main class="container">
+        <header class="header">
+            <h1>Notes</h1>
+            <p>Test notes from Django view</p>
+        </header>
+
+        <section class="notes-list">
+            {% for note in notes %}
+                <article class="note-card">
+                    <h2>{{ note.title }}</h2>
+                    <p>{{ note.text }}</p>
+                    <span>{{ note.created_at }}</span>
+                </article>
+            {% empty %}
+                <p>No notes found.</p>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>

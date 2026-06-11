@@ -1,0 +1,58 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.header h1 {
+    margin-bottom: 8px;
+    font-size: 36px;
+}
+
+.header p {
+    margin: 0;
+    color: #666;
+}
+
+.notes-list {
+    display: grid;
+    gap: 16px;
+}
+
+.note-card {
+    padding: 20px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.note-card h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.note-card p {
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.note-card span {
+    color: #777;
+    font-size: 14px;
+}
