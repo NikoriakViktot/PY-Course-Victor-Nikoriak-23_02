@@ -1,0 +1,24 @@
+body {
+    background: #f4f7fb;
+}
+
+.hero-card {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+}
+
+.note-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.12) !important;
+}
+
+.auth-card {
+    margin-top: 40px;
+}
+
+.note-text {
+    white-space: pre-line;
+}

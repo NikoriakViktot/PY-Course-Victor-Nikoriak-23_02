@@ -1,0 +1,36 @@
+{% extends "notes/base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0 auth-card">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-2">Create account</h1>
+                    <p class="text-muted mb-4">Extra feature: users can register without admin help.</p>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <button class="btn btn-primary w-100" type="submit">Register</button>
+                    </form>
+
+                    <p class="text-center text-muted mt-3 mb-0">
+                        Already have an account? <a href="{% url 'login' %}">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "notes/base.html" %}
+
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <h1 class="h3 mb-0">{{ note.title }}</h1>
+                        <span class="badge text-bg-primary">{{ note.category.title }}</span>
+                    </div>
+
+                    {% if note.group %}
+                        <p class="mb-2"><strong>Group:</strong> {{ note.group.name }}</p>
+                    {% else %}
+                        <p class="mb-2"><strong>Type:</strong> Personal note</p>
+                    {% endif %}
+
+                    <p class="mb-2"><strong>Owner:</strong> {{ note.owner.username }}</p>
+                    <p class="text-muted note-text">{{ note.text }}</p>
+
+                    {% if note.reminder %}
+                        <p class="mb-0"><strong>Reminder:</strong> {{ note.reminder|date:"Y-m-d H:i" }}</p>
+                    {% else %}
+                        <p class="mb-0"><strong>Reminder:</strong> not set</p>
+                    {% endif %}
+
+                    {% if not can_edit %}
+                        <div class="alert alert-info mt-4 mb-0">
+                            This is a group note. You can view it, but only the owner can edit or delete it.
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white d-flex flex-wrap gap-2 p-3">
+                    <a class="btn btn-outline-secondary" href="{% url 'notes_list' %}">Back to notes</a>
+
+                    {% if can_edit %}
+                        <form method="post" action="{% url 'note_delete' note.pk %}">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-danger" type="submit">Delete note</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white p-4">
+                    <h2 class="h4 mb-0">Edit note</h2>
+                </div>
+                <div class="card-body p-4">
+                    {% if can_edit %}
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <div class="form-text">{{ field.help_text }}</div>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+
+                            <button class="btn btn-primary" type="submit">Save changes</button>
+                        </form>
+                    {% else %}
+                        <p class="text-muted mb-0">Editing is disabled because you are not the owner of this note.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
