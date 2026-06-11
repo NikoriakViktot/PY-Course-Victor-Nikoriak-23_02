@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes</title>
+    <link rel="stylesheet" href="{% static 'notes/style.css' %}">
+</head>
+<body>
+    <main class="container">
+        <div class="page-header">
+            <h1>Notes</h1>
+            <a class="button" href="{% url 'note_create' %}">Create note</a>
+        </div>
+
+        <form class="filters" method="get">
+            <label>
+                Category
+                <select name="category">
+                    <option value="">All categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:'s' %}selected{% endif %}>
+                            {{ category.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Reminder
+                <select name="reminder">
+                    <option value="">All notes</option>
+                    <option value="with_reminder" {% if selected_reminder == 'with_reminder' %}selected{% endif %}>With reminder</option>
+                    <option value="without_reminder" {% if selected_reminder == 'without_reminder' %}selected{% endif %}>Without reminder</option>
+                    <option value="today" {% if selected_reminder == 'today' %}selected{% endif %}>Today</option>
+                </select>
+            </label>
+
+            <button type="submit">Filter</button>
+            <a class="secondary-link" href="{% url 'notes_list' %}">Reset</a>
+        </form>
+
+        <div class="notes-list">
+            {% for note in notes %}
+                <article class="note-card">
+                    <h2><a href="{% url 'note_detail' note.pk %}">{{ note.title }}</a></h2>
+                    <p class="category">Category: {{ note.category.title }}</p>
+                    <p>{{ note.text }}</p>
+                    {% if note.reminder %}
+                        <p class="reminder">Reminder: {{ note.reminder|date:"Y-m-d H:i" }}</p>
+                    {% else %}
+                        <p class="reminder">Reminder: not set</p>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p>No notes yet.</p>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>
