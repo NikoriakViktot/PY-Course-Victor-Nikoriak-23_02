@@ -1,0 +1,125 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+h1 {
+    margin: 0 0 24px;
+}
+
+.page-header h1 {
+    margin: 0;
+}
+
+.notes-list {
+    display: grid;
+    gap: 16px;
+}
+
+.note-card,
+.filters,
+.note-form,
+.delete-form {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.note-card h2 {
+    margin-top: 0;
+}
+
+.note-card a {
+    color: #222;
+    text-decoration: none;
+}
+
+.note-card a:hover {
+    text-decoration: underline;
+}
+
+.category,
+.reminder {
+    color: #666;
+    font-size: 14px;
+}
+
+.filters {
+    display: flex;
+    align-items: end;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.filters label,
+.note-form p {
+    display: grid;
+    gap: 6px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #cfd6dd;
+    border-radius: 8px;
+    font: inherit;
+}
+
+button,
+.button {
+    display: inline-block;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    background: #2563eb;
+    color: #ffffff;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+    background: #1d4ed8;
+}
+
+.secondary-link {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.secondary-link:hover {
+    text-decoration: underline;
+}
+
+.delete-form {
+    margin-top: 20px;
+}
+
+.danger {
+    background: #dc2626;
+}
+
+.danger:hover {
+    background: #b91c1c;
+}
