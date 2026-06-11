@@ -1,0 +1,17 @@
+Using insertion sort for small quicksort partitions makes sense because quicksort has recursive calls and partitioning overhead. For very small parts of the list, this overhead can be bigger than the cost of using insertion sort.
+
+Insertion sort is simple and usually fast on small lists. It also works well when data is almost sorted, and after several quicksort partitions, small sublists are often close to sorted.
+
+The best partition limit depends on the list size and the data. A very small limit gives more quicksort recursion. A very large limit makes insertion sort work on bigger lists, which is slower because insertion sort has O(n^2) complexity.
+
+Common practical values are around 10-30 elements, but the best value should be checked by testing.
+
+Quicksort complexity:
+Best case: O(n log n)
+Average case: O(n log n)
+Worst case: O(n^2)
+
+Insertion sort complexity:
+Best case: O(n)
+Average case: O(n^2)
+Worst case: O(n^2)
