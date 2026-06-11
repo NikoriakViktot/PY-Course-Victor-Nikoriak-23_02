@@ -1,0 +1,33 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+    <header class="page-header">
+        <div>
+            <h1>{{ note.title }}</h1>
+            <p class="subtitle">Редагування нотатки</p>
+        </div>
+        <a href="{% url 'notes_list' %}">Назад до списку</a>
+    </header>
+
+    <section class="note-card">
+        <form method="post" class="stacked-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="actions">
+                <button type="submit">Оновити</button>
+                <a href="{% url 'notes_list' %}">Скасувати</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="note-card danger-zone">
+        <h2>Небезпечна дія</h2>
+        <p>Видалення нотатки неможливо скасувати.</p>
+        <form method="post" action="{% url 'note_delete' note.id %}">
+            {% csrf_token %}
+            <button class="danger" type="submit" onclick="return confirm('Видалити нотатку?');">Видалити нотатку</button>
+        </form>
+    </section>
+{% endblock %}

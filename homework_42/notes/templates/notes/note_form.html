@@ -1,0 +1,43 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}{% if is_create %}Створення нотатки{% else %}Редагування нотатки{% endif %}{% endblock %}
+
+{% block content %}
+    <header class="page-heading mb-4">
+        <div>
+            <span class="eyebrow">Нотатки</span>
+            <h1 class="fw-bold mb-2">{% if is_create %}Створення нотатки{% else %}Редагування нотатки{% endif %}</h1>
+            <p class="subtitle">Заповни назву, текст, категорію та за потреби нагадування.</p>
+        </div>
+        <a class="btn btn-outline-secondary rounded-pill px-4" href="{% url 'notes_list' %}">Назад до списку</a>
+    </header>
+
+    <section class="card border-0 shadow-sm form-card">
+        <div class="card-body p-4 p-lg-5">
+            <form method="post" class="row g-4">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="{% if field.name == 'text' %}col-12{% else %}col-md-6{% endif %}">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    <div class="col-12">
+                        <div class="alert alert-danger mb-0">{{ form.non_field_errors }}</div>
+                    </div>
+                {% endif %}
+                <div class="col-12 d-flex gap-2 flex-wrap pt-2">
+                    <button class="btn btn-primary rounded-pill px-4" type="submit">Зберегти</button>
+                    <a class="btn btn-light rounded-pill px-4" href="{% url 'notes_list' %}">Скасувати</a>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}
