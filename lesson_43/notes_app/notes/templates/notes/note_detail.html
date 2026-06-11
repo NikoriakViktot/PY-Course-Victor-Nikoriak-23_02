@@ -1,0 +1,58 @@
+{% extends "notes/base.html" %}
+
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <h1 class="h3 mb-0">{{ note.title }}</h1>
+                        <span class="badge text-bg-primary">{{ note.category.title }}</span>
+                    </div>
+
+                    <p class="text-muted">{{ note.text }}</p>
+
+                    {% if note.reminder %}
+                        <p class="mb-0"><strong>Reminder:</strong> {{ note.reminder|date:"Y-m-d H:i" }}</p>
+                    {% else %}
+                        <p class="mb-0"><strong>Reminder:</strong> not set</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white d-flex gap-2">
+                    <a class="btn btn-outline-secondary" href="{% url 'notes_list' %}">Back to notes</a>
+                    <form method="post" action="{% url 'note_delete' note.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger" type="submit">Delete note</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="h4 mb-0">Edit note</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <button class="btn btn-primary" type="submit">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
