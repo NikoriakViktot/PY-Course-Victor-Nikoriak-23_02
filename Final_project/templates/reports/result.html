@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Результат обробки</h1>
+
+<p>Файл: <strong>{{ file_name }}</strong></p>
+
+<div class="stats">
+    <div class="stat">
+        Всього рядків
+        <strong>{{ result.totals.rows_total }}</strong>
+    </div>
+
+    <div class="stat">
+        Оброблено
+        <strong>{{ result.totals.rows_used }}</strong>
+    </div>
+
+    <div class="stat">
+        Видалено
+        <strong>{{ result.totals.rows_deleted }}</strong>
+    </div>
+
+    <div class="stat">
+        Кількість ППТ
+        <strong>{{ result.totals.total_count }}</strong>
+    </div>
+
+    <div class="stat">
+        Загальна сума
+        <strong>{{ result.totals.total_sum }}</strong>
+    </div>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Тип</th>
+        <th>Місяць</th>
+        <th>Кількість ППТ</th>
+        <th>Сума ППТ</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in result.summary %}
+        <tr>
+            <td>{{ row.type }}</td>
+            <td>{{ row.month }}</td>
+            <td>{{ row.count_ppt }}</td>
+            <td>{{ row.total_sum }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<p style="margin-top: 24px;">
+    <a href="{% url 'upload_file' %}" class="button">Завантажити інший файл</a>
+</p>
+{% endblock %}
